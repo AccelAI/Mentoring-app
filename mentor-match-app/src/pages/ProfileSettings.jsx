@@ -1,6 +1,6 @@
 import { Container, Box } from "@mui/material";
 
-const GetStarted = () => {
+const ProfileSettings = () => {
   return (
     <Container>
       <Box />
@@ -8,4 +8,4 @@ const GetStarted = () => {
   );
 };
 
-export default GetStarted;
+export default ProfileSettings;
