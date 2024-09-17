@@ -1,10 +1,165 @@
-import { Container, Box } from "@mui/material";
+import { Stack, TextField, Button, Typography } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import MainCard from "../components/MainCard";
+import {
+  Google as GoogleIcon,
+  GitHub as GitHubIcon,
+  Facebook as FacebookIcon,
+  X as XIcon,
+} from "@mui/icons-material";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import PasswordField from "../components/PasswordField";
+import { Form, Formik } from "formik";
+import * as yup from "yup";
+
+const initialValues = {
+  name: "",
+  email: "",
+  password: "",
+  repeatPassword: "",
+};
+
+const schema = yup.object().shape({
+  name: yup.string().required("Please enter your name"),
+  email: yup
+    .string()
+    .required("Please enter your email")
+    .email("Invalid email"),
+  password: yup
+    .string()
+    .required("Please enter a password")
+    .min(6, "Password must be at least 6 characters"),
+  repeatPassword: yup
+    .string()
+    .required("Please re-enter your password")
+    .oneOf([yup.ref("password"), null], "Passwords must match"),
+});
 
 const Signup = () => {
+  const navigate = useNavigate();
+  const handleLogIn = () => {
+    navigate("/login");
+  };
+  const onSubmit = async (user, { setSubmitting }) => {
+    //setSubmitting(true);
+    //const res = await signUp(user);
+    /* if (!res.ok) {
+      setSubmitting(false);
+      return enqueueSnackbar(res.error, { variant: "error" });
+    } */
+    //enqueueSnackbar("Cuenta creada exitosamente", { variant: "success" });
+  };
+
   return (
-    <Container>
-      <Box />
-    </Container>
+    <MainCard title={"Sign Up"} titleSize={"h4"} props={{ py: 3 }}>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={schema}
+        //onSubmit={onSubmit}
+      >
+        {({ isSubmitting }) => (
+          <Form>
+            <Stack spacing={2.5} sx={{ alignItems: "center", width: "100%" }}>
+              <Typography variant="body1">Log in to your account</Typography>
+
+              <TextField
+                label="Full Name"
+                name="name"
+                variant="outlined"
+                required
+                sx={{ width: "100%" }}
+              />
+              <TextField
+                label="Email"
+                name="email"
+                type="email"
+                required
+                variant="outlined"
+                sx={{ width: "100%" }}
+              />
+              <TextField
+                label="Username"
+                name="username"
+                variant="outlined"
+                required
+                sx={{ width: "100%" }}
+              />
+              <PasswordField
+                label="Password"
+                name="password"
+                required
+                variant="outlined"
+              />
+              <PasswordField
+                label="Confirm Password"
+                name="confirmPassword"
+                required
+                variant="outlined"
+              />
+              <LoadingButton
+                variant="contained"
+                type="submit"
+                sx={{ width: "100%" }}
+                loading={isSubmitting}
+              >
+                Sign In
+              </LoadingButton>
+
+              <Typography variant="body2">Or</Typography>
+              <Stack spacing={1} sx={{ width: 1 }}>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<GoogleIcon />}
+                  sx={{ width: "100%" }}
+                >
+                  Sign In with Google
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<GitHubIcon />}
+                  sx={{ width: "100%" }}
+                >
+                  Sign In with Github
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<FacebookIcon />}
+                  sx={{ width: "100%" }}
+                >
+                  Sign In with Facebook
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<XIcon />}
+                  sx={{ width: "100%" }}
+                >
+                  Sign In with X
+                </Button>
+              </Stack>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  textAlign: "center",
+                }}
+              >
+                <Typography>Already have an account?</Typography>
+                <Button onClick={handleLogIn} variant="text" color="primary">
+                  Log in here
+                </Button>
+              </Stack>
+            </Stack>
+          </Form>
+        )}
+      </Formik>
+    </MainCard>
   );
 };
 
