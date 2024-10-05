@@ -1,4 +1,4 @@
-import { Button, Typography, Stack, TextField, Divider } from "@mui/material";
+import { Button, Typography, Stack, Divider } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import {
   Google as GoogleIcon,
@@ -10,9 +10,12 @@ import {
 import { useThemeContext } from "../hooks/useTheme";
 import MainCard from "../components/MainCard";
 import PasswordField from "../components/PasswordField";
+import TextField from "../components/TextField";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
 import { LoadingButton } from "@mui/lab";
+import { logIn, signInWithGoogle } from "../api/auth";
+import { useSnackbar } from "notistack";
 
 const initialValues = {
   email: "",
@@ -29,13 +32,14 @@ const schema = yup.object().shape({
 
 const Login = () => {
   //const { mode, toggleColorMode } = useThemeContext();
+  const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
   const handleSignUp = () => {
     navigate("/signup");
   };
 
   const onSubmit = async (user, { setSubmitting }) => {
-    /* setSubmitting(true);
+    setSubmitting(true);
 
     const res = await logIn(user);
 
@@ -44,7 +48,20 @@ const Login = () => {
       return enqueueSnackbar(res.error, { variant: "error" });
     }
 
-    enqueueSnackbar("Bienvenido de vuelta", { variant: "success" }); */
+    enqueueSnackbar("Welcome Back", { variant: "success" });
+    navigate("/get-started");
+  };
+
+  const googleLogin = async () => {
+    const res = await signInWithGoogle();
+    if (!res.ok) {
+      return enqueueSnackbar(
+        "Failed to log in with Google. Please try again.",
+        { variant: "error" }
+      );
+    }
+    enqueueSnackbar("Welcome Back", { variant: "success" });
+    navigate("/get-started");
   };
 
   return (
@@ -65,6 +82,7 @@ const Login = () => {
               <TextField
                 label="Email"
                 name="email"
+                type="email"
                 variant="outlined"
                 required
                 sx={{ width: "100%" }}
@@ -80,6 +98,7 @@ const Login = () => {
                 variant="contained"
                 type="submit"
                 sx={{ width: "100%" }}
+                loading={isSubmitting}
               >
                 Log in
               </LoadingButton>
@@ -91,6 +110,7 @@ const Login = () => {
                   color="primary"
                   startIcon={<GoogleIcon />}
                   sx={{ width: "100%" }}
+                  onClick={googleLogin}
                 >
                   Continue with Google
                 </Button>
