@@ -1,9 +1,12 @@
-import { Container, Box } from "@mui/material";
+import { Container, Box, Button } from "@mui/material";
+import { signOut } from "../api/auth";
 
 const Dashboard = () => {
   return (
     <Container>
-      <Box />
+      <Button variant="contained" onClick={signOut}>
+        Log out
+      </Button>
     </Container>
   );
 };

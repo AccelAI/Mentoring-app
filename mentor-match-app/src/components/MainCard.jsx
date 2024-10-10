@@ -1,8 +1,23 @@
 import { Container, Card, Typography, Stack, Box } from "@mui/material";
 import logo from "../assets/logo.png";
 
-const MainCard = ({ children, title, titleSize, props }) => {
-  return (
+const MainCard = ({ children, title, titleSize, props, enableContainer }) => {
+  const content = (
+    <Card sx={{ width: { xl: "50%", md: "60%", sm: "80%" }, p: 3 }}>
+      <Stack mb={1} spacing={0.5} sx={{ alignItems: "center", width: "100%" }}>
+        <Box
+          component="img"
+          src={logo}
+          alt="logo"
+          sx={{ height: "80px", width: "80px" }}
+        />
+        <Typography variant={titleSize}>{title}</Typography>
+      </Stack>
+      {children}
+    </Card>
+  );
+
+  return enableContainer ? (
     <Container
       sx={{
         display: "flex",
@@ -21,24 +36,11 @@ const MainCard = ({ children, title, titleSize, props }) => {
           height: 1,
         }}
       >
-        <Card sx={{ width: { xl: "50%", md: "60%", sm: "80%" }, p: 3 }}>
-          <Stack
-            mb={1}
-            spacing={0.5}
-            sx={{ alignItems: "center", width: "100%" }}
-          >
-            <Box
-              component="img"
-              src={logo}
-              alt="logo"
-              sx={{ height: "80px", width: "80px" }}
-            />
-            <Typography variant={titleSize}>{title}</Typography>
-          </Stack>
-          {children}
-        </Card>
+        {content}
       </Stack>
     </Container>
+  ) : (
+    content
   );
 };
 
