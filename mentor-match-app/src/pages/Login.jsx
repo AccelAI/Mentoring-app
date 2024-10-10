@@ -69,6 +69,7 @@ const Login = () => {
       title={"Welcome Back!"}
       titleSize={"h4"}
       props={{ height: "100vh" }}
+      enableContainer={true}
     >
       <Formik
         initialValues={initialValues}

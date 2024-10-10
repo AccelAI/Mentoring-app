@@ -14,6 +14,7 @@ const UserProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setLoading(true);
       if (user) {
+        console.log("User is logged in: ", user.uid);
         try {
           const userDoc = doc(db, "users", user.uid);
           const userSnap = await getDoc(userDoc);
@@ -33,7 +34,9 @@ const UserProvider = ({ children }) => {
   }, []);
 
   return (
-    <UserContext.Provider value={{ user }}>{children}</UserContext.Provider>
+    <UserContext.Provider value={{ user, loading }}>
+      {children}
+    </UserContext.Provider>
   );
 };
 

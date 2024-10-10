@@ -73,7 +73,12 @@ const Signup = () => {
   };
 
   return (
-    <MainCard title={"Sign Up"} titleSize={"h4"} props={{ py: 3 }}>
+    <MainCard
+      title={"Sign Up"}
+      titleSize={"h4"}
+      props={{ py: 3 }}
+      enableContainer={true}
+    >
       <Formik
         initialValues={initialValues}
         validationSchema={schema}
