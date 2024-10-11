@@ -1,4 +1,4 @@
-import { Stack, TextField, Button, Typography } from "@mui/material";
+import { Stack, Button, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import MainCard from "../components/MainCard";
 import {
@@ -7,15 +7,18 @@ import {
   Facebook as FacebookIcon,
   X as XIcon,
 } from "@mui/icons-material";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PasswordField from "../components/PasswordField";
+import TextField from "../components/TextField";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
+import { useSnackbar } from "notistack";
+import { signUp, signInWithGoogle } from "../api/auth";
 
 const initialValues = {
   name: "",
   email: "",
+  username: "",
   password: "",
   repeatPassword: "",
 };
@@ -26,6 +29,10 @@ const schema = yup.object().shape({
     .string()
     .required("Please enter your email")
     .email("Invalid email"),
+  username: yup
+    .string()
+    .required("Please enter a username")
+    .min(5, "Username must be at least 5 characters"),
   password: yup
     .string()
     .required("Please enter a password")
@@ -38,31 +45,49 @@ const schema = yup.object().shape({
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
   const handleLogIn = () => {
     navigate("/login");
   };
   const onSubmit = async (user, { setSubmitting }) => {
-    //setSubmitting(true);
-    //const res = await signUp(user);
-    /* if (!res.ok) {
+    setSubmitting(true);
+    const res = await signUp(user);
+    if (!res.ok) {
       setSubmitting(false);
       return enqueueSnackbar(res.error, { variant: "error" });
-    } */
-    //enqueueSnackbar("Cuenta creada exitosamente", { variant: "success" });
+    }
+    enqueueSnackbar("Account created succesfully", { variant: "success" });
+    navigate("/get-started");
+  };
+
+  const googleSignUp = async () => {
+    const res = await signInWithGoogle();
+    if (!res.ok) {
+      return enqueueSnackbar(
+        "Failed to log in with Google. Please try again.",
+        { variant: "error" }
+      );
+    }
+    enqueueSnackbar("Account created succesfully", { variant: "success" });
+    navigate("/get-started");
   };
 
   return (
-    <MainCard title={"Sign Up"} titleSize={"h4"} props={{ py: 3 }}>
+    <MainCard
+      title={"Sign Up"}
+      titleSize={"h4"}
+      props={{ py: 3 }}
+      enableContainer={true}
+    >
       <Formik
         initialValues={initialValues}
         validationSchema={schema}
-        //onSubmit={onSubmit}
+        onSubmit={onSubmit}
       >
         {({ isSubmitting }) => (
           <Form>
             <Stack spacing={2.5} sx={{ alignItems: "center", width: "100%" }}>
               <Typography variant="body1">Log in to your account</Typography>
-
               <TextField
                 label="Full Name"
                 name="name"
@@ -93,7 +118,7 @@ const Signup = () => {
               />
               <PasswordField
                 label="Confirm Password"
-                name="confirmPassword"
+                name="repeatPassword"
                 required
                 variant="outlined"
               />
@@ -103,9 +128,9 @@ const Signup = () => {
                 sx={{ width: "100%" }}
                 loading={isSubmitting}
               >
-                Sign In
+                Sign Up
               </LoadingButton>
-
+              {/* Socials sign up buttons */}
               <Typography variant="body2">Or</Typography>
               <Stack spacing={1} sx={{ width: 1 }}>
                 <Button
@@ -113,8 +138,9 @@ const Signup = () => {
                   color="primary"
                   startIcon={<GoogleIcon />}
                   sx={{ width: "100%" }}
+                  onClick={googleSignUp}
                 >
-                  Sign In with Google
+                  Sign Up with Google
                 </Button>
                 <Button
                   variant="outlined"
@@ -122,7 +148,7 @@ const Signup = () => {
                   startIcon={<GitHubIcon />}
                   sx={{ width: "100%" }}
                 >
-                  Sign In with Github
+                  Sign Up with Github
                 </Button>
                 <Button
                   variant="outlined"
@@ -130,7 +156,7 @@ const Signup = () => {
                   startIcon={<FacebookIcon />}
                   sx={{ width: "100%" }}
                 >
-                  Sign In with Facebook
+                  Sign Up with Facebook
                 </Button>
                 <Button
                   variant="outlined"
@@ -138,7 +164,7 @@ const Signup = () => {
                   startIcon={<XIcon />}
                   sx={{ width: "100%" }}
                 >
-                  Sign In with X
+                  Sign Up with X
                 </Button>
               </Stack>
               <Stack
