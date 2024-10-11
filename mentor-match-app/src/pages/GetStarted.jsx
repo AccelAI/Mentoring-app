@@ -15,6 +15,12 @@ import {
   StepLabel,
   Container,
   Switch,
+  Dialog,
+  DialogContent,
+  DialogActions,
+  DialogTitle,
+  RadioGroup,
+  Radio,
 } from "@mui/material";
 import { Upload as UploadIcon } from "@mui/icons-material";
 import { Form, Formik } from "formik";
@@ -46,7 +52,27 @@ const steps = ["1", "2", "3", "4"];
 
 const GetStarted = () => {
   const [activeStep, setActiveStep] = useState(1);
+  const [openDialog, setOpenDialog] = useState(false);
   const navigate = useNavigate();
+
+  const handleDialogOpen = () => {
+    setOpenDialog(true);
+  };
+
+  const handleDialogClose = () => {
+    setOpenDialog(false);
+  };
+
+  const fillFormLater = () => {
+    handleDialogClose();
+    handleNext();
+  };
+
+  const goToApplicationForm = () => {
+    handleDialogClose();
+    navigate("/dashboard");
+  };
+
   const handleNext = () => {
     if (activeStep === 3) {
       navigate("/dashboard");
@@ -54,9 +80,11 @@ const GetStarted = () => {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
   };
+
   const handleStep = (index) => {
     setActiveStep(index);
   };
+
   const getTitle = () => {
     if (activeStep === 3) {
       return "Congrats, you've joined the private forum of the LatinX in AI network!";
@@ -213,7 +241,7 @@ const GetStarted = () => {
                     label="Public Profile"
                   />
                 </Stack>
-                <Button variant="contained" onClick={handleNext}>
+                <Button variant="contained" onClick={handleDialogOpen}>
                   Continue
                 </Button>
               </Stack>
@@ -235,6 +263,46 @@ const GetStarted = () => {
               </Button>
             </Stack>
           )}
+          <Dialog open={openDialog} onClose={handleDialogClose}>
+            <DialogTitle textAlign="center">
+              {
+                "Which role best matches your interest in our Mentorship Program?"
+              }
+            </DialogTitle>
+            <DialogContent sx={{ alignSelf: "center" }}>
+              <FormControl>
+                <RadioGroup row name="form-radio-options">
+                  <FormControlLabel
+                    value="mentee"
+                    control={<Radio />}
+                    label="Mentee"
+                  />
+                  <FormControlLabel
+                    value="mentor"
+                    control={<Radio />}
+                    label="Mentor"
+                  />
+                  <FormControlLabel
+                    value="both"
+                    control={<Radio />}
+                    label="Both"
+                  />
+                </RadioGroup>
+              </FormControl>
+            </DialogContent>
+            <DialogActions sx={{ justifyContent: "space-between", m: 1 }}>
+              <Button onClick={fillFormLater}>
+                Fill Application Form Later
+              </Button>
+              <Button
+                variant="contained"
+                onClick={goToApplicationForm}
+                autoFocus
+              >
+                Go to Application Form
+              </Button>
+            </DialogActions>
+          </Dialog>
         </MainCard>
       </Stack>
     </Container>

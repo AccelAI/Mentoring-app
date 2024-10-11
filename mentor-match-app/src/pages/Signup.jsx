@@ -128,7 +128,7 @@ const Signup = () => {
                 sx={{ width: "100%" }}
                 loading={isSubmitting}
               >
-                Sign In
+                Sign Up
               </LoadingButton>
               {/* Socials sign up buttons */}
               <Typography variant="body2">Or</Typography>
@@ -140,7 +140,7 @@ const Signup = () => {
                   sx={{ width: "100%" }}
                   onClick={googleSignUp}
                 >
-                  Sign In with Google
+                  Sign Up with Google
                 </Button>
                 <Button
                   variant="outlined"
@@ -148,7 +148,7 @@ const Signup = () => {
                   startIcon={<GitHubIcon />}
                   sx={{ width: "100%" }}
                 >
-                  Sign In with Github
+                  Sign Up with Github
                 </Button>
                 <Button
                   variant="outlined"
@@ -156,7 +156,7 @@ const Signup = () => {
                   startIcon={<FacebookIcon />}
                   sx={{ width: "100%" }}
                 >
-                  Sign In with Facebook
+                  Sign Up with Facebook
                 </Button>
                 <Button
                   variant="outlined"
@@ -164,7 +164,7 @@ const Signup = () => {
                   startIcon={<XIcon />}
                   sx={{ width: "100%" }}
                 >
-                  Sign In with X
+                  Sign Up with X
                 </Button>
               </Stack>
               <Stack
