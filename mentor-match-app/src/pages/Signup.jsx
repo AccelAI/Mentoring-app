@@ -13,7 +13,7 @@ import TextField from "../components/TextField";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
 import { useSnackbar } from "notistack";
-import { signUp, signInWithGoogle } from "../api/auth";
+import { signUp, signInWithGoogle, signInWithGithub } from "../api/auth";
 
 const initialValues = {
   name: "",
@@ -72,6 +72,19 @@ const Signup = () => {
     navigate("/get-started");
   };
 
+  const githubSignUp = async () => {
+    const res = await signInWithGithub();
+    console.log(res);
+    if (!res.ok) {
+      return enqueueSnackbar(
+        "Failed to log in with Github. Please try again.",
+        { variant: "error" }
+      );
+    }
+    enqueueSnackbar("Account created succesfully", { variant: "success" });
+    navigate("/get-started");
+  };
+
   return (
     <MainCard
       title={"Sign Up"}
@@ -87,7 +100,9 @@ const Signup = () => {
         {({ isSubmitting }) => (
           <Form>
             <Stack spacing={2.5} sx={{ alignItems: "center", width: "100%" }}>
-              <Typography variant="body1">Log in to your account</Typography>
+              <Typography variant="body1">
+                Let's create your account by filling out the form below.
+              </Typography>
               <TextField
                 label="Full Name"
                 name="name"
@@ -147,6 +162,7 @@ const Signup = () => {
                   color="primary"
                   startIcon={<GitHubIcon />}
                   sx={{ width: "100%" }}
+                  onClick={githubSignUp}
                 >
                   Sign Up with Github
                 </Button>
