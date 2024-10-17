@@ -21,12 +21,13 @@ import {
   RadioGroup,
   Radio,
 } from "@mui/material";
-import { Upload as UploadIcon } from "@mui/icons-material";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
 import MainCard from "../components/MainCard";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { storage } from "../api/firebaseConfig";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { LoadingButton } from "@mui/lab";
 import TextField from "../components/TextField";
 import UploadImageButton from "../components/UploadImageButton";
@@ -39,7 +40,8 @@ const initialValues = {
   affiliation: "",
   location: "",
   identifyAs: "",
-  profilePicture: "",
+  profilePicture:
+    "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg",
   profileDescription: "",
   websiteUrl: "",
   publicProfile: true,
@@ -289,11 +291,7 @@ const GetStarted = () => {
                         <Stack>
                           <Box
                             component="img"
-                            src={
-                              values.profilePicture === ""
-                                ? "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
-                                : values.profilePicture
-                            }
+                            src={values.profilePicture}
                             sx={{ height: "150px", width: "150px" }}
                           />
                         </Stack>
@@ -301,17 +299,33 @@ const GetStarted = () => {
                           <Typography>Upload a profile picture</Typography>
                           <UploadImageButton
                             inputId="profile-picture"
-                            onChange={(files) => {
+                            onChange={async (files) => {
                               const file = files[0];
                               if (file) {
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                  setFieldValue(
-                                    "profilePicture",
-                                    reader.result
+                                try {
+                                  // Create a storage reference
+                                  const storageRef = ref(
+                                    storage,
+                                    `profilePictures/${file.name}`
                                   );
-                                };
-                                reader.readAsDataURL(file);
+                                  // Upload the file
+                                  await uploadBytes(storageRef, file);
+                                  // Get the download URL
+                                  const downloadURL = await getDownloadURL(
+                                    storageRef
+                                  );
+                                  // Update the form field value
+                                  setFieldValue("profilePicture", downloadURL);
+                                  enqueueSnackbar(
+                                    "File uploaded successfully",
+                                    { variant: "success" }
+                                  );
+                                } catch (error) {
+                                  enqueueSnackbar(
+                                    "Error uploading file: " + error.message,
+                                    { variant: "error" }
+                                  );
+                                }
                               }
                             }}
                             disabled={false}
