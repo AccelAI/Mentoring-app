@@ -18,7 +18,11 @@ const UserProvider = ({ children }) => {
         try {
           const userDoc = doc(db, "users", user.uid);
           const userSnap = await getDoc(userDoc);
-          setUser(userSnap.data());
+          const userData = {
+            uid: user.uid,
+            ...userSnap.data(),
+          };
+          setUser(userData);
         } catch (error) {
           console.error("Error fetching user data: ", error);
           setUser(null);

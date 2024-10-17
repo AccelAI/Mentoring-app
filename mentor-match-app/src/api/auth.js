@@ -5,10 +5,17 @@ import {
   getAuth,
   signInWithPopup,
   GoogleAuthProvider,
+  GithubAuthProvider,
 } from "firebase/auth";
 import { doc, setDoc, updateDoc, getDoc } from "firebase/firestore";
 import { getToken } from "firebase/messaging";
-import { auth, db, messaging, googleProvider } from "./firebaseConfig";
+import {
+  auth,
+  db,
+  messaging,
+  googleProvider,
+  githubProvider,
+} from "./firebaseConfig";
 
 const saveNotificationToken = (userId) => {
   getToken(messaging, {
@@ -97,9 +104,9 @@ export const signInWithGoogle = async () => {
     const userDoc = await getDoc(userDocRef);
 
     if (!userDoc.exists()) {
-      const username = user.displayName.replace(/\s+/g, "").toLowerCase();
+      const username = user.email.split("@")[0];
       await setDoc(userDocRef, {
-        display_name: user.displayName,
+        display_name: user.displayName || user.email.split("@")[0],
         email: user.email,
         username: username,
         created_time: new Date(),
@@ -117,6 +124,41 @@ export const signInWithGoogle = async () => {
     const email = error.customData ? error.customData.email : null;
     // The AuthCredential type that was used.
     const credential = GoogleAuthProvider.credentialFromError(error);
+    // ...
+    console.log(errorCode, errorMessage, email, credential);
+    return { ok: false, errorCode, errorMessage, email, credential };
+  }
+};
+
+export const signInWithGithub = async () => {
+  try {
+    const result = await signInWithPopup(auth, githubProvider);
+
+    const user = result.user;
+    const userDocRef = doc(db, "users", user.uid);
+    const userDoc = await getDoc(userDocRef);
+
+    if (!userDoc.exists()) {
+      const username = user.email.split("@")[0];
+      await setDoc(userDocRef, {
+        display_name: user.displayName || user.email.split("@")[0],
+        email: user.email,
+        username: username,
+        created_time: new Date(),
+      });
+    }
+
+    saveNotificationToken(user.uid);
+
+    return { ok: true };
+  } catch (error) {
+    // Handle Errors here.
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    // The email of the user's account used.
+    const email = error.customData ? error.customData.email : null;
+    // The AuthCredential type that was used.
+    const credential = GithubAuthProvider.credentialFromError(error);
     // ...
     console.log(errorCode, errorMessage, email, credential);
     return { ok: false, errorCode, errorMessage, email, credential };
