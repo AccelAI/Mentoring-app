@@ -9,7 +9,7 @@ import {
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import PasswordField from "../components/PasswordField";
-import TextField from "../components/TextField";
+import TextField from "../components/questions/text/TextField";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
 import { useSnackbar } from "notistack";
