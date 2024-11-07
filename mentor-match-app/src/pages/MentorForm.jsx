@@ -276,7 +276,6 @@ const MentorForm = () => {
                   type="submit"
                   sx={{ width: "130px", alignSelf: "flex-end" }}
                   loading={isSubmitting}
-                  disabled={!isValid || isSubmitting}
                 >
                   Submit
                 </LoadingButton>
