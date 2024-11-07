@@ -9,8 +9,9 @@ import {
   Radio,
   FormControl,
   FormLabel,
+  FormHelperText,
 } from "@mui/material";
-import { Field } from "formik";
+import { Field, ErrorMessage } from "formik";
 
 const RadioQuestion = ({
   name,
@@ -21,8 +22,8 @@ const RadioQuestion = ({
 }) => {
   return (
     <Card sx={{ p: 2 }} variant="outlined">
-      <Stack spacing={1}>
-        <FormControl required={required}>
+      <FormControl required={required}>
+        <Stack spacing={0.75}>
           <FormLabel
             component={Typography}
             variant="h6"
@@ -30,7 +31,9 @@ const RadioQuestion = ({
           >
             {question}
           </FormLabel>
-          <Typography variant="body2">{description}</Typography>
+          {description && (
+            <Typography variant="body2">{description}</Typography>
+          )}
           <Field name={name}>
             {({ field }) => (
               <RadioGroup {...field}>
@@ -45,8 +48,11 @@ const RadioQuestion = ({
               </RadioGroup>
             )}
           </Field>
-        </FormControl>
-      </Stack>
+          <ErrorMessage name={name}>
+            {(msg) => <FormHelperText error>{msg}</FormHelperText>}
+          </ErrorMessage>
+        </Stack>
+      </FormControl>
     </Card>
   );
 };

@@ -19,8 +19,8 @@ const CheckboxQuestion = ({
 }) => {
   return (
     <Card sx={{ p: 2 }} variant="outlined">
-      <Stack spacing={1}>
-        <FormControl required={required}>
+      <FormControl required={required}>
+        <Stack spacing={0.75}>
           <FormLabel
             component={Typography}
             variant="h6"
@@ -28,7 +28,9 @@ const CheckboxQuestion = ({
           >
             {question}
           </FormLabel>
-          <Typography variant="body2">{description}</Typography>
+          {description && (
+            <Typography variant="body2">{description}</Typography>
+          )}
           <FieldArray name={name}>
             {({ form, push, remove }) => {
               const fieldValue = form.values[name] || [];
@@ -58,8 +60,8 @@ const CheckboxQuestion = ({
           <ErrorMessage name={name}>
             {(msg) => <FormHelperText error>{msg}</FormHelperText>}
           </ErrorMessage>
-        </FormControl>
-      </Stack>
+        </Stack>
+      </FormControl>
     </Card>
   );
 };

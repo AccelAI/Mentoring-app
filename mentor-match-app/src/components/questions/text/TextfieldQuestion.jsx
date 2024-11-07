@@ -10,9 +10,9 @@ const TextfieldQuestion = ({
 }) => {
   return (
     <Card sx={{ p: 2 }} variant="outlined">
-      <Stack spacing={1}>
+      <Stack spacing={0.75}>
         <Typography variant="h6">{question}</Typography>
-        <Typography variant="body2">{description}</Typography>
+        {description && <Typography variant="body2">{description}</Typography>}
         <Field
           as={TextField}
           label="Your answer"

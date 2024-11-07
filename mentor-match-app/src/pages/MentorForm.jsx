@@ -1,4 +1,5 @@
 import { Container, Box, Typography, Stack } from "@mui/material";
+import { ErrorOutline } from "@mui/icons-material";
 import FormCard from "../components/FormCard";
 import TextfieldQuestion from "../components/questions/text/TextfieldQuestion";
 import RadioQuestion from "../components/questions/RadioQuestion";
@@ -6,6 +7,10 @@ import CheckboxQuestion from "../components/questions/checkbox/CheckboxQuestion"
 import { LoadingButton } from "@mui/lab";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
+import { setMentorForm } from "../api/forms";
+import { useUser } from "../hooks/useUser";
+import { useSnackbar } from "notistack";
+import ConditionalQuestions from "../components/questions/ConditionalQuestions";
 
 const initialValues = {
   currentInstitution: "",
@@ -14,7 +19,6 @@ const initialValues = {
   preferredTimezone: "",
   otherMenteePref: "",
   otherExpectations: "",
-  otherConferences: "",
   languages: [],
   mentorMotivation: "",
   mentorArea: [],
@@ -23,6 +27,15 @@ const initialValues = {
   preferredExpectations: [],
   openToDiscussImpacts: "",
   mentorSkills: [],
+  areasConsideringMentoring: [],
+  reviewerInWorkshop: "",
+  publicationsInWorkshop: "",
+  reviewerInAiConferences: "",
+  publicationsInAiConferences: "",
+  reviewerInAiJournals: "",
+  publicationsInAiJournals: "",
+  conferences: [],
+  otherConferences: "",
 };
 
 const schema = yup.object().shape({
@@ -37,9 +50,6 @@ const schema = yup.object().shape({
   preferredTimezone: yup
     .string()
     .required("Please enter your preferred timezone"),
-  otherMenteePref: yup.string(),
-  otherExpectations: yup.string(),
-  otherConferences: yup.string(),
   languages: yup.array().min(1, "Please select at least one language"),
   mentorMotivation: yup.string().required("Please select an option"),
   mentorArea: yup.array().min(1, "Please select at least one area"),
@@ -50,12 +60,25 @@ const schema = yup.object().shape({
   preferredExpectations: yup
     .array()
     .min(1, "Please select at least one option"),
+  conferences: yup.array().min(1, "Please select at least one conference"),
 });
 
 const MentorForm = () => {
+  const { user } = useUser();
+  const { enqueueSnackbar } = useSnackbar();
+
   const onSubmit = async (values, { setSubmitting }) => {
     setSubmitting(true);
-    console.log(values);
+    try {
+      const res = await setMentorForm(user, values);
+      if (res.ok) {
+        console.log("Form submitted successfully");
+        enqueueSnackbar("Form submitted successfully", { variant: "success" });
+      }
+    } catch (err) {
+      console.error("Error submitting form:", err);
+      return enqueueSnackbar(err.message, { variant: "error" });
+    }
     setSubmitting(false);
   };
   return (
@@ -69,7 +92,7 @@ const MentorForm = () => {
         validationSchema={schema}
         onSubmit={onSubmit}
       >
-        {({ isSubmitting }) => (
+        {({ isSubmitting, isValid }) => (
           <Form>
             <Stack spacing={3}>
               <TextfieldQuestion
@@ -181,40 +204,83 @@ const MentorForm = () => {
                 options={["Yes", "No"]}
                 required={false}
               />
-              <Box>
-                <Typography variant="h6">Strengthening Skills</Typography>
+              <ConditionalQuestions />
+              <Stack spacing={2}>
+                <Typography variant="h6">Conference Preferences</Typography>
                 <Typography>
-                  Only for those who checked this option on the mentoring
-                  preferences
+                  Choose the best time to start! Since we have year round
+                  applications open, choose up to three conferences you would
+                  like to use as a reference for the dates of the program.
+                  Please consider that the programs will start about 3 months
+                  prior to the date of chosen conferences.
                 </Typography>
-              </Box>
-              <CheckboxQuestion
-                question="What skills do you want to help mentees to improve?"
-                description=""
-                name={"mentorSkills"}
-                options={[
-                  "Presenting (Verbal Communication of research)",
-                  "Writing Research Papers",
-                  "Finding papers related to my area of research",
-                  "Engineering to improve research outcomes",
-                ]}
-                required={false}
-              />
-              <TextfieldQuestion
-                question="If you answered other to the question above, please elaborate."
-                description=""
-                name={"otherConferences"}
-                required={false}
-              />
+                <Typography>
+                  ¡Elige el mejor momento para empezar! Dado que tenemos
+                  solicitudes abiertas durante todo el año, elija hasta tres
+                  conferencias que le gustaría utilizar como referencia para las
+                  fechas del programa. Tenga en cuenta que los programas
+                  comenzarán aproximadamente 3 meses antes de la fecha de las
+                  conferencias elegidas.
+                </Typography>
+                <Typography>
+                  Escolha a melhor hora para começar! Como temos inscrições
+                  abertas para o ano todo, escolha até três conferências que
+                  gostaria de usar como referência para as datas do programa.
+                  Por favor, considere que os programas começarão cerca de 3
+                  meses antes da data das conferências escolhidas.
+                </Typography>
 
-              <LoadingButton
-                variant="contained"
-                type="submit"
-                sx={{ width: "100%" }}
-                loading={isSubmitting}
+                <CheckboxQuestion
+                  question="Which conferences would you like to align your mentorship with?"
+                  description="Choose up to 3 options | Elija hasta 3 opciones | Escolha até 3 opções"
+                  name={"conferences"}
+                  options={[
+                    "CVPR (IEEE Conference on Computer Vision)",
+                    "NAACL (The North American Chapter of the Association for Computational Linguistics)",
+                    "ICML (International Conference on Machine Learning)",
+                    "NeurIPS (Neural Information Processing Systems)",
+                    "Other",
+                  ]}
+                />
+                <TextfieldQuestion
+                  question="If you answered other to the question above, please elaborate."
+                  description=""
+                  name={"otherConferences"}
+                  required={false}
+                />
+              </Stack>
+              <Typography variant="body2">
+                * Notification of Acceptance: Applications are accepted on a
+                rolling basis for our quarterly 3-month cohorts. Your
+                application will be considered in alignment with the conferences
+                which you selected for your preference.
+              </Typography>
+              <Stack
+                direction={"row"}
+                alignItems={"center"}
+                justifyContent={!isValid ? "space-between" : "flex-end"}
+                spacing={3}
               >
-                Submit
-              </LoadingButton>
+                {!isValid && (
+                  <Stack spacing={1} direction={"row"} alignItems={"center"}>
+                    <ErrorOutline color="error" />
+                    <Typography variant="body2" color="error">
+                      Cannot submit the application until all required questions
+                      are answered. Please complete the missing required
+                      questions and try again.
+                    </Typography>
+                  </Stack>
+                )}
+                <LoadingButton
+                  variant="contained"
+                  type="submit"
+                  sx={{ width: "130px", alignSelf: "flex-end" }}
+                  loading={isSubmitting}
+                  disabled={!isValid || isSubmitting}
+                >
+                  Submit
+                </LoadingButton>
+              </Stack>
             </Stack>
           </Form>
         )}
