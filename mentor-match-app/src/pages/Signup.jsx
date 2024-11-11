@@ -64,7 +64,7 @@ const Signup = () => {
     const res = await signInWithGoogle();
     if (!res.ok) {
       return enqueueSnackbar(
-        "Failed to log in with Google. Please try again.",
+        "Failed to sign in with Google. Please try again.",
         { variant: "error" }
       );
     }
@@ -77,7 +77,7 @@ const Signup = () => {
     console.log(res);
     if (!res.ok) {
       return enqueueSnackbar(
-        "Failed to log in with Github. Please try again.",
+        "Failed to sign in with Github. Please try again.",
         { variant: "error" }
       );
     }
@@ -165,22 +165,6 @@ const Signup = () => {
                   onClick={githubSignUp}
                 >
                   Sign Up with Github
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  startIcon={<FacebookIcon />}
-                  sx={{ width: "100%" }}
-                >
-                  Sign Up with Facebook
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  startIcon={<XIcon />}
-                  sx={{ width: "100%" }}
-                >
-                  Sign Up with X
                 </Button>
               </Stack>
               <Stack
