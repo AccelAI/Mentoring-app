@@ -61,6 +61,64 @@ const schema = yup.object().shape({
     .array()
     .min(1, "Please select at least one option"),
   conferences: yup.array().min(1, "Please select at least one conference"),
+  // REQUIRED CONDITIONAL QUESTIONS
+  mentorSkills: yup.array().when("mentorArea", {
+    is: (mentorArea) =>
+      mentorArea &&
+      mentorArea.includes(
+        "Strengthening skills (Writing or Communication or Engineering)"
+      ),
+    then: (schema) => schema.min(1, "Please select at least one skill"),
+    otherwise: (schema) => schema,
+  }),
+  areasConsideringMentoring: yup.array().when("mentorArea", {
+    is: (mentorArea) =>
+      mentorArea && mentorArea.includes("Research Guidance (AI Verticals)"),
+    then: (schema) => schema.min(1, "Please select at least one research area"),
+    otherwise: (schema) => schema,
+  }),
+  reviewerInWorkshop: yup.string().when("mentorArea", {
+    is: (mentorArea) =>
+      mentorArea &&
+      mentorArea.includes("Improve as a Reviewer of Research Papers"),
+    then: (schema) => schema.required("Please select an option"),
+    otherwise: (schema) => schema,
+  }),
+  publicationsInWorkshop: yup.string().when("mentorArea", {
+    is: (mentorArea) =>
+      mentorArea &&
+      mentorArea.includes("Improve as a Reviewer of Research Papers"),
+    then: (schema) => schema.required("Please select an option"),
+    otherwise: (schema) => schema,
+  }),
+  reviewerInAiConferences: yup.string().when("mentorArea", {
+    is: (mentorArea) =>
+      mentorArea &&
+      mentorArea.includes("Improve as a Reviewer of Research Papers"),
+    then: (schema) => schema.required("Please select an option"),
+    otherwise: (schema) => schema,
+  }),
+  publicationsInAiConferences: yup.string().when("mentorArea", {
+    is: (mentorArea) =>
+      mentorArea &&
+      mentorArea.includes("Improve as a Reviewer of Research Papers"),
+    then: (schema) => schema.required("Please select an option"),
+    otherwise: (schema) => schema,
+  }),
+  reviewerInAiJournals: yup.string().when("mentorArea", {
+    is: (mentorArea) =>
+      mentorArea &&
+      mentorArea.includes("Improve as a Reviewer of Research Papers"),
+    then: (schema) => schema.required("Please select an option"),
+    otherwise: (schema) => schema,
+  }),
+  publicationsInAiJournals: yup.string().when("mentorArea", {
+    is: (mentorArea) =>
+      mentorArea &&
+      mentorArea.includes("Improve as a Reviewer of Research Papers"),
+    then: (schema) => schema.required("Please select an option"),
+    otherwise: (schema) => schema,
+  }),
 });
 
 const MentorForm = () => {

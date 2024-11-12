@@ -1,12 +1,38 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useFormikContext } from "formik";
 import { Box, Stack, Typography } from "@mui/material";
 import CheckboxQuestion from "./checkbox/CheckboxQuestion";
 import RadioQuestion from "./RadioQuestion";
 
 const ConditionalQuestions = () => {
-  const { values } = useFormikContext();
+  const { values, setFieldValue } = useFormikContext();
   const { mentorArea } = values;
+
+  useEffect(() => {
+    // Reset fields if "Strengthening skills" is removed from mentorArea
+    if (
+      !mentorArea.includes(
+        "Strengthening skills (Writing or Communication or Engineering)"
+      )
+    ) {
+      setFieldValue("mentorSkills", []);
+    }
+
+    // Reset fields if "Research Guidance" is removed from mentorArea
+    if (!mentorArea.includes("Research Guidance (AI Verticals)")) {
+      setFieldValue("areasConsideringMentoring", []);
+    }
+
+    // Reset fields if "Improve as a Reviewer of Research Papers" is removed from mentorArea
+    if (!mentorArea.includes("Improve as a Reviewer of Research Papers")) {
+      setFieldValue("reviewerInWorkshop", "");
+      setFieldValue("publicationsInWorkshop", "");
+      setFieldValue("reviewerInAiConferences", "");
+      setFieldValue("publicationsInAiConferences", "");
+      setFieldValue("reviewerInAiJournals", "");
+      setFieldValue("publicationsInAiJournals", "");
+    }
+  }, [mentorArea, setFieldValue]);
 
   return (
     <>
@@ -31,7 +57,7 @@ const ConditionalQuestions = () => {
               "Finding papers related to my area of research",
               "Engineering to improve research outcomes",
             ]}
-            required={false}
+            required={true}
           />
         </Stack>
       )}
@@ -64,7 +90,7 @@ const ConditionalQuestions = () => {
               "Optimization Methods",
               "Generative Models",
             ]}
-            required={false}
+            required={true}
           />
         </Stack>
       )}
@@ -82,42 +108,42 @@ const ConditionalQuestions = () => {
             description=""
             name="reviewerInWorkshop"
             options={["Never", "1-2 Times", "3-5 Times", "More than 5 times"]}
-            required={false}
+            required={true}
           />
           <RadioQuestion
             question="Do you have peer-reviewed publications in workshop(s)?"
             description=""
             name="publicationsInWorkshop"
             options={["Yes", "No"]}
-            required={false}
+            required={true}
           />
           <RadioQuestion
             question="Have you served as a reviewer in top-tier AI conferences?"
             description="Examples include CVPR / ICCV / ECCV / NeurIPS / ICML / ACL / ICLR"
             name="reviewerInAiConferences"
             options={["Never", "1-2 Times", "3-5 Times", "More than 5 times"]}
-            required={false}
+            required={true}
           />
           <RadioQuestion
             question="Do you have peer-reviewed publications in top-tier AI conferences?"
             description="Examples include CVPR / ICCV / ECCV / NeurIPS / ICML / ACL / ICLR"
             name="publicationsInAiConferences"
             options={["Yes", "No"]}
-            required={false}
+            required={true}
           />
           <RadioQuestion
             question="Have you served as a reviewer in AI journals of high impact?"
             description=""
             name="reviewerInAiJournals"
             options={["Never", "1-2 Times", "3-5 Times", "More than 5 times"]}
-            required={false}
+            required={true}
           />
           <RadioQuestion
             question="Do you have peer-reviewed publications in AI journals of high impact?"
             description=""
             name="publicationsInAiJournals"
             options={["Yes", "No"]}
-            required={false}
+            required={true}
           />
         </Stack>
       )}
