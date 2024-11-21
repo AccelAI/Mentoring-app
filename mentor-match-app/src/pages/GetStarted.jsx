@@ -19,152 +19,152 @@ import {
   DialogActions,
   DialogTitle,
   RadioGroup,
-  Radio,
-} from "@mui/material";
-import { Form, Formik } from "formik";
-import * as yup from "yup";
-import MainCard from "../components/MainCard";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { storage } from "../api/firebaseConfig";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { LoadingButton } from "@mui/lab";
-import TextField from "../components/questions/text/TextField";
-import UploadImageButton from "../components/UploadImageButton";
-import { setUpProfile } from "../api/userProfile";
-import { useUser } from "../hooks/useUser";
-import { useSnackbar } from "notistack";
+  Radio
+} from '@mui/material'
+import { Form, Formik } from 'formik'
+import * as yup from 'yup'
+import MainCard from '../components/MainCard'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { storage } from '../api/firebaseConfig'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { LoadingButton } from '@mui/lab'
+import TextField from '../components/TextField'
+import UploadImageButton from '../components/UploadImageButton'
+import updateUserProfile from '../api/userProfile'
+import { useUser } from '../hooks/useUser'
+import { useSnackbar } from 'notistack'
 
 const initialValues = {
-  title: "",
-  affiliation: "",
-  location: "",
-  identifyAs: "",
+  title: '',
+  affiliation: '',
+  location: '',
+  identifyAs: '',
   profilePicture:
-    "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg",
-  profileDescription: "",
-  websiteUrl: "",
-  publicProfile: true,
-};
+    'https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg',
+  profileDescription: '',
+  websiteUrl: '',
+  publicProfile: true
+}
 
 const schema = yup.object().shape({
-  title: yup.string().required("Please enter your title"),
-  affiliation: yup.string().required("Please enter your affiliation"),
-  profilePicture: yup.string().url("Invalid URL"),
-  websiteUrl: yup.string().url("Invalid URL"),
-  publicProfile: yup.boolean(),
-});
+  title: yup.string().required('Please enter your title'),
+  affiliation: yup.string().required('Please enter your affiliation'),
+  profilePicture: yup.string().url('Invalid URL'),
+  websiteUrl: yup.string().url('Invalid URL'),
+  publicProfile: yup.boolean()
+})
 
-const steps = ["1", "2", "3", "4"];
+const steps = ['1', '2', '3', '4']
 
 const GetStarted = () => {
-  const [activeStep, setActiveStep] = useState(1);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [openApplicationDialog, setOpenApplicationDialog] = useState(false);
-  const [selectedValue, setSelectedValue] = useState("mentee");
-  const { enqueueSnackbar } = useSnackbar();
-  const navigate = useNavigate();
-  const { user } = useUser();
+  const [activeStep, setActiveStep] = useState(1)
+  const [openDialog, setOpenDialog] = useState(false)
+  const [openApplicationDialog, setOpenApplicationDialog] = useState(false)
+  const [selectedValue, setSelectedValue] = useState('mentee')
+  const { enqueueSnackbar } = useSnackbar()
+  const navigate = useNavigate()
+  const { user } = useUser()
 
   const handleValueChange = (event) => {
-    setSelectedValue(event.target.value);
-  };
+    setSelectedValue(event.target.value)
+  }
 
   const onSubmit = async (values, { setSubmitting }) => {
-    console.log("Form submitted with values:", values);
-    setSubmitting(true);
+    console.log('Form submitted with values:', values)
+    setSubmitting(true)
     try {
-      const res = await setUpProfile({ user, ...values });
+      const res = await updateUserProfile(user, values)
       if (!res.ok) {
-        setSubmitting(false);
-        return enqueueSnackbar(res.error, { variant: "error" });
+        setSubmitting(false)
+        return enqueueSnackbar(res.error, { variant: 'error' })
       }
-      enqueueSnackbar("Profile created successfully", { variant: "success" });
-      setSubmitting(false);
-      handleDialogOpen();
+      enqueueSnackbar('Profile created successfully', { variant: 'success' })
+      setSubmitting(false)
+      handleDialogOpen()
     } catch (error) {
-      console.error("Error during profile setup:", error);
-      enqueueSnackbar("An error occurred during profile setup", {
-        variant: "error",
-      });
-      setSubmitting(false);
+      console.error('Error during profile setup:', error)
+      enqueueSnackbar('An error occurred during profile setup', {
+        variant: 'error'
+      })
+      setSubmitting(false)
     }
-  };
+  }
 
   const handleDialogOpen = () => {
-    setOpenDialog(true);
-  };
+    setOpenDialog(true)
+  }
 
   const handleDialogClose = () => {
-    setOpenDialog(false);
-    handleNext();
-  };
+    setOpenDialog(false)
+    handleNext()
+  }
 
   const handleApplicationDialogOpen = () => {
-    handleDialogClose();
-    setOpenApplicationDialog(true);
-  };
+    handleDialogClose()
+    setOpenApplicationDialog(true)
+  }
 
   const handleApplicationDialogClose = () => {
-    setOpenApplicationDialog(false);
-  };
+    setOpenApplicationDialog(false)
+  }
 
   const fillFormLater = () => {
-    handleApplicationDialogClose();
-    handleNext();
-  };
+    handleApplicationDialogClose()
+    handleNext()
+  }
 
   const goToApplicationForm = () => {
-    handleApplicationDialogClose();
-    if (selectedValue === "mentee") {
-      navigate("/mentee-form");
-    } else if (selectedValue === "mentor") {
-      navigate("/mentor-form");
+    handleApplicationDialogClose()
+    if (selectedValue === 'mentee') {
+      navigate('/mentee-form')
+    } else if (selectedValue === 'mentor') {
+      navigate('/mentor-form')
     } else {
-      navigate("/mentor-mentee-form");
+      navigate('/mentor-mentee-form')
     }
-  };
+  }
 
   const handleNext = () => {
     if (activeStep === 3) {
-      navigate("/dashboard");
+      navigate('/dashboard')
     } else {
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      setActiveStep((prevActiveStep) => prevActiveStep + 1)
     }
-  };
+  }
 
   const handleStep = (index) => {
-    setActiveStep(index);
-  };
+    setActiveStep(index)
+  }
 
   const getTitle = () => {
     if (activeStep === 3) {
-      return "Congrats, you've joined the private forum of the LatinX in AI network!";
+      return "Congrats, you've joined the private forum of the LatinX in AI network!"
     }
-    return "Hi, Welcome to Latinx In AI (LXAI)!";
-  };
+    return 'Hi, Welcome to Latinx In AI (LXAI)!'
+  }
 
   return (
     <Container
       sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
       }}
     >
       <Stack
         sx={{
-          justifyContent: "center",
-          alignItems: "center",
+          justifyContent: 'center',
+          alignItems: 'center',
           width: 1,
-          height: 1,
+          height: 1
         }}
         mt={5}
         spacing={3}
       >
         <Stepper
           activeStep={activeStep}
-          sx={{ width: { xl: "50%", md: "60%", sm: "100%" } }}
+          sx={{ width: { xl: '50%', md: '60%', sm: '100%' } }}
         >
           {steps.map((label, index) => (
             <Step key={label}>
@@ -180,8 +180,8 @@ const GetStarted = () => {
         </Stepper>
         <MainCard
           title={getTitle()}
-          titleSize={"h4"}
-          props={{ height: "100vh" }}
+          titleSize={'h4'}
+          props={{ height: '100vh' }}
           enableContainer={false}
         >
           <Formik
@@ -193,7 +193,7 @@ const GetStarted = () => {
               <Form>
                 {activeStep === 1 && (
                   <>
-                    <Typography variant="body1" sx={{ textAlign: "center" }}>
+                    <Typography variant="body1" sx={{ textAlign: 'center' }}>
                       Becoming a new member only takes a minute.
                     </Typography>
                     <Box>
@@ -207,13 +207,13 @@ const GetStarted = () => {
                               name="title"
                               label="Title"
                               variant="outlined"
-                              sx={{ width: "100%" }}
+                              sx={{ width: '100%' }}
                             />
                             <TextField
                               name="affiliation"
                               label="Affiliation"
                               variant="outlined"
-                              sx={{ width: "100%" }}
+                              sx={{ width: '100%' }}
                             />
                           </Stack>
                         </Stack>
@@ -225,7 +225,7 @@ const GetStarted = () => {
                             name="location"
                             label="Origin Location"
                             variant="outlined"
-                            sx={{ width: "100%" }}
+                            sx={{ width: '100%' }}
                           />
                         </Stack>
                         <Stack spacing={1}>
@@ -237,11 +237,11 @@ const GetStarted = () => {
                             <Select
                               label="Select an Option"
                               variant="outlined"
-                              sx={{ width: "100%" }}
+                              sx={{ width: '100%' }}
                               name="identifyAs"
                               value={values.identifyAs}
                               onChange={(event) => {
-                                setFieldValue("identifyAs", event.target.value);
+                                setFieldValue('identifyAs', event.target.value)
                               }}
                             >
                               <MenuItem value="LatinX (Latino/Latina/Latine)">
@@ -292,7 +292,7 @@ const GetStarted = () => {
                           <Box
                             component="img"
                             src={values.profilePicture}
-                            sx={{ height: "150px", width: "150px" }}
+                            sx={{ height: '150px', width: '150px' }}
                           />
                         </Stack>
                         <Stack spacing={1}>
@@ -300,31 +300,31 @@ const GetStarted = () => {
                           <UploadImageButton
                             inputId="profile-picture"
                             onChange={async (files) => {
-                              const file = files[0];
+                              const file = files[0]
                               if (file) {
                                 try {
                                   // Create a storage reference
                                   const storageRef = ref(
                                     storage,
                                     `profilePictures/${file.name}`
-                                  );
+                                  )
                                   // Upload the file
-                                  await uploadBytes(storageRef, file);
+                                  await uploadBytes(storageRef, file)
                                   // Get the download URL
                                   const downloadURL = await getDownloadURL(
                                     storageRef
-                                  );
+                                  )
                                   // Update the form field value
-                                  setFieldValue("profilePicture", downloadURL);
+                                  setFieldValue('profilePicture', downloadURL)
                                   enqueueSnackbar(
-                                    "File uploaded successfully",
-                                    { variant: "success" }
-                                  );
+                                    'File uploaded successfully',
+                                    { variant: 'success' }
+                                  )
                                 } catch (error) {
                                   enqueueSnackbar(
-                                    "Error uploading file: " + error.message,
-                                    { variant: "error" }
-                                  );
+                                    'Error uploading file: ' + error.message,
+                                    { variant: 'error' }
+                                  )
                                 }
                               }
                             }}
@@ -342,7 +342,7 @@ const GetStarted = () => {
                           name="profileDescription"
                           label="Profile Description"
                           variant="outlined"
-                          sx={{ width: "100%" }}
+                          sx={{ width: '100%' }}
                         />
                       </Stack>
                       <Stack spacing={1}>
@@ -353,7 +353,7 @@ const GetStarted = () => {
                           name="websiteUrl"
                           label="Url"
                           variant="outlined"
-                          sx={{ width: "100%" }}
+                          sx={{ width: '100%' }}
                         />
                       </Stack>
                       <Stack spacing={1}>
@@ -368,7 +368,7 @@ const GetStarted = () => {
                               checked={values.publicProfile}
                               onChange={(event) =>
                                 setFieldValue(
-                                  "publicProfile",
+                                  'publicProfile',
                                   event.target.checked
                                 )
                               }
@@ -390,7 +390,7 @@ const GetStarted = () => {
                 )}
                 {activeStep === 3 && (
                   <Stack spacing={2}>
-                    <Typography variant="body1" sx={{ textAlign: "center" }}>
+                    <Typography variant="body1" sx={{ textAlign: 'center' }}>
                       This space has been created for latinx identifying
                       students, post-docs, academic researchers, industry
                       researchers, and alies working in Artificial Intelligence
@@ -399,7 +399,7 @@ const GetStarted = () => {
                     <Button
                       onClick={handleNext}
                       variant="contained"
-                      sx={{ width: "30%", alignSelf: "end" }}
+                      sx={{ width: '30%', alignSelf: 'end' }}
                     >
                       Finish
                     </Button>
@@ -410,14 +410,14 @@ const GetStarted = () => {
                 <Dialog open={openDialog} onClose={handleDialogClose}>
                   <DialogTitle textAlign="center">
                     {
-                      "Are you interested in participating as a mentor or mentee in our Mentorship Program?"
+                      'Are you interested in participating as a mentor or mentee in our Mentorship Program?'
                     }
                   </DialogTitle>
-                  <DialogActions sx={{ justifyContent: "space-around", m: 1 }}>
+                  <DialogActions sx={{ justifyContent: 'space-around', m: 1 }}>
                     <Button
                       variant="contained"
                       onClick={handleApplicationDialogOpen}
-                      sx={{ width: "120px" }}
+                      sx={{ width: '120px' }}
                       autoFocus
                     >
                       Yes
@@ -432,10 +432,10 @@ const GetStarted = () => {
                 >
                   <DialogTitle textAlign="center">
                     {
-                      "Which role best matches your interest in our Mentorship Program?"
+                      'Which role best matches your interest in our Mentorship Program?'
                     }
                   </DialogTitle>
-                  <DialogContent sx={{ alignSelf: "center" }}>
+                  <DialogContent sx={{ alignSelf: 'center' }}>
                     <FormControl>
                       <RadioGroup
                         row
@@ -461,7 +461,7 @@ const GetStarted = () => {
                       </RadioGroup>
                     </FormControl>
                   </DialogContent>
-                  <DialogActions sx={{ justifyContent: "space-between", m: 1 }}>
+                  <DialogActions sx={{ justifyContent: 'space-between', m: 1 }}>
                     <Button onClick={fillFormLater}>
                       Fill Application Form Later
                     </Button>
@@ -480,7 +480,7 @@ const GetStarted = () => {
         </MainCard>
       </Stack>
     </Container>
-  );
-};
+  )
+}
 
-export default GetStarted;
+export default GetStarted
