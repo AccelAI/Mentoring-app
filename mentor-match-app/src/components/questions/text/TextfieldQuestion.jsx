@@ -1,44 +1,44 @@
-import { Container, Box, Typography, Card, Stack } from "@mui/material";
-import TextField from "./TextField";
-import { Field } from "formik";
-import React from "react";
+import { Typography, Card, Stack } from '@mui/material'
+import TextField from './TextField'
+import { Field } from 'formik'
+import React from 'react'
 
 const TextfieldQuestion = ({
   name,
   question,
   description,
-  required = true,
+  required = true
 }) => {
   const formatDescription = (text) => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const urlRegex = /(https?:\/\/[^\s]+)/g
     const parts = text.split(urlRegex).map((part, index) => {
       if (part.match(urlRegex)) {
         return (
           <a key={index} href={part} target="_blank" rel="noopener noreferrer">
             {part}
           </a>
-        );
+        )
       }
-      return part;
-    });
+      return part
+    })
 
     return parts.map((part, index) => (
       <React.Fragment key={index}>
-        {typeof part === "string"
-          ? part.split("\n").map((line, lineIndex) => (
+        {typeof part === 'string'
+          ? part.split('\n').map((line, lineIndex) => (
               <React.Fragment key={`${index}-${lineIndex}`}>
                 {line}
-                {lineIndex < part.split("\n").length - 1 && <br />}
+                {lineIndex < part.split('\n').length - 1 && <br />}
               </React.Fragment>
             ))
           : part}
       </React.Fragment>
-    ));
-  };
+    ))
+  }
 
   const formattedDescription = description
     ? formatDescription(description)
-    : null;
+    : null
 
   return (
     <Card sx={{ p: 2 }} variant="outlined">
@@ -56,7 +56,7 @@ const TextfieldQuestion = ({
         />
       </Stack>
     </Card>
-  );
-};
+  )
+}
 
-export default TextfieldQuestion;
+export default TextfieldQuestion
