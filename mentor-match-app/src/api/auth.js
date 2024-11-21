@@ -6,6 +6,7 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   GithubAuthProvider,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { doc, setDoc, updateDoc, getDoc } from "firebase/firestore";
 import { getToken } from "firebase/messaging";
@@ -169,6 +170,15 @@ export const signOut = async () => {
   try {
     await firebaseSignOut(auth);
     console.log("Sign-out successful");
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+};
+
+export const resetPassword = async (email) => {
+  try {
+    await sendPasswordResetEmail(auth, email);
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err.message };
