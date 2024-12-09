@@ -37,7 +37,7 @@ export const setMentorMenteeForm = async (user, formData) => {
   }
 
   // Separate the form data into mentee-specific and mentor-specific fields
-  const menteeData = {
+  const commonData = {
     currentInstitution: formData.currentInstitution,
     currentPosition: formData.currentPosition,
     linkToResearch: formData.linkToResearch,
@@ -46,12 +46,6 @@ export const setMentorMenteeForm = async (user, formData) => {
     conferences: formData.conferences,
     otherConferences: formData.otherConferences,
     openToDiscussImpacts: formData.openToDiscussImpacts,
-    preferredExpectations: formData.preferredExpectationsMentee,
-    careerGoals: formData.careerGoals,
-    menteeMotivation: formData.menteeMotivation,
-    commitmentStatement: formData.commitmentStatement,
-    topResearchAreas: formData.topResearchAreas,
-    mentoredSkills: formData.mentoredSkills,
     reviewerInWorkshop: formData.reviewerInWorkshop,
     publicationsInWorkshop: formData.publicationsInWorkshop,
     reviewerInAiConferences: formData.reviewerInAiConferences,
@@ -60,15 +54,18 @@ export const setMentorMenteeForm = async (user, formData) => {
     publicationsInAiJournals: formData.publicationsInAiJournals
   }
 
+  const menteeData = {
+    ...commonData,
+    preferredExpectations: formData.preferredExpectationsMentee,
+    careerGoals: formData.careerGoals,
+    menteeMotivation: formData.menteeMotivation,
+    commitmentStatement: formData.commitmentStatement,
+    topResearchAreas: formData.topResearchAreas,
+    mentoredSkills: formData.mentoredSkills
+  }
+
   const mentorData = {
-    currentInstitution: formData.currentInstitution,
-    currentPosition: formData.currentPosition,
-    linkToResearch: formData.linkToResearch,
-    preferredTimezone: formData.preferredTimezone,
-    languages: formData.languages,
-    conferences: formData.conferences,
-    otherConferences: formData.otherConferences,
-    openToDiscussImpacts: formData.openToDiscussImpacts,
+    ...commonData,
     preferredExpectations: formData.preferredExpectationsMentor,
     otherMenteePref: formData.otherMenteePref,
     otherExpectations: formData.otherExpectations,
@@ -77,13 +74,7 @@ export const setMentorMenteeForm = async (user, formData) => {
     mentoringTime: formData.mentoringTime,
     menteePreferences: formData.menteePreferences,
     mentorSkills: formData.mentorSkills,
-    areasConsideringMentoring: formData.areasConsideringMentoring,
-    reviewerInWorkshop: formData.reviewerInWorkshop,
-    publicationsInWorkshop: formData.publicationsInWorkshop,
-    reviewerInAiConferences: formData.reviewerInAiConferences,
-    publicationsInAiConferences: formData.publicationsInAiConferences,
-    reviewerInAiJournals: formData.reviewerInAiJournals,
-    publicationsInAiJournals: formData.publicationsInAiJournals
+    areasConsideringMentoring: formData.areasConsideringMentoring
   }
 
   try {
