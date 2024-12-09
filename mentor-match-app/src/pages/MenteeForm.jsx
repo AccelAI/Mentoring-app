@@ -37,6 +37,7 @@ const initialValues = {
 }
 
 const requiredWhenMenteeMotivationIncludes = (area) => {
+  // Return a yup schema that requires a field when menteeMotivation includes the given area
   return yup.string().when('menteeMotivation', {
     is: (menteeMotivation) =>
       menteeMotivation && menteeMotivation.includes(area),
@@ -45,6 +46,7 @@ const requiredWhenMenteeMotivationIncludes = (area) => {
   })
 }
 
+// Form validation schema
 const schema = yup.object().shape({
   currentInstitution: yup
     .string()
@@ -59,14 +61,9 @@ const schema = yup.object().shape({
     .required('Please enter your preferred timezone'),
   languages: yup.array().min(1, 'Please select at least one language'),
   menteeMotivation: yup.array().min(1, 'Please select at least one area'),
-  commitmentStatement: yup
-    .string()
-    .url('Invalid URL')
-    .required('Please enter a link'),
   preferredExpectations: yup
     .array()
     .min(1, 'Please select at least one option'),
-  careerGoals: yup.string().required('Please enter your career goals'),
   conferences: yup.array().min(1, 'Please select at least one conference'),
   // REQUIRED CONDITIONAL QUESTIONS
   mentoredSkills: yup.array().when('menteeMotivation', {
@@ -110,6 +107,7 @@ const MenteeForm = () => {
   const { enqueueSnackbar } = useSnackbar()
 
   const onSubmit = async (values, { setSubmitting }) => {
+    // Submit the form data to the backend
     setSubmitting(true)
     try {
       const res = await setMenteeForm(user, values)
@@ -128,6 +126,7 @@ const MenteeForm = () => {
       enableContainer={true}
       props={{ height: '100vh' }}
       title={'Accel AI Mentee Application Form'}
+      type={'mentee'}
     >
       <Formik
         initialValues={initialValues}
