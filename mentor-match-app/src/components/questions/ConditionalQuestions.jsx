@@ -3,6 +3,7 @@ import { useFormikContext } from 'formik'
 import { Box, Stack, Typography } from '@mui/material'
 import RadioQuestion from './RadioQuestion'
 
+/* Component for the conditional questions that are part of the 3 forms (mentee, mentors and mentee-mentor) */
 const ConditionalQuestions = () => {
   const { values, setFieldValue } = useFormikContext()
   const { mentorArea, menteeMotivation } = values
@@ -16,14 +17,22 @@ const ConditionalQuestions = () => {
       (menteeMotivation &&
         !menteeMotivation.includes('Improve as a Reviewer of Research Papers'))
     ) {
-      setFieldValue('reviewerInWorkshop', '')
-      setFieldValue('publicationsInWorkshop', '')
-      setFieldValue('reviewerInAiConferences', '')
-      setFieldValue('publicationsInAiConferences', '')
-      setFieldValue('reviewerInAiJournals', '')
-      setFieldValue('publicationsInAiJournals', '')
+      const fieldsToReset = [
+        'reviewerInWorkshop',
+        'publicationsInWorkshop',
+        'reviewerInAiConferences',
+        'publicationsInAiConferences',
+        'reviewerInAiJournals',
+        'publicationsInAiJournals'
+      ]
+      // Reset fields only if they exist in the form
+      fieldsToReset.forEach((field) => {
+        if (values.hasOwnProperty(field)) {
+          setFieldValue(field, '')
+        }
+      })
     }
-  }, [mentorArea, menteeMotivation, setFieldValue])
+  }, [mentorArea, menteeMotivation, setFieldValue, values])
 
   const renderRadioQuestions = () => {
     const questions = [
@@ -83,12 +92,13 @@ const ConditionalQuestions = () => {
     ))
   }
 
+  const shouldRenderSection =
+    mentorArea?.includes('Improve as a Reviewer of Research Papers') ||
+    menteeMotivation?.includes('Improve as a Reviewer of Research Papers')
+
   return (
     <>
-      {(mentorArea?.includes('Improve as a Reviewer of Research Papers') ||
-        menteeMotivation?.includes(
-          'Improve as a Reviewer of Research Papers'
-        )) && (
+      {shouldRenderSection && (
         <Stack spacing={2}>
           <Box>
             <Typography variant="h6">Reviewing Research Papers</Typography>

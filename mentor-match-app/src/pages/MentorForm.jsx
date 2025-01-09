@@ -40,6 +40,7 @@ const initialValues = {
 }
 
 const requiredWhenMentorAreaIncludes = (area) => {
+  // Return a yup schema that requires a field when mentorArea includes the given area
   return yup.string().when('mentorArea', {
     is: (mentorArea) => mentorArea && mentorArea.includes(area),
     then: (schema) => schema.required('Please select an option'),
@@ -47,6 +48,7 @@ const requiredWhenMentorAreaIncludes = (area) => {
   })
 }
 
+// Form validation schema
 const schema = yup.object().shape({
   currentInstitution: yup
     .string()
@@ -111,6 +113,7 @@ const MentorForm = () => {
   const { enqueueSnackbar } = useSnackbar()
 
   const onSubmit = async (values, { setSubmitting }) => {
+    // Submit the form data to the backend
     setSubmitting(true)
     try {
       const res = await setMentorForm(user, values)
@@ -129,6 +132,7 @@ const MentorForm = () => {
       enableContainer={true}
       props={{ height: '100vh' }}
       title={'Accel AI Mentor Application Form'}
+      type={'mentor'}
     >
       <Formik
         initialValues={initialValues}
@@ -242,7 +246,7 @@ const MentorForm = () => {
               />
               <RadioQuestion
                 question="Are you open to discuss/enumerate the impacts of the program with organizers in the future?"
-                description="We may ask you to provide a public testimonial if this program has helped you in achieving your and your mentees goals."
+                description="We may ask you to provide a public testimonial if this program has helped you in achieving your goals. | Es posible que le pidamos que brinde un testimonio público si este programa lo ha ayudado a lograr sus objetivos. | Podemos pedir que você forneça um testemunho público se este programa o ajudou a alcançar seus objetivos."
                 name={'openToDiscussImpacts'}
                 options={['Yes', 'No']}
                 required={false}

@@ -5,43 +5,56 @@ import {
   Stack,
   Box,
   Button,
-  IconButton,
-} from "@mui/material";
-import logo from "../assets/logo.png";
-import { useState } from "react";
-import { ChevronLeft } from "@mui/icons-material";
+  IconButton
+} from '@mui/material'
+import logo from '../assets/logo.png'
+import { useState, useRef } from 'react'
+import { ChevronLeft } from '@mui/icons-material'
 
-const MainCard = ({ children, title, props }) => {
-  const [showInfo, setShowInfo] = useState(true);
+/* Card used for the forms */
+const FormCard = ({ children, title, type, props }) => {
+  const [showInfo, setShowInfo] = useState(true)
+  const cardRef = useRef(null)
+
+  const handleGetStartedButton = () => {
+    if (cardRef.current) {
+      cardRef.current.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+    setShowInfo(false)
+  }
+
   return (
     <Container
       sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        ...props,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        ...props
       }}
     >
       <Stack
         direction="row"
         spacing={1}
         sx={{
-          justifyContent: "center",
-          alignItems: "center",
+          justifyContent: 'center',
+          alignItems: 'center',
           width: 1,
-          height: 1,
+          height: 1
         }}
       >
-        <Card sx={{ width: "90%", p: 3, height: "95%", overflow: "auto" }}>
+        <Card
+          ref={cardRef}
+          sx={{ width: '90%', p: 3, height: '95%', overflow: 'auto' }}
+        >
           <Stack
             mb={1}
             spacing={0.5}
-            sx={{ alignItems: "center", width: "100%" }}
+            sx={{ alignItems: 'center', width: '100%' }}
           >
             {!showInfo && (
               <IconButton
                 onClick={() => setShowInfo(true)}
-                sx={{ alignSelf: "flex-start" }}
+                sx={{ alignSelf: 'flex-start' }}
               >
                 <ChevronLeft />
               </IconButton>
@@ -50,9 +63,9 @@ const MainCard = ({ children, title, props }) => {
               component="img"
               src={logo}
               alt="logo"
-              sx={{ height: "80px", width: "80px" }}
+              sx={{ height: '80px', width: '80px' }}
             />
-            <Typography alignSelf={"flex-start"} variant={"h5"} sx={{ pb: 2 }}>
+            <Typography alignSelf={'flex-start'} variant={'h5'} sx={{ pb: 2 }}>
               {title}
             </Typography>
           </Stack>
@@ -60,44 +73,82 @@ const MainCard = ({ children, title, props }) => {
             <Box>
               <Stack spacing={2}>
                 <Typography variant="h6">Who Should Apply?</Typography>
-                <Typography>
-                  If you are a LatinX identifying early career professional or
-                  student that is currently (or planning) working on AI research
-                  and have an interest in being mentored by senior academics or
-                  industry professionals to improve your career during a
-                  three-month mentoring program that debuts at LXAI workshops
-                  co-located with prestigious AI and ML conferences.
-                </Typography>
+                {(type === 'mentee' || type === 'both') && (
+                  <Typography>
+                    If you are a LatinX identifying early career professional or
+                    student that is currently (or planning) working on AI
+                    research and have an interest in being mentored by senior
+                    academics or industry professionals to improve your career
+                    during a three-month mentoring program that debuts at LXAI
+                    workshops co-located with prestigious AI and ML conferences.
+                  </Typography>
+                )}
+                {(type === 'mentor' || type === 'both') && (
+                  <Typography>
+                    If you are a LatinX professional or Ally currently working
+                    in Artificial Intelligence and would like to share your
+                    experience by acting as a mentor during a three-month
+                    mentoring program that concludes at LXAI workshops
+                    co-located with prestigious AI and ML conferences.
+                  </Typography>
+                )}
+
                 <Typography variant="h6">Requirements:</Typography>
-                <Typography>
-                  Mentees may live and work anywhere in the world. However, they
-                  would have to identify as LatinX and be doing (or planning to)
-                  work in AI (Academia, Industry, Entrepreneurship, and so on)
-                  to be considered.
-                </Typography>
-                <Typography>
-                  Applicants must provide a single page Commitment & Motivation
-                  Statement. The statement can be written in English,
-                  Portuguese, or Spanish. Make sure to have it ready before
-                  completing this form.
-                </Typography>
+                {(type === 'mentee' || type === 'both') && (
+                  <>
+                    <Typography>
+                      Mentees may live and work anywhere in the world. However,
+                      they would have to identify as LatinX and be doing (or
+                      planning to) work in AI (Academia, Industry,
+                      Entrepreneurship, and so on) to be considered.
+                    </Typography>
+                    <Typography>
+                      Applicants must provide a single page Commitment &
+                      Motivation Statement. The statement can be written in
+                      English, Portuguese, or Spanish. Make sure to have it
+                      ready before completing this form.
+                    </Typography>
+                  </>
+                )}
+                {(type === 'mentor' || type === 'both') && (
+                  <>
+                    <Typography>
+                      Mentors may live and work anywhere in the world. They may
+                      identify as LatinX or allies and be doing work in AI
+                      (Academia, Industry, Entrepreneurship, and so on) to be
+                      considered.
+                    </Typography>
+                    <Typography>
+                      Mentorship may occur in English, Portuguese, or Spanish
+                      depending on the mentor and mentee’s fluency and language
+                      preferences.
+                    </Typography>
+                  </>
+                )}
+
                 <Typography variant="h6">Expectations:</Typography>
                 <Typography>
                   The LatinX in AI Mentoring Program requires mentors and
                   mentees to meet once a month leading up to and including our
-                  colocated workshops.{" "}
+                  colocated workshops.{' '}
                 </Typography>
                 <Typography>
                   We will ask mentors and mentees to provide feedback about
                   their experience which will be shared during a Mentoring Hour
-                  at the official event.{" "}
+                  at the official event.{' '}
                 </Typography>
                 <Typography>
-                  {" "}
+                  {' '}
                   Following the completion of this program, you'll be asked to
                   complete a quick survey about your experience and
                   opportunities for the program's improvement.
                 </Typography>
+                {(type === 'mentor' || type === 'both') && (
+                  <Typography>
+                    Mentors who complete the program and survey are eligible to
+                    receive a token of appreciation on behalf of LatinX in AI.
+                  </Typography>
+                )}
                 <Typography variant="h6">Deadlines:</Typography>
                 <Typography>
                   We are accepting rolling applications for mentees and mentors.
@@ -109,8 +160,8 @@ const MainCard = ({ children, title, props }) => {
                 </Typography>
                 <Button
                   variant="contained"
-                  onClick={() => setShowInfo(false)}
-                  sx={{ width: "150px", alignSelf: "flex-end" }}
+                  onClick={handleGetStartedButton}
+                  sx={{ width: '150px', alignSelf: 'flex-end' }}
                 >
                   Get Started
                 </Button>
@@ -122,7 +173,7 @@ const MainCard = ({ children, title, props }) => {
         </Card>
       </Stack>
     </Container>
-  );
-};
+  )
+}
 
-export default MainCard;
+export default FormCard
