@@ -1,7 +1,7 @@
-import { doc, updateDoc } from 'firebase/firestore'
+import { doc, updateDoc, getDocs, collection } from 'firebase/firestore'
 import { db } from './firebaseConfig'
 
-const updateUserProfile = async (user, values) => {
+export const updateUserProfile = async (user, values) => {
   console.log('user', user)
   if (!user || !user.uid) {
     return { ok: false, error: 'Invalid user object' }
@@ -17,4 +17,13 @@ const updateUserProfile = async (user, values) => {
   }
 }
 
-export default updateUserProfile
+export const getUsers = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'users'))
+    const users = querySnapshot.docs.map((doc) => doc.data())
+    return users
+  } catch (err) {
+    console.error('Error fetching users:', err)
+    return { ok: false, error: err.message }
+  }
+}
