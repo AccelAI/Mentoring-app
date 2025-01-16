@@ -32,19 +32,31 @@ const UserGrid = ({ id, name, role, affiliation, location, image, select }) => {
             />
             <Stack sx={{ maxWidth: '58%' }}>
               <Box>
-                <Typography variant={'h6'} lineHeight={1.2}>
+                <Typography
+                  fontSize={18}
+                  fontWeight={'regular'}
+                  lineHeight={1.2}
+                >
                   {name}
                 </Typography>
-                <Typography>{role}</Typography>
+                <Typography fontWeight={'light'}>{role}</Typography>
               </Box>
               <Box sx={{ flexGrow: 1 }} />
               <Box>
-                <Typography variant={'body2'} color="text.secondary">
+                <Typography
+                  variant={'body2'}
+                  fontWeight={'light'}
+                  color="text.secondary"
+                >
                   {affiliation}
                 </Typography>
                 <Stack direction={'row'} spacing={0.4} alignItems={'center'}>
                   <LocationIcon fontSize="small" color="secondary" />
-                  <Typography variant={'body2'} color="text.secondary">
+                  <Typography
+                    variant={'body2'}
+                    fontWeight={'light'}
+                    color="text.secondary"
+                  >
                     {location}
                   </Typography>
                 </Stack>

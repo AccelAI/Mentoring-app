@@ -37,7 +37,6 @@ const Dashboard = () => {
     const fetchUsers = async () => {
       const users = await getUsers()
       setUsers(users)
-      console.log(users)
     }
     fetchUsers()
   }, [])
@@ -114,15 +113,14 @@ const Dashboard = () => {
               </Stack>
               <Box flexGrow={1} pt={2}>
                 <Grid container spacing={2}>
-                  {users.map((user) => (
+                  {users.map((user, i) => (
                     <UserGrid
-                      key={user.token}
+                      key={i}
                       name={user.display_name}
                       affiliation={user.affiliation}
                       role={'Mentor'}
                       location={user.location}
                       image={user.profilePicture}
-                      select={true}
                     />
                   ))}
                 </Grid>

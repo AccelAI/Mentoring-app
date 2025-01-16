@@ -42,6 +42,7 @@ const handleSignInWithProvider = async (user, provider) => {
   if (!userDoc.exists()) {
     const username = user.email.split('@')[0]
     await setDoc(userDocRef, {
+      /*TODO: Change display_name and created_time to camel case */
       display_name: user.displayName || user.email.split('@')[0],
       email: user.email,
       username,
