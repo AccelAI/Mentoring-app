@@ -292,7 +292,11 @@ const GetStarted = () => {
                           <Box
                             component="img"
                             src={values.profilePicture}
-                            sx={{ height: '150px', width: '150px' }}
+                            sx={{
+                              height: '150px',
+                              width: '150px',
+                              objectFit: 'cover'
+                            }}
                           />
                         </Stack>
                         <Stack spacing={1}>

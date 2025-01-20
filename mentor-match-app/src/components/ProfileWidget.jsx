@@ -6,16 +6,40 @@ import {
   Card,
   Divider,
   IconButton,
-  TextField
+  Button,
+  Link
 } from '@mui/material'
-import { Edit as EditIcon } from '@mui/icons-material'
+import {
+  Edit as EditIcon,
+  Google as GoogleIcon,
+  GitHub as GitHubIcon
+} from '@mui/icons-material'
 import { useUser } from '../hooks/useUser'
+import logo from '../assets/logo.png'
+import PasswordField from './PasswordField'
+import TextField from './questions/text/TextField'
+import { Form, Formik } from 'formik'
+import { useAuthHandlers } from '../utils/authUtils'
+import { LoadingButton } from '@mui/lab'
+import ResetPasswordDialog from './ResetPasswordDialog'
 
 const ProfileWidget = () => {
   const { user } = useUser()
+  const { initialValues, schema, onSubmit, googleLogin, githubLogin } =
+    useAuthHandlers()
 
+  const [openDialog, setOpenDialog] = useState(false)
+
+  const handleDialogClose = () => {
+    setOpenDialog(false)
+  }
   return (
-    <Card sx={{ width: { md: '28%', xs: '100%' }, height: '350px' }}>
+    <Card
+      sx={{
+        width: { md: user ? '28%' : '36%', xs: '100%' },
+        height: 'max-content'
+      }}
+    >
       {user ? (
         /* Logged in user */
         <Stack spacing={0.5} px={2} pb={2} pt={1}>
@@ -73,7 +97,110 @@ const ProfileWidget = () => {
         </Stack>
       ) : (
         /* Not logged in */
-        <Stack spacing={2} alignItems={'center'} p={2}></Stack>
+
+        <Formik
+          initialValues={initialValues}
+          validationSchema={schema}
+          onSubmit={onSubmit}
+        >
+          {({ isSubmitting, values, setSubmitting, resetForm }) => (
+            <Form>
+              <Stack spacing={1} alignItems={'center'} p={2}>
+                <Box
+                  component="img"
+                  src={logo}
+                  alt="accel-ai-logo"
+                  sx={{
+                    height: 60,
+                    width: 'auto',
+                    objectFit: 'cover'
+                  }}
+                />
+                <Typography variant="h6">Log In</Typography>
+                <TextField
+                  label="Email"
+                  name="email"
+                  type="email"
+                  variant="standard"
+                  size="small"
+                  fullWidth
+                />
+                <PasswordField
+                  label="Password"
+                  name="password"
+                  variant="standard"
+                  size="small"
+                  required
+                  fullWidth
+                />
+
+                <Link
+                  onClick={() => setOpenDialog(true)}
+                  sx={{ alignSelf: 'start', cursor: 'pointer' }}
+                >
+                  <Typography variant="body2">Forgot password?</Typography>
+                </Link>
+                <ResetPasswordDialog
+                  {...{
+                    values,
+                    isSubmitting,
+                    setSubmitting,
+                    resetForm,
+                    openDialog,
+                    handleDialogClose
+                  }}
+                />
+                <LoadingButton
+                  variant="contained"
+                  type="submit"
+                  size="small"
+                  loading={isSubmitting}
+                >
+                  Log in
+                </LoadingButton>
+
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ py: 1 }}
+                >
+                  Or log in with
+                </Typography>
+                <Stack spacing={1} sx={{ width: 1 }}>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    size="small"
+                    startIcon={<GoogleIcon />}
+                    sx={{ width: '100%' }}
+                    onClick={googleLogin}
+                  >
+                    Continue with Google
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    size="small"
+                    startIcon={<GitHubIcon />}
+                    sx={{ width: '100%' }}
+                    onClick={githubLogin}
+                  >
+                    Continue with Github
+                  </Button>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    textAlign={'center'}
+                    sx={{ pt: 1 }}
+                  >
+                    Don't have an account?{' '}
+                    <Link href="/signup">Sign up here</Link>
+                  </Typography>
+                </Stack>
+              </Stack>
+            </Form>
+          )}
+        </Formik>
       )}
     </Card>
   )

@@ -1,4 +1,4 @@
-import { Stack, Button, Typography } from '@mui/material'
+import { Stack, Button, Typography, Link } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import MainCard from '../components/MainCard'
 import { Google as GoogleIcon, GitHub as GitHubIcon } from '@mui/icons-material'
@@ -171,10 +171,10 @@ const Signup = () => {
                   textAlign: 'center'
                 }}
               >
-                <Typography>Already have an account?</Typography>
-                <Button onClick={handleLogIn} variant="text" color="primary">
-                  Log in here
-                </Button>
+                <Typography>
+                  Already have an account?{' '}
+                  <Link onClick={handleLogIn}>Log in here</Link>
+                </Typography>
               </Stack>
             </Stack>
           </Form>

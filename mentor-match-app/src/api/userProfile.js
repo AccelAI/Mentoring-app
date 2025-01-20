@@ -20,7 +20,9 @@ export const updateUserProfile = async (user, values) => {
 export const getUsers = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, 'users'))
-    const users = querySnapshot.docs.map((doc) => doc.data())
+    const users = querySnapshot.docs
+      .map((doc) => doc.data())
+      .filter((user) => user.publicProfile === true)
     return users
   } catch (err) {
     console.error('Error fetching users:', err)
