@@ -31,7 +31,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { LoadingButton } from '@mui/lab'
 import TextField from '../components/questions/text/TextField'
 import UploadImageButton from '../components/UploadImageButton'
-import { updateUserProfile } from '../api/userProfile'
+import { updateUserProfile } from '../api/users'
 import { useUser } from '../hooks/useUser'
 import { useSnackbar } from 'notistack'
 

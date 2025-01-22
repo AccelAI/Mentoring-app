@@ -1,27 +1,27 @@
-import React from "react";
-import "./App.css";
+import React from 'react'
+import './App.css'
 import {
   BrowserRouter,
   Navigate,
   Route,
   Router,
   Routes,
-  Outlet,
-} from "react-router-dom";
-import { ThemeContextProvider } from "./hooks/useTheme";
-import Dashboard from "./pages/Dashboard";
-import MenteeForm from "./pages/MenteeForm";
-import MentorForm from "./pages/MentorForm";
-import MentorMenteeForm from "./pages/MentorMenteeForm";
-import UserProfile from "./pages/UserProfile";
-import Login from "./pages/Login";
-import GetStarted from "./pages/GetStarted";
-import Signup from "./pages/Signup";
-import ProfileSettings from "./pages/ProfileSettings";
-import { CssBaseline } from "@mui/material";
-import UnAuthPage from "./components/UnAuthPage";
-import AuthPage from "./components/AuthPage";
-import { UserProvider } from "./hooks/useUser";
+  Outlet
+} from 'react-router-dom'
+import { ThemeContextProvider } from './hooks/useTheme'
+import Dashboard from './pages/Dashboard'
+import MenteeForm from './pages/MenteeForm'
+import MentorForm from './pages/MentorForm'
+import MentorMenteeForm from './pages/MentorMenteeForm'
+import UserProfile from './pages/UserProfile'
+import Login from './pages/Login'
+import GetStarted from './pages/GetStarted'
+import Signup from './pages/Signup'
+import ProfileSettings from './pages/ProfileSettings'
+import { CssBaseline } from '@mui/material'
+import UnAuthPage from './components/UnAuthPage'
+import AuthPage from './components/AuthPage'
+import { UserProvider } from './hooks/useUser'
 
 function App() {
   return (
@@ -63,7 +63,7 @@ function App() {
         </BrowserRouter>
       </ThemeContextProvider>
     </UserProvider>
-  );
+  )
 }
 
-export default App;
+export default App

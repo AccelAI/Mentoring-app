@@ -12,7 +12,16 @@ import { LocationOnOutlined as LocationIcon } from '@mui/icons-material'
 const UserGrid = ({ id, name, role, affiliation, location, image, select }) => {
   return (
     <Grid size={4}>
-      <Card sx={{ height: '100%' }} variant="outlined">
+      <Card
+        sx={{
+          height: '100%',
+          transition: 'box-shadow 0.3s',
+          '&:hover': {
+            boxShadow: 2
+          }
+        }}
+        variant="outlined"
+      >
         <Stack spacing={1} p={2} sx={{ height: '100%' }}>
           <Stack direction={'row'} spacing={2} sx={{ height: '100%' }}>
             <Box

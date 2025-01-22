@@ -29,3 +29,17 @@ export const getUsers = async () => {
     return { ok: false, error: err.message }
   }
 }
+
+export const filterUsers = (query, users) => {
+  if (!query) {
+    return users
+  } else {
+    const lowerCaseQuery = query.toLowerCase()
+    return users.filter(
+      (d) =>
+        d.display_name.toLowerCase().includes(lowerCaseQuery) ||
+        d.location.toLowerCase().includes(lowerCaseQuery) ||
+        d.affiliation.toLowerCase().includes(lowerCaseQuery)
+    )
+  }
+}

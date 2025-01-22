@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Stack,
   Typography,
@@ -7,24 +8,26 @@ import {
   Divider,
   IconButton,
   Button,
-  Link
+  Link,
+  Tooltip
 } from '@mui/material'
 import {
-  Edit as EditIcon,
+  Settings as SettingsIcon,
   Google as GoogleIcon,
   GitHub as GitHubIcon
 } from '@mui/icons-material'
-import { useUser } from '../hooks/useUser'
-import logo from '../assets/logo.png'
-import PasswordField from './PasswordField'
-import TextField from './questions/text/TextField'
+import { useUser } from '../../hooks/useUser'
+import logo from '../../assets/logo.png'
+import PasswordField from '../PasswordField'
+import TextField from '../questions/text/TextField'
 import { Form, Formik } from 'formik'
-import { useAuthHandlers } from '../utils/authUtils'
+import { useAuthHandlers } from '../../utils/authUtils'
 import { LoadingButton } from '@mui/lab'
-import ResetPasswordDialog from './ResetPasswordDialog'
+import ResetPasswordDialog from '../ResetPasswordDialog'
 
 const ProfileWidget = () => {
   const { user } = useUser()
+  const navigate = useNavigate()
   const { initialValues, schema, onSubmit, googleLogin, githubLogin } =
     useAuthHandlers()
 
@@ -43,9 +46,15 @@ const ProfileWidget = () => {
       {user ? (
         /* Logged in user */
         <Stack spacing={0.5} px={2} pb={2} pt={1}>
-          <IconButton sx={{ alignSelf: 'end' }}>
-            <EditIcon color="primary" />
+          <IconButton
+            sx={{ alignSelf: 'end' }}
+            onClick={() => navigate('/profile-settings')}
+          >
+            <Tooltip title="Profile Settings">
+              <SettingsIcon color="primary" />
+            </Tooltip>
           </IconButton>
+
           <Box
             component="img"
             src={
