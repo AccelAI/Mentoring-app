@@ -1,4 +1,4 @@
-import { doc, setDoc } from 'firebase/firestore'
+import { doc, setDoc, updateDoc } from 'firebase/firestore'
 import { db } from './firebaseConfig'
 
 export const setMentorForm = async (user, formData) => {
@@ -9,6 +9,12 @@ export const setMentorForm = async (user, formData) => {
   try {
     const mentorDoc = doc(db, 'mentors', user.uid)
     await setDoc(mentorDoc, formData, { merge: true })
+    const profileDoc = doc(db, 'users', user.uid)
+    if (doc(db, 'mentees', user.uid)) {
+      await updateDoc(profileDoc, { role: 'Mentor/Mentee' })
+    } else {
+      await updateDoc(profileDoc, { role: 'Mentor' })
+    }
     return { ok: true }
   } catch (err) {
     console.error('Error updating mentor form:', err)
@@ -24,6 +30,12 @@ export const setMenteeForm = async (user, formData) => {
   try {
     const menteeDoc = doc(db, 'mentees', user.uid)
     await setDoc(menteeDoc, formData, { merge: true })
+    const profileDoc = doc(db, 'users', user.uid)
+    if (doc(db, 'mentors', user.uid)) {
+      await updateDoc(profileDoc, { role: 'Mentor/Mentee' })
+    } else {
+      await updateDoc(profileDoc, { role: 'Mentee' })
+    }
     return { ok: true }
   } catch (err) {
     console.error('Error updating mentee form:', err)
@@ -36,7 +48,7 @@ export const setMentorMenteeForm = async (user, formData) => {
     return { ok: false, error: 'Invalid user object' }
   }
 
-  // Separate the form data into mentee-specific and mentor-specific fields
+  // Separated the form data into mentee-specific and mentor-specific fields
   const commonData = {
     currentInstitution: formData.currentInstitution,
     currentPosition: formData.currentPosition,
@@ -80,6 +92,8 @@ export const setMentorMenteeForm = async (user, formData) => {
   try {
     await setMentorForm(user, mentorData)
     await setMenteeForm(user, menteeData)
+    const profileDoc = doc(db, 'users', user.uid)
+    await updateDoc(profileDoc, { role: 'Mentor/Mentee' })
     return { ok: true }
   } catch (err) {
     console.error('Error updating mentor and mentee form:', err)

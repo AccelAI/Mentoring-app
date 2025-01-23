@@ -1,39 +1,43 @@
-import { useState } from "react";
-import { IconButton, InputAdornment } from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import TextField from "./questions/text/TextField";
+import { useState } from 'react'
+import { IconButton, InputAdornment } from '@mui/material'
+import { Visibility, VisibilityOff } from '@mui/icons-material'
+import TextField from './questions/text/TextField'
 
 const PasswordField = (props) => {
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleClickShowPassword = () => {
-    setShowPassword(!showPassword);
-  };
+    setShowPassword(!showPassword)
+  }
 
   const handleMouseDownPassword = (e) => {
-    e.preventDefault();
-  };
+    e.preventDefault()
+  }
 
   return (
     <TextField
-      type={showPassword ? "text" : "password"}
+      type={showPassword ? 'text' : 'password'}
       InputProps={{
         endAdornment: (
           <InputAdornment position="end">
             <IconButton
-              aria-label="cambiar visibilidad de la contraseña"
+              aria-label="change visibility"
               onClick={handleClickShowPassword}
               onMouseDown={handleMouseDownPassword}
               edge="end"
             >
-              {showPassword ? <VisibilityOff /> : <Visibility />}
+              {showPassword ? (
+                <VisibilityOff fontSize={props.size} />
+              ) : (
+                <Visibility fontSize={props.size} />
+              )}
             </IconButton>
           </InputAdornment>
-        ),
+        )
       }}
       {...props}
     />
-  );
-};
+  )
+}
 
-export default PasswordField;
+export default PasswordField
