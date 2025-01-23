@@ -132,7 +132,7 @@ export const signInWithGoogle = async () => {
 export const signInWithGithub = async () => {
   try {
     return await signInWithPopup(auth, githubProvider)
-    //return await handleSignInWithProvider(result.user, githubProvider)
+    // return await handleSignInWithProvider(result.user, githubProvider)
   } catch (error) {
     // Handle Errors here.
     const errorCode = error.code
