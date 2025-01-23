@@ -42,11 +42,10 @@ const handleSignInWithProvider = async (user, provider) => {
   if (!userDoc.exists()) {
     const username = user.email.split('@')[0]
     await setDoc(userDocRef, {
-      /*TODO: Change display_name and created_time to camel case */
-      display_name: user.displayName || user.email.split('@')[0],
+      displayName: user.displayName || user.email.split('@')[0],
       email: user.email,
       username,
-      created_time: new Date()
+      createdTime: new Date()
     })
   }
 
@@ -89,10 +88,10 @@ export const signUp = async ({ name, email, password, username }) => {
     const { user } = await createUserWithEmailAndPassword(auth, email, password)
 
     await setDoc(doc(db, 'users', user.uid), {
-      display_name: name,
+      displayName: name,
       email,
       username,
-      created_time: new Date()
+      createdTime: new Date()
     })
 
     saveNotificationToken(user.uid)

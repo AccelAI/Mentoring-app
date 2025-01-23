@@ -21,7 +21,7 @@ export const getUsers = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, 'users'))
     const users = querySnapshot.docs
-      .map((doc) => doc.data())
+      .map((doc) => ({ ...doc.data(), id: doc.id }))
       .filter((user) => user.publicProfile === true)
     return users
   } catch (err) {
@@ -37,9 +37,10 @@ export const filterUsers = (query, users) => {
     const lowerCaseQuery = query.toLowerCase()
     return users.filter(
       (d) =>
-        d.display_name.toLowerCase().includes(lowerCaseQuery) ||
+        d.displayName.toLowerCase().includes(lowerCaseQuery) ||
         d.location.toLowerCase().includes(lowerCaseQuery) ||
-        d.affiliation.toLowerCase().includes(lowerCaseQuery)
+        d.affiliation.toLowerCase().includes(lowerCaseQuery) ||
+        (d.role && d.role.toLowerCase().includes(lowerCaseQuery))
     )
   }
 }

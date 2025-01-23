@@ -8,8 +8,10 @@ import {
   Button
 } from '@mui/material'
 import { LocationOnOutlined as LocationIcon } from '@mui/icons-material'
+import { useNavigate } from 'react-router-dom'
 
 const UserGrid = ({ id, name, role, affiliation, location, image, select }) => {
+  const navigate = useNavigate()
   return (
     <Grid size={4}>
       <Card
@@ -21,6 +23,7 @@ const UserGrid = ({ id, name, role, affiliation, location, image, select }) => {
           }
         }}
         variant="outlined"
+        /* onClick={() => navigate(`/profile/${id}`)} */
       >
         <Stack spacing={1} p={2} sx={{ height: '100%' }}>
           <Stack direction={'row'} spacing={2} sx={{ height: '100%' }}>
@@ -48,7 +51,7 @@ const UserGrid = ({ id, name, role, affiliation, location, image, select }) => {
                 >
                   {name}
                 </Typography>
-                <Typography fontWeight={'light'}>{role}</Typography>
+                <Typography fontWeight={'light'}>{role ? role : ''}</Typography>
               </Box>
               <Box sx={{ flexGrow: 1 }} />
               <Box>

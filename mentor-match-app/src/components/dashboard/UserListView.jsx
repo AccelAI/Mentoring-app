@@ -38,7 +38,7 @@ const UserListView = ({ usersList }) => {
             sx={{ pb: 1 }}
           >
             <Typography variant={'h6'} fontWeight={'light'}>
-              All Mentors/Mentees
+              All Mentors & Mentees
             </Typography>
             <Box flexGrow={1} />
             <SearchBar setSearchQuery={setSearchQuery} />
@@ -64,9 +64,10 @@ const UserListView = ({ usersList }) => {
                 filteredUsers.map((user, i) => (
                   <UserGrid
                     key={i}
-                    name={user.display_name}
+                    id={user.id}
+                    name={user.displayName}
                     affiliation={user.affiliation}
-                    role={'Mentor'}
+                    role={user.role}
                     location={user.location}
                     image={user.profilePicture}
                   />

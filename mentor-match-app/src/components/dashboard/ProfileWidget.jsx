@@ -78,7 +78,7 @@ const ProfileWidget = () => {
             lineHeight={1.2}
             sx={{ pt: 1 }}
           >
-            {user.display_name}
+            {user.displayName}
           </Typography>
           <Typography fontSize={14} color="secondary">
             @{user.username}
