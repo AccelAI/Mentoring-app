@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   Grid2 as Grid,
   Stack,
@@ -9,9 +9,12 @@ import {
 } from '@mui/material'
 import { LocationOnOutlined as LocationIcon } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
+import UserProfileDialog from '../profile/UserProfileDialog'
 
 const UserGrid = ({ id, name, role, affiliation, location, image, select }) => {
   const navigate = useNavigate()
+  const [openDialog, setOpenDialog] = useState(false)
+
   return (
     <Grid size={4}>
       <Card
@@ -19,11 +22,12 @@ const UserGrid = ({ id, name, role, affiliation, location, image, select }) => {
           height: '100%',
           transition: 'box-shadow 0.3s',
           '&:hover': {
-            boxShadow: 2
+            boxShadow: 2,
+            cursor: 'pointer'
           }
         }}
         variant="outlined"
-        /* onClick={() => navigate(`/profile/${id}`)} */
+        onClick={() => setOpenDialog(true)}
       >
         <Stack spacing={1} p={2} sx={{ height: '100%' }}>
           <Stack direction={'row'} spacing={2} sx={{ height: '100%' }}>
@@ -87,6 +91,11 @@ const UserGrid = ({ id, name, role, affiliation, location, image, select }) => {
           )}
         </Stack>
       </Card>
+      <UserProfileDialog
+        openDialog={openDialog}
+        setOpenDialog={setOpenDialog}
+        userId={id}
+      />
     </Grid>
   )
 }

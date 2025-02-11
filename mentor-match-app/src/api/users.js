@@ -1,4 +1,4 @@
-import { doc, updateDoc, getDocs, collection } from 'firebase/firestore'
+import { doc, updateDoc, getDocs, collection, getDoc } from 'firebase/firestore'
 import { db } from './firebaseConfig'
 
 export const updateUserProfile = async (user, values) => {
@@ -26,6 +26,17 @@ export const getUsers = async () => {
     return users
   } catch (err) {
     console.error('Error fetching users:', err)
+    return { ok: false, error: err.message }
+  }
+}
+
+export const getUserById = async (userId) => {
+  try {
+    const userDoc = doc(db, 'users', userId)
+    const user = await getDoc(userDoc)
+    return { ...user.data(), id: user.id }
+  } catch (err) {
+    console.error('Error fetching user:', err)
     return { ok: false, error: err.message }
   }
 }
