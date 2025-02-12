@@ -1,21 +1,11 @@
 import { Container, Stack } from '@mui/material'
-import { useState, useEffect } from 'react'
 import ProfileWidget from '../components/dashboard/ProfileWidget'
-import { getUsers } from '../api/users'
 import Header from '../components/Header'
 import UserListView from '../components/dashboard/UserListView'
+import { useUser } from '../hooks/useUser'
 
 const Dashboard = () => {
-  const [users, setUsers] = useState([])
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const usersList = await getUsers()
-      console.log('usersList', usersList)
-      setUsers(usersList)
-    }
-    fetchUsers()
-  }, [])
+  const { userList } = useUser()
 
   return (
     <>
@@ -29,7 +19,7 @@ const Dashboard = () => {
           }}
         >
           <ProfileWidget />
-          <UserListView usersList={users} />
+          <UserListView usersList={userList} />
         </Stack>
       </Container>
     </>

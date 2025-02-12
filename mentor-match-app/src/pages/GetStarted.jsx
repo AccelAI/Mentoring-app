@@ -34,14 +34,14 @@ import UploadImageButton from '../components/UploadImageButton'
 import { updateUserProfile } from '../api/users'
 import { useUser } from '../hooks/useUser'
 import { useSnackbar } from 'notistack'
+import ProfilePicture from '../components/ProfilePicture'
 
 const initialValues = {
   title: '',
   affiliation: '',
   location: '',
   identifyAs: '',
-  profilePicture:
-    'https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg',
+  profilePicture: null,
   profileDescription: '',
   websiteUrl: '',
   publicProfile: true
@@ -50,7 +50,7 @@ const initialValues = {
 const schema = yup.object().shape({
   title: yup.string().required('Please enter your title'),
   affiliation: yup.string().required('Please enter your affiliation'),
-  profilePicture: yup.string().url('Invalid URL'),
+  //profilePicture: yup.string().url('Invalid URL'),
   websiteUrl: yup.string().url('Invalid URL'),
   publicProfile: yup.boolean()
 })
@@ -289,14 +289,10 @@ const GetStarted = () => {
                     <Stack spacing={2} mt={3.5}>
                       <Stack spacing={3} direction="row" alignItems="center">
                         <Stack>
-                          <Box
-                            component="img"
-                            src={values.profilePicture}
-                            sx={{
-                              height: '150px',
-                              width: '150px',
-                              objectFit: 'cover'
-                            }}
+                          <ProfilePicture
+                            img={values.profilePicture}
+                            size={150}
+                            borderRadius={10}
                           />
                         </Stack>
                         <Stack spacing={1}>

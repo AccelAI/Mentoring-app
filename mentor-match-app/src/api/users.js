@@ -30,7 +30,7 @@ export const getUsers = async () => {
   }
 }
 
-export const getUserById = async (userId) => {
+/* export const getUserById = async (userId) => {
   try {
     const userDoc = doc(db, 'users', userId)
     const user = await getDoc(userDoc)
@@ -39,7 +39,7 @@ export const getUserById = async (userId) => {
     console.error('Error fetching user:', err)
     return { ok: false, error: err.message }
   }
-}
+} */
 
 export const filterUsers = (query, users) => {
   if (!query) {

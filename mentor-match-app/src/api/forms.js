@@ -1,4 +1,4 @@
-import { doc, setDoc, updateDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 import { db } from './firebaseConfig'
 
 export const setMentorForm = async (user, formData) => {
@@ -97,6 +97,24 @@ export const setMentorMenteeForm = async (user, formData) => {
     return { ok: true }
   } catch (err) {
     console.error('Error updating mentor and mentee form:', err)
+    return { ok: false, error: err.message }
+  }
+}
+
+export const getFormAnswers = async (userId) => {
+  try {
+    const mentorDoc = doc(db, 'mentors', userId)
+    const menteeDoc = doc(db, 'mentees', userId)
+    const mentorDocSnap = await getDoc(mentorDoc)
+    const menteeDocSnap = await getDoc(menteeDoc)
+    const mentorData = mentorDocSnap.data()
+    const menteeData = menteeDocSnap.data()
+    if (!mentorData && !menteeData) {
+      return null
+    }
+    return { mentorData, menteeData }
+  } catch (err) {
+    console.error('Error fetching form answers:', err)
     return { ok: false, error: err.message }
   }
 }
