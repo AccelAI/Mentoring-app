@@ -3,6 +3,7 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { auth, db } from '../api/firebaseConfig'
 import { doc, getDoc } from 'firebase/firestore'
 import { getUsers } from '../api/users'
+
 // Create a UserContext
 const UserContext = createContext()
 
@@ -12,25 +13,37 @@ const UserProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
   const [userList, setUserList] = useState([])
 
+  // Function to fetch the logged-in user's data
+  const fetchLoggedUser = async (uid) => {
+    try {
+      const userDoc = doc(db, 'users', uid)
+      const userSnap = await getDoc(userDoc)
+      const userData = {
+        uid,
+        ...userSnap.data()
+      }
+      setUser(userData)
+    } catch (error) {
+      console.error('Error fetching user data: ', error)
+      setUser(null)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Function to refresh the logged-in user's data
+  const refreshUser = async () => {
+    if (user?.uid) {
+      await fetchLoggedUser(user.uid)
+    }
+  }
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setLoading(true)
       if (user) {
         console.log('User is logged in: ', user.uid)
-        try {
-          const userDoc = doc(db, 'users', user.uid)
-          const userSnap = await getDoc(userDoc)
-          const userData = {
-            uid: user.uid,
-            ...userSnap.data()
-          }
-          setUser(userData)
-        } catch (error) {
-          console.error('Error fetching user data: ', error)
-          setUser(null)
-        } finally {
-          setLoading(false)
-        }
+        await fetchLoggedUser(user.uid)
       } else {
         setUser(null)
         setLoading(false)
@@ -49,7 +62,7 @@ const UserProvider = ({ children }) => {
   }, [])
 
   return (
-    <UserContext.Provider value={{ user, loading, userList }}>
+    <UserContext.Provider value={{ user, loading, userList, refreshUser }}>
       {children}
     </UserContext.Provider>
   )

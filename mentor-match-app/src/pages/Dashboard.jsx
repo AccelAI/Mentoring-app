@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react'
 import { Container, Stack } from '@mui/material'
 import ProfileWidget from '../components/dashboard/ProfileWidget'
 import Header from '../components/Header'
@@ -5,7 +6,14 @@ import UserListView from '../components/dashboard/UserListView'
 import { useUser } from '../hooks/useUser'
 
 const Dashboard = () => {
-  const { userList } = useUser()
+  const { userList, user } = useUser()
+  const [listWithoutLoggedUser, setListWithoutLoggedUser] = useState([])
+
+  useEffect(() => {
+    if (user) {
+      setListWithoutLoggedUser(userList.filter((u) => u.id !== user.uid))
+    }
+  }, [user, userList])
 
   return (
     <>
@@ -19,7 +27,11 @@ const Dashboard = () => {
           }}
         >
           <ProfileWidget />
-          <UserListView usersList={userList} />
+          {user ? (
+            <UserListView usersList={listWithoutLoggedUser} />
+          ) : (
+            <UserListView usersList={userList} />
+          )}
         </Stack>
       </Container>
     </>

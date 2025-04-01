@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import {
   Dialog,
   DialogContent,
-  DialogActions,
   Button,
   Typography,
   CircularProgress,
@@ -25,7 +24,7 @@ import ProfilePicture from '../ProfilePicture'
 import { useUser } from '../../hooks/useUser'
 import { getFormAnswers } from '../../api/forms'
 
-const UserProfileDialog = ({ openDialog, setOpenDialog, userId, editable }) => {
+const UserProfileDialog = ({ openDialog, setOpenDialog, userId }) => {
   const [user, setUser] = useState({})
   const [loading, setLoading] = useState(true)
   const { userList } = useUser()
@@ -51,7 +50,7 @@ const UserProfileDialog = ({ openDialog, setOpenDialog, userId, editable }) => {
     <Dialog
       open={openDialog}
       onClose={() => setOpenDialog(false)}
-      maxWidth={editable ? 'lg' : 'md'}
+      maxWidth={'md'}
       fullWidth
     >
       <DialogContent>
@@ -72,7 +71,9 @@ const UserProfileDialog = ({ openDialog, setOpenDialog, userId, editable }) => {
             pb={5}
           >
             <IconButton
-              onClick={() => setOpenDialog(false)}
+              onClick={() => {
+                setOpenDialog(false)
+              }}
               color="text.secondary"
               sx={{ alignSelf: 'flex-end' }}
             >
@@ -91,6 +92,7 @@ const UserProfileDialog = ({ openDialog, setOpenDialog, userId, editable }) => {
                   props={{ alignSelf: 'center' }}
                 />
               </Stack>
+
               <Stack spacing={1} width={'65%'}>
                 <Stack
                   direction="row"
@@ -163,6 +165,7 @@ const UserProfileDialog = ({ openDialog, setOpenDialog, userId, editable }) => {
                     </Stack>
                   )}
                 </Typography>
+
                 {false && (
                   <Button
                     variant="contained"

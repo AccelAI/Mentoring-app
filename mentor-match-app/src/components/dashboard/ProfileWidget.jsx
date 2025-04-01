@@ -25,7 +25,7 @@ import { useAuthHandlers } from '../../utils/authUtils'
 import { LoadingButton } from '@mui/lab'
 import ResetPasswordDialog from '../ResetPasswordDialog'
 import ProfilePicture from '../ProfilePicture'
-import UserProfileDialog from '../profile/UserProfileDialog'
+import LoggedUserProfile from '../profile/LoggedUserProfile'
 
 const ProfileWidget = () => {
   const { user } = useUser()
@@ -53,16 +53,14 @@ const ProfileWidget = () => {
             sx={{ alignSelf: 'end' }}
             onClick={() => setOpenSettingsDialog(true)}
           >
-            <Tooltip title="Profile Settings">
+            <Tooltip title="Account Settings">
               <SettingsIcon color="primary" />
             </Tooltip>
           </IconButton>
 
-          <UserProfileDialog
+          <LoggedUserProfile
             openDialog={openSettingsDialog}
             setOpenDialog={setOpenSettingsDialog}
-            userId={user.uid}
-            editable={true}
           />
 
           <ProfilePicture
