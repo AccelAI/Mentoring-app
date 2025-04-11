@@ -11,7 +11,7 @@ const ConditionalQuestions = () => {
   useEffect(() => {
     if (!mentorArea && !menteeMotivation) return
     // Reset fields if "Improve as a Reviewer of Research Papers" is removed from mentorArea or menteeMotivation
-    if (
+    /* if (
       (mentorArea &&
         !mentorArea.includes('Improve as a Reviewer of Research Papers')) ||
       (menteeMotivation &&
@@ -31,7 +31,7 @@ const ConditionalQuestions = () => {
           setFieldValue(field, '')
         }
       })
-    }
+    } */
   }, [mentorArea, menteeMotivation, setFieldValue, values])
 
   const renderRadioQuestions = () => {

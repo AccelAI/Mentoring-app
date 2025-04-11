@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Stack,
   Typography,
@@ -21,6 +22,7 @@ import MentorshipFormDialog from '../MentorshipFormDialog'
 
 const SubmittedFormsSection = () => {
   const { user } = useUser()
+  const navigate = useNavigate()
   const [formType, setFormType] = useState('')
   const [warningDialogOpen, setWarningDialogOpen] = useState(false)
   const [mentorshipFormDialogOpen, setMentorshipFormDialogOpen] =
@@ -60,7 +62,12 @@ const SubmittedFormsSection = () => {
   const renderFormSection = (formLabel) => (
     <Stack direction={'row'} spacing={1} alignItems={'center'}>
       <Typography pr={1}>{formLabel}</Typography>
-      <Button variant="outlined" size="small" endIcon={<EditIcon />}>
+      <Button
+        variant="outlined"
+        size="small"
+        endIcon={<EditIcon />}
+        onClick={() => editForm(formLabel)}
+      >
         Edit
       </Button>
       <Button
@@ -76,7 +83,13 @@ const SubmittedFormsSection = () => {
   )
 
   const editForm = (formLabel) => {
-    // Handle edit form logic here
+    if (formLabel === 'Mentee Form') {
+      navigate('/mentee-form/' + user.uid)
+    } else if (formLabel === 'Mentor Form') {
+      navigate('/mentor-form/' + user.uid)
+    } else if (formLabel === 'Combined Form (Mentor and Mentee)') {
+      navigate('/mentor-mentee-form/' + user.uid)
+    }
   }
 
   const deleteForm = (formLabel) => {

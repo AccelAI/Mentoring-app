@@ -112,6 +112,7 @@ export const getFormAnswers = async (userId) => {
     if (!mentorData && !menteeData) {
       return null
     }
+    console.log('getFormData', { mentorData, menteeData })
     return { mentorData, menteeData }
   } catch (err) {
     console.error('Error fetching form answers:', err)
