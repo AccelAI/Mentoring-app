@@ -34,6 +34,7 @@ import { updateUserProfile } from '../../api/users'
 import SubmittedFormsSection from './SubmittedFormsSection'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { storage } from '../../api/firebaseConfig'
+import ProfileField from './ProfileField'
 
 const schema = yup.object().shape({
   name: yup.string().required('Please enter your name'),
@@ -278,76 +279,40 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                               direction={'row'}
                             >
                               <Stack spacing={1}>
-                                <Box
-                                  sx={{
-                                    display: 'flex',
-                                    alignItems: 'flex-end'
-                                  }}
-                                >
-                                  <PersonIcon
-                                    color={'primary'}
-                                    sx={{ mr: 0.6, my: 0.5 }}
-                                  />
+                                <ProfileField icon={PersonIcon}>
                                   <TextField
                                     name="title"
                                     label="Title"
                                     variant="standard"
                                     size="small"
                                   />
-                                </Box>
-                                <Box
-                                  sx={{
-                                    display: 'flex',
-                                    alignItems: 'flex-end'
-                                  }}
-                                >
-                                  <BusinessIcon
-                                    color={'primary'}
-                                    sx={{ mr: 0.6, my: 0.5 }}
-                                  />
+                                </ProfileField>
+                                <ProfileField icon={BusinessIcon}>
                                   <TextField
                                     name="affiliation"
                                     label="Affiliation"
                                     variant="standard"
                                     size="small"
                                   />
-                                </Box>
+                                </ProfileField>
                               </Stack>
                               <Stack spacing={1}>
-                                <Box
-                                  sx={{
-                                    display: 'flex',
-                                    alignItems: 'flex-end'
-                                  }}
-                                >
-                                  <LocationIcon
-                                    color={'primary'}
-                                    sx={{ mr: 0.6, my: 0.5 }}
-                                  />
+                                <ProfileField icon={LocationIcon}>
                                   <TextField
                                     name="location"
                                     label="Location"
                                     variant="standard"
                                     size="small"
                                   />
-                                </Box>
-                                <Box
-                                  sx={{
-                                    display: 'flex',
-                                    alignItems: 'flex-end'
-                                  }}
-                                >
-                                  <LinkIcon
-                                    color={'primary'}
-                                    sx={{ mr: 0.6, my: 0.5 }}
-                                  />
+                                </ProfileField>
+                                <ProfileField icon={LinkIcon}>
                                   <TextField
                                     name="websiteUrl"
                                     label="Website URL"
                                     variant="standard"
                                     size="small"
                                   />
-                                </Box>
+                                </ProfileField>
                               </Stack>
                             </Stack>
                             <Stack

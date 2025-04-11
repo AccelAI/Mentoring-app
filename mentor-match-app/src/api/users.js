@@ -1,4 +1,4 @@
-import { doc, updateDoc, getDocs, collection, getDoc } from 'firebase/firestore'
+import { doc, updateDoc, getDocs, collection } from 'firebase/firestore'
 import { db } from './firebaseConfig'
 
 export const updateUserProfile = async (user, values) => {
