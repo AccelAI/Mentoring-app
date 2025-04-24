@@ -1,17 +1,18 @@
-import { Navigate } from "react-router-dom";
-import { useUser } from "../hooks/useUser";
-import { LinearProgress } from "@mui/material";
+import { Navigate, useLocation } from 'react-router-dom'
+import { useUser } from '../hooks/useUser'
+import { LinearProgress } from '@mui/material'
 
 const AuthPage = ({ children }) => {
-  const { user, loading } = useUser();
+  const location = useLocation()
+  const { user, loading } = useUser()
   if (loading) {
-    return <LinearProgress />; // Show a loading indicator while checking authentication
+    return <LinearProgress /> // Show a loading indicator while checking authentication
   }
-  if (!user) {
-    return <Navigate to="/login" replace />;
+  if (!user && location.pathname !== '/dashboard') {
+    return <Navigate to="/login" replace />
   }
 
-  return children;
-};
+  return children
+}
 
-export default AuthPage;
+export default AuthPage

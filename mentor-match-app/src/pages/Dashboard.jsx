@@ -1,14 +1,39 @@
-import { Container, Box, Button } from "@mui/material";
-import { signOut } from "../api/auth";
+import { Container, Stack } from '@mui/material'
+import { useState, useEffect } from 'react'
+import ProfileWidget from '../components/dashboard/ProfileWidget'
+import { getUsers } from '../api/users'
+import Header from '../components/Header'
+import UserListView from '../components/dashboard/UserListView'
 
 const Dashboard = () => {
-  return (
-    <Container>
-      <Button variant="contained" onClick={signOut}>
-        Log out
-      </Button>
-    </Container>
-  );
-};
+  const [users, setUsers] = useState([])
 
-export default Dashboard;
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const usersList = await getUsers()
+      console.log('usersList', usersList)
+      setUsers(usersList)
+    }
+    fetchUsers()
+  }, [])
+
+  return (
+    <>
+      <Header />
+      <Container sx={{ mt: 8 }}>
+        <Stack
+          direction={{ md: 'row', xs: 'column' }}
+          spacing={6}
+          sx={{
+            alignItems: 'flex-start'
+          }}
+        >
+          <ProfileWidget />
+          <UserListView usersList={users} />
+        </Stack>
+      </Container>
+    </>
+  )
+}
+
+export default Dashboard
