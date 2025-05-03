@@ -4,17 +4,9 @@ import ProfileWidget from '../components/dashboard/ProfileWidget'
 import Header from '../components/Header'
 import UserListView from '../components/dashboard/UserListView'
 import { useUser } from '../hooks/useUser'
-import MatchAlert from '../components/dashboard/MatchAlert'
 
-const Dashboard = () => {
-  const { userList, user, loading } = useUser()
-  const [listWithoutLoggedUser, setListWithoutLoggedUser] = useState([])
-
-  useEffect(() => {
-    if (user) {
-      setListWithoutLoggedUser(userList.filter((u) => u.id !== user.uid))
-    }
-  }, [user, userList])
+const UserMatch = () => {
+  const { userList, loading } = useUser()
 
   return (
     <>
@@ -30,15 +22,15 @@ const Dashboard = () => {
               alignItems: 'flex-start'
             }}
           >
-            <ProfileWidget />
-            <Stack spacing={2}>
-              <MatchAlert />
-              {user ? (
-                <UserListView usersList={listWithoutLoggedUser} />
-              ) : (
-                <UserListView usersList={userList} />
-              )}
-            </Stack>
+            <UserListView
+              usersList={userList}
+              title={
+                'Based on your application, here are our top mentor picks for you:'
+              }
+              showMentorshipButton={false}
+              showSearchBar={false}
+              enableSelect={true}
+            />
           </Stack>
         </Container>
       )}
@@ -46,4 +38,4 @@ const Dashboard = () => {
   )
 }
 
-export default Dashboard
+export default UserMatch

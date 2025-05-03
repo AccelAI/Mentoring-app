@@ -21,6 +21,7 @@ import UnAuthPage from './components/UnAuthPage'
 import AuthPage from './components/AuthPage'
 import { UserProvider } from './hooks/useUser'
 import ErrorPage from './components/ErrorPage'
+import UserMatch from './pages/UserMatch'
 
 function App() {
   return (
@@ -65,6 +66,7 @@ function App() {
                 path="/form-not-found"
                 element={<ErrorPage>Couldn't find this form!</ErrorPage>}
               />
+              <Route path="match" element={<UserMatch />} />
             </Route>
           </Routes>
         </BrowserRouter>
