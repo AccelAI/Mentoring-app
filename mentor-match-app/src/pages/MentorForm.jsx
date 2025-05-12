@@ -1,19 +1,29 @@
+// React and hooks
 import { useNavigate } from 'react-router-dom'
+import { useCallback } from 'react'
+
+// Material UI components
 import { Typography, Stack, CircularProgress } from '@mui/material'
 import { ErrorOutline } from '@mui/icons-material'
+import { LoadingButton } from '@mui/lab'
+
+// Form validation
+import { Form, Formik } from 'formik'
+import * as yup from 'yup'
+
+// Hooks and services
+import { setMentorForm } from '../api/forms'
+import { useUser } from '../hooks/useUser'
+import useFormData from '../hooks/useFormData'
+import { useSnackbar } from 'notistack'
+
+// Components
+import ConditionalQuestions from '../components/questions/ConditionalQuestions'
+import ConditionalQuestionsMentor from '../components/questions/ConditionalQuestionsMentor'
 import FormCard from '../components/FormCard'
 import TextfieldQuestion from '../components/questions/text/TextfieldQuestion'
 import RadioQuestion from '../components/questions/RadioQuestion'
 import CheckboxQuestion from '../components/questions/checkbox/CheckboxQuestion'
-import { LoadingButton } from '@mui/lab'
-import { Form, Formik } from 'formik'
-import * as yup from 'yup'
-import { setMentorForm } from '../api/forms'
-import { useUser } from '../hooks/useUser'
-import { useSnackbar } from 'notistack'
-import ConditionalQuestions from '../components/questions/ConditionalQuestions'
-import ConditionalQuestionsMentor from '../components/questions/ConditionalQuestionsMentor'
-import useFormData from '../hooks/useFormData'
 
 const defaultInitialValues = {
   currentInstitution: '',
@@ -119,24 +129,27 @@ const MentorForm = () => {
     (mentorData, menteeData) => mentorData
   )
 
-  const onSubmit = async (values, { setSubmitting }) => {
-    // Submit the form data to the backend
-    setSubmitting(true)
-    try {
-      const res = await setMentorForm(user, values)
-      if (res.ok) {
-        console.log('Form submitted successfully')
-        enqueueSnackbar('Form submitted successfully', { variant: 'success' })
-        setTimeout(() => {
-          navigate('/dashboard')
-        }, 4000)
+  const onSubmit = useCallback(
+    async (values, { setSubmitting }) => {
+      // Submit the form data to the backend
+      setSubmitting(true)
+      try {
+        const res = await setMentorForm(user, values)
+        if (res.ok) {
+          console.log('Form submitted successfully')
+          enqueueSnackbar('Form submitted successfully', { variant: 'success' })
+          setTimeout(() => {
+            navigate('/dashboard')
+          }, 4000)
+        }
+      } catch (err) {
+        console.error('Error submitting form:', err)
+        return enqueueSnackbar(err.message, { variant: 'error' })
       }
-    } catch (err) {
-      console.error('Error submitting form:', err)
-      return enqueueSnackbar(err.message, { variant: 'error' })
-    }
-    setSubmitting(false)
-  }
+      setSubmitting(false)
+    },
+    [enqueueSnackbar, navigate, user]
+  )
 
   return (
     <FormCard

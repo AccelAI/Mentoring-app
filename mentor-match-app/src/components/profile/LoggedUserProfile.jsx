@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react'
+// React and hooks
+import { useState, useEffect, useCallback, useMemo } from 'react'
+
+// Material-UI components and icons
 import {
   Dialog,
   DialogContent,
@@ -22,19 +25,27 @@ import {
   Close as CloseIcon,
   Edit as EditIcon
 } from '@mui/icons-material'
-import ProfilePicture from '../ProfilePicture'
-import { useUser } from '../../hooks/useUser'
-import { getFormAnswers } from '../../api/forms'
-import { useSnackbar } from 'notistack'
-import { Form, Formik } from 'formik'
-import * as yup from 'yup'
 import { LoadingButton } from '@mui/lab'
+
+// Component imports
+import ProfilePicture from '../ProfilePicture'
 import TextField from '../../components/questions/text/TextField'
-import { updateUserProfile } from '../../api/users'
 import SubmittedFormsSection from './SubmittedFormsSection'
+import ProfileField from './ProfileField'
+
+// Hooks and services
+import { useUser } from '../../hooks/useUser'
+import { useSnackbar } from 'notistack'
+import { getFormAnswers } from '../../api/forms'
+import { updateUserProfile } from '../../api/users'
+
+// Firebase
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { storage } from '../../api/firebaseConfig'
-import ProfileField from './ProfileField'
+
+// Form validation
+import { Form, Formik } from 'formik'
+import * as yup from 'yup'
 
 const schema = yup.object().shape({
   name: yup.string().required('Please enter your name'),
@@ -52,50 +63,91 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
   const [enableEdit, setEnableEdit] = useState(false)
   const { enqueueSnackbar } = useSnackbar()
 
-  const onSubmit = async (values, { setSubmitting }) => {
-    setSubmitting(true)
-    try {
-      const res = await updateUserProfile(user, values)
-      if (!res.ok) {
+  const onSubmit = useCallback(
+    async (values, { setSubmitting }) => {
+      setSubmitting(true)
+      try {
+        const res = await updateUserProfile(user, values)
+        if (!res.ok) {
+          setSubmitting(false)
+          return enqueueSnackbar(res.error, { variant: 'error' })
+        }
+        enqueueSnackbar('Profile updated successfully', { variant: 'success' })
+        await refreshUser()
         setSubmitting(false)
-        return enqueueSnackbar(res.error, { variant: 'error' })
+        setEnableEdit(false)
+        //handleDialogOpen()
+      } catch (error) {
+        console.error('Error during profile update:', error)
+        enqueueSnackbar('An error occurred during profile update', {
+          variant: 'error'
+        })
+        setSubmitting(false)
       }
-      enqueueSnackbar('Profile updated successfully', { variant: 'success' })
-      await refreshUser()
-      setSubmitting(false)
-      setEnableEdit(false)
-      //handleDialogOpen()
-    } catch (error) {
-      console.error('Error during profile update:', error)
-      enqueueSnackbar('An error occurred during profile update', {
-        variant: 'error'
-      })
-      setSubmitting(false)
-    }
-  }
+    },
+    [user, enqueueSnackbar, refreshUser]
+  )
+
+  const handleFileUpload = useCallback(
+    async (e, setFieldValue) => {
+      const file = e.target.files[0]
+      if (file) {
+        try {
+          const storageRef = ref(
+            storage,
+            `profilePictures/${user.uid}_${Date.now()}_${file.name}`
+          )
+          await uploadBytes(storageRef, file)
+          const downloadURL = await getDownloadURL(storageRef)
+          setFieldValue('profilePicture', downloadURL)
+          enqueueSnackbar('Profile picture updated successfully', {
+            variant: 'success'
+          })
+        } catch (error) {
+          enqueueSnackbar('Error uploading profile picture: ' + error.message, {
+            variant: 'error'
+          })
+        }
+      }
+    },
+    [enqueueSnackbar, user.uid]
+  )
 
   useEffect(() => {
     if (openDialog) {
+      if (!openDialog || !user?.uid) return
       const fetchFormAnswers = async () => {
-        const ans = await getFormAnswers(user.uid)
-        setFormAnswers(ans)
-        console.log('formAnswers', ans)
-        setLoading(false)
+        try {
+          const ans = await getFormAnswers(user.uid)
+          setFormAnswers(ans)
+          console.log('formAnswers', ans)
+          setFormAnswers(ans || {})
+          setLoading(false)
+        } catch (error) {
+          enqueueSnackbar('Error fetching form answers: ' + error.message, {
+            variant: 'error'
+          })
+          setFormAnswers({})
+          setLoading(false)
+        }
       }
       fetchFormAnswers()
     }
   }, [openDialog, user.uid])
 
-  const initialValues = {
-    name: user.displayName,
-    description: user.profileDescription,
-    affiliation: user.affiliation,
-    title: user.title,
-    location: user.location,
-    profilePicture: user.profilePicture,
-    profileDescription: user.profileDescription,
-    websiteUrl: user.websiteUrl
-  }
+  const initialValues = useMemo(
+    () => ({
+      name: user?.displayName || '',
+      description: user?.profileDescription || '',
+      affiliation: user?.affiliation || '',
+      title: user?.title || '',
+      location: user?.location || '',
+      profilePicture: user?.profilePicture || '',
+      profileDescription: user?.profileDescription || '',
+      websiteUrl: user?.websiteUrl || ''
+    }),
+    [user]
+  )
 
   return (
     <Dialog
@@ -137,6 +189,7 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                 validationSchema={schema}
                 onSubmit={onSubmit}
                 sx={{ width: '100%' }}
+                enableReinitialize
               >
                 {({ isSubmitting, values, setFieldValue }) => (
                   <>
@@ -167,41 +220,9 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                               accept="image/*"
                               id="upload-profile-picture"
                               style={{ display: 'none' }}
-                              onChange={async (e) => {
-                                const file = e.target.files[0]
-                                if (file) {
-                                  try {
-                                    // Upload the file to Firebase Storage
-                                    const storageRef = ref(
-                                      storage,
-                                      `profilePictures/${file.name}`
-                                    )
-                                    await uploadBytes(storageRef, file)
-
-                                    // Get the download URL
-                                    const downloadURL = await getDownloadURL(
-                                      storageRef
-                                    )
-
-                                    // Update the user's profile picture
-                                    setFieldValue('profilePicture', downloadURL)
-                                    enqueueSnackbar(
-                                      'Profile picture updated successfully',
-                                      {
-                                        variant: 'success'
-                                      }
-                                    )
-                                  } catch (error) {
-                                    enqueueSnackbar(
-                                      'Error uploading profile picture: ' +
-                                        error.message,
-                                      {
-                                        variant: 'error'
-                                      }
-                                    )
-                                  }
-                                }
-                              }}
+                              onChange={(e) =>
+                                handleFileUpload(e, setFieldValue)
+                              }
                             />
                             <Fab
                               color="primary"
@@ -425,8 +446,10 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                               <span>
                                 Languages:{' '}
                                 {formAnswers.mentorData
-                                  ? formAnswers.mentorData.languages.join(', ')
-                                  : formAnswers.menteeData.languages.join(', ')}
+                                  ? formAnswers.mentorData.languages?.join(', ')
+                                  : formAnswers.menteeData?.languages?.join(
+                                      ', '
+                                    )}
                               </span>
                             </Stack>
                           )}

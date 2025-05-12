@@ -1,3 +1,8 @@
+// React and hooks
+import { useState, useMemo, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+// Material-UI components and icons
 import {
   Stack,
   Select,
@@ -21,31 +26,26 @@ import {
   RadioGroup,
   Radio
 } from '@mui/material'
-import { Form, Formik } from 'formik'
-import * as yup from 'yup'
-import MainCard from '../components/MainCard'
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { storage } from '../api/firebaseConfig'
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { LoadingButton } from '@mui/lab'
+
+// Component imports
+import ProfilePicture from '../components/ProfilePicture'
+import MainCard from '../components/MainCard'
 import TextField from '../components/questions/text/TextField'
 import UploadImageButton from '../components/UploadImageButton'
+
+// Hooks and services
 import { updateUserProfile } from '../api/users'
 import { useUser } from '../hooks/useUser'
 import { useSnackbar } from 'notistack'
-import ProfilePicture from '../components/ProfilePicture'
 
-const initialValues = {
-  title: '',
-  affiliation: '',
-  location: '',
-  identifyAs: '',
-  profilePicture: null,
-  profileDescription: '',
-  websiteUrl: '',
-  publicProfile: true
-}
+// Form validation
+import { Form, Formik } from 'formik'
+import * as yup from 'yup'
+
+// Firebase
+import { storage } from '../api/firebaseConfig'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
 const schema = yup.object().shape({
   title: yup.string().required('Please enter your title'),
@@ -68,31 +68,6 @@ const GetStarted = () => {
 
   const handleValueChange = (event) => {
     setSelectedValue(event.target.value)
-  }
-
-  const onSubmit = async (values, { setSubmitting }) => {
-    console.log('Form submitted with values:', values)
-    setSubmitting(true)
-    try {
-      const res = await updateUserProfile(user, values)
-      if (!res.ok) {
-        setSubmitting(false)
-        return enqueueSnackbar(res.error, { variant: 'error' })
-      }
-      enqueueSnackbar('Profile created successfully', { variant: 'success' })
-      setSubmitting(false)
-      handleDialogOpen()
-    } catch (error) {
-      console.error('Error during profile setup:', error)
-      enqueueSnackbar('An error occurred during profile setup', {
-        variant: 'error'
-      })
-      setSubmitting(false)
-    }
-  }
-
-  const handleDialogOpen = () => {
-    setOpenDialog(true)
   }
 
   const handleDialogClose = () => {
@@ -143,6 +118,44 @@ const GetStarted = () => {
     }
     return 'Hi, Welcome to Latinx In AI (LXAI)!'
   }
+
+  const onSubmit = useCallback(
+    async (values, { setSubmitting }) => {
+      console.log('Form submitted with values:', values)
+      setSubmitting(true)
+      try {
+        const res = await updateUserProfile(user, values)
+        if (!res.ok) {
+          setSubmitting(false)
+          return enqueueSnackbar(res.error, { variant: 'error' })
+        }
+        enqueueSnackbar('Profile created successfully', { variant: 'success' })
+        setSubmitting(false)
+        setOpenDialog(true)
+      } catch (error) {
+        console.error('Error during profile setup:', error)
+        enqueueSnackbar('An error occurred during profile setup', {
+          variant: 'error'
+        })
+        setSubmitting(false)
+      }
+    },
+    [enqueueSnackbar, user]
+  )
+
+  const initialValues = useMemo(
+    () => ({
+      title: '',
+      affiliation: '',
+      location: '',
+      identifyAs: '',
+      profilePicture: null,
+      profileDescription: '',
+      websiteUrl: '',
+      publicProfile: true
+    }),
+    []
+  )
 
   return (
     <Container

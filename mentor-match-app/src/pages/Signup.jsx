@@ -1,10 +1,14 @@
+import { useNavigate } from 'react-router-dom'
+import { useCallback } from 'react'
+
 import { Stack, Button, Typography, Link } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
-import MainCard from '../components/MainCard'
 import { Google as GoogleIcon, GitHub as GitHubIcon } from '@mui/icons-material'
-import { useNavigate } from 'react-router-dom'
+
+import MainCard from '../components/MainCard'
 import PasswordField from '../components/PasswordField'
 import TextField from '../components/questions/text/TextField'
+
 import { Form, Formik } from 'formik'
 import * as yup from 'yup'
 import { useSnackbar } from 'notistack'
@@ -44,18 +48,21 @@ const Signup = () => {
   const handleLogIn = () => {
     navigate('/login')
   }
-  const onSubmit = async (user, { setSubmitting }) => {
-    setSubmitting(true)
-    const res = await signUp(user)
-    if (!res.ok) {
-      setSubmitting(false)
-      return enqueueSnackbar(res.error, { variant: 'error' })
-    }
-    enqueueSnackbar('Account created succesfully', { variant: 'success' })
-    navigate('/get-started')
-  }
+  const onSubmit = useCallback(
+    async (user, { setSubmitting }) => {
+      setSubmitting(true)
+      const res = await signUp(user)
+      if (!res.ok) {
+        setSubmitting(false)
+        return enqueueSnackbar(res.error, { variant: 'error' })
+      }
+      enqueueSnackbar('Account created succesfully', { variant: 'success' })
+      navigate('/get-started')
+    },
+    [enqueueSnackbar, navigate]
+  )
 
-  const googleSignUp = async () => {
+  const googleSignUp = useCallback(async () => {
     const res = await signInWithGoogle()
     if (!res.ok) {
       return enqueueSnackbar(
@@ -65,9 +72,9 @@ const Signup = () => {
     }
     enqueueSnackbar('Account created succesfully', { variant: 'success' })
     navigate('/get-started')
-  }
+  }, [enqueueSnackbar, navigate])
 
-  const githubSignUp = async () => {
+  const githubSignUp = useCallback(async () => {
     const res = await signInWithGithub()
     console.log(res)
     if (!res.ok) {
@@ -78,7 +85,7 @@ const Signup = () => {
     }
     enqueueSnackbar('Account created succesfully', { variant: 'success' })
     navigate('/get-started')
-  }
+  }, [enqueueSnackbar, navigate])
 
   return (
     <MainCard

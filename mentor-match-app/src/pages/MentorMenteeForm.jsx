@@ -1,4 +1,8 @@
+// React and hooks
 import { useNavigate } from 'react-router-dom'
+import { useCallback } from 'react'
+
+// Material-UI components and icons
 import {
   Typography,
   Stack,
@@ -7,19 +11,25 @@ import {
   CircularProgress
 } from '@mui/material'
 import { ErrorOutline } from '@mui/icons-material'
+import { LoadingButton } from '@mui/lab'
+
+// Component imports
 import FormCard from '../components/FormCard'
 import TextfieldQuestion from '../components/questions/text/TextfieldQuestion'
 import RadioQuestion from '../components/questions/RadioQuestion'
 import CheckboxQuestion from '../components/questions/checkbox/CheckboxQuestion'
-import { LoadingButton } from '@mui/lab'
-import { Form, Formik } from 'formik'
-import * as yup from 'yup'
-import { setMentorMenteeForm } from '../api/forms'
-import { useUser } from '../hooks/useUser'
-import { useSnackbar } from 'notistack'
 import ConditionalQuestions from '../components/questions/ConditionalQuestions'
 import ConditionalQuestionsMentor from '../components/questions/ConditionalQuestionsMentor'
 import ConditionalQuestionsMentee from '../components/questions/ConditionalQuestionsMentee'
+
+// Form validation
+import { Form, Formik } from 'formik'
+import * as yup from 'yup'
+import { useSnackbar } from 'notistack'
+
+// Hooks and services
+import { setMentorMenteeForm } from '../api/forms'
+import { useUser } from '../hooks/useUser'
 import useFormData from '../hooks/useFormData'
 
 const defaultInitialValues = {
@@ -157,73 +167,80 @@ const MentorMenteeForm = () => {
 
   const navigate = useNavigate()
 
-  const onSubmit = async (values, { setSubmitting }) => {
-    // Submit the form data to the backend
-    setSubmitting(true)
-    try {
-      const res = await setMentorMenteeForm(user, values) //TODO: Implement setMentorMenteeForm
-      if (res.ok) {
-        console.log('Form submitted successfully')
-        enqueueSnackbar('Form submitted successfully', { variant: 'success' })
-        setTimeout(() => {
-          navigate('/dashboard')
-        }, 4000)
+  const onSubmit = useCallback(
+    async (values, { setSubmitting }) => {
+      // Submit the form data to the backend
+      setSubmitting(true)
+      try {
+        const res = await setMentorMenteeForm(user, values) //TODO: Implement setMentorMenteeForm
+        if (res.ok) {
+          console.log('Form submitted successfully')
+          enqueueSnackbar('Form submitted successfully', { variant: 'success' })
+          setTimeout(() => {
+            navigate('/dashboard')
+          }, 4000)
+        }
+      } catch (err) {
+        console.error('Error submitting form:', err)
+        return enqueueSnackbar(err.message, { variant: 'error' })
       }
-    } catch (err) {
-      console.error('Error submitting form:', err)
-      return enqueueSnackbar(err.message, { variant: 'error' })
-    }
-    setSubmitting(false)
-  }
+      setSubmitting(false)
+    },
+    [enqueueSnackbar, navigate, user]
+  )
 
-  const mergeFormAnswers = (mentorData, menteeData) => ({
-    // Common fields
-    currentInstitution:
-      mentorData.currentInstitution || menteeData.currentInstitution,
-    currentPosition: mentorData.currentPosition || menteeData.currentPosition,
-    linkToResearch: mentorData.linkToResearch || menteeData.linkToResearch,
-    preferredTimezone:
-      mentorData.preferredTimezone || menteeData.preferredTimezone,
-    languages: mentorData.languages || menteeData.languages,
-    conferences: mentorData.conferences || menteeData.conferences,
-    otherConferences:
-      mentorData.otherConferences || menteeData.otherConferences,
-    openToDiscussImpacts:
-      mentorData.openToDiscussImpacts || menteeData.openToDiscussImpacts,
-    reviewerInWorkshop:
-      mentorData.reviewerInWorkshop || menteeData.reviewerInWorkshop,
-    publicationsInWorkshop:
-      mentorData.publicationsInWorkshop || menteeData.publicationsInWorkshop,
-    reviewerInAiConferences:
-      mentorData.reviewerInAiConferences || menteeData.reviewerInAiConferences,
-    publicationsInAiConferences:
-      mentorData.publicationsInAiConferences ||
-      menteeData.publicationsInAiConferences,
-    reviewerInAiJournals:
-      mentorData.reviewerInAiJournals || menteeData.reviewerInAiJournals,
-    publicationsInAiJournals:
-      mentorData.publicationsInAiJournals ||
-      menteeData.publicationsInAiJournals,
+  const mergeFormAnswers = useCallback(
+    (mentorData, menteeData) => ({
+      // Common fields
+      currentInstitution:
+        mentorData.currentInstitution || menteeData.currentInstitution,
+      currentPosition: mentorData.currentPosition || menteeData.currentPosition,
+      linkToResearch: mentorData.linkToResearch || menteeData.linkToResearch,
+      preferredTimezone:
+        mentorData.preferredTimezone || menteeData.preferredTimezone,
+      languages: mentorData.languages || menteeData.languages,
+      conferences: mentorData.conferences || menteeData.conferences,
+      otherConferences:
+        mentorData.otherConferences || menteeData.otherConferences,
+      openToDiscussImpacts:
+        mentorData.openToDiscussImpacts || menteeData.openToDiscussImpacts,
+      reviewerInWorkshop:
+        mentorData.reviewerInWorkshop || menteeData.reviewerInWorkshop,
+      publicationsInWorkshop:
+        mentorData.publicationsInWorkshop || menteeData.publicationsInWorkshop,
+      reviewerInAiConferences:
+        mentorData.reviewerInAiConferences ||
+        menteeData.reviewerInAiConferences,
+      publicationsInAiConferences:
+        mentorData.publicationsInAiConferences ||
+        menteeData.publicationsInAiConferences,
+      reviewerInAiJournals:
+        mentorData.reviewerInAiJournals || menteeData.reviewerInAiJournals,
+      publicationsInAiJournals:
+        mentorData.publicationsInAiJournals ||
+        menteeData.publicationsInAiJournals,
 
-    // Mentor-specific fields
-    preferredExpectationsMentor: mentorData.preferredExpectations,
-    otherMenteePref: mentorData.otherMenteePref,
-    otherExpectations: mentorData.otherExpectations,
-    mentorMotivation: mentorData.mentorMotivation,
-    mentorArea: mentorData.mentorArea,
-    mentoringTime: mentorData.mentoringTime,
-    menteePreferences: mentorData.menteePreferences,
-    mentorSkills: mentorData.mentorSkills,
-    areasConsideringMentoring: mentorData.areasConsideringMentoring,
+      // Mentor-specific fields
+      preferredExpectationsMentor: mentorData.preferredExpectations,
+      otherMenteePref: mentorData.otherMenteePref,
+      otherExpectations: mentorData.otherExpectations,
+      mentorMotivation: mentorData.mentorMotivation,
+      mentorArea: mentorData.mentorArea,
+      mentoringTime: mentorData.mentoringTime,
+      menteePreferences: mentorData.menteePreferences,
+      mentorSkills: mentorData.mentorSkills,
+      areasConsideringMentoring: mentorData.areasConsideringMentoring,
 
-    // Mentee-specific fields
-    preferredExpectationsMentee: menteeData.preferredExpectations,
-    careerGoals: menteeData.careerGoals,
-    menteeMotivation: menteeData.menteeMotivation,
-    commitmentStatement: menteeData.commitmentStatement,
-    topResearchAreas: menteeData.topResearchAreas,
-    mentoredSkills: menteeData.mentoredSkills
-  })
+      // Mentee-specific fields
+      preferredExpectationsMentee: menteeData.preferredExpectations,
+      careerGoals: menteeData.careerGoals,
+      menteeMotivation: menteeData.menteeMotivation,
+      commitmentStatement: menteeData.commitmentStatement,
+      topResearchAreas: menteeData.topResearchAreas,
+      mentoredSkills: menteeData.mentoredSkills
+    }),
+    []
+  )
 
   const { initialValues, loading } = useFormData(
     defaultInitialValues,
