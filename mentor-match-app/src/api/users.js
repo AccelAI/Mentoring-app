@@ -55,3 +55,18 @@ export const filterUsers = (query, users) => {
     )
   }
 }
+
+export const asignMatch = async (userId, mentorId) => {
+  try {
+    const userDoc = doc(db, 'users', userId)
+    await updateDoc(userDoc, { mentorId: mentorId })
+
+    const mentorDoc = doc(db, 'users', mentorId)
+    await updateDoc(mentorDoc, { menteeId: userId })
+
+    return { ok: true }
+  } catch (err) {
+    console.error('Error asigning match:', err)
+    return { ok: false, error: err.message }
+  }
+}

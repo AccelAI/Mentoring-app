@@ -11,6 +11,7 @@ import {
   Link,
   IconButton
 } from '@mui/material'
+import { LoadingButton } from '@mui/lab'
 import {
   Business as BusinessIcon,
   Language as LanguageIcon,
@@ -23,12 +24,23 @@ import {
 import ProfilePicture from '../ProfilePicture'
 import { useUser } from '../../hooks/useUser'
 import { getFormAnswers } from '../../api/forms'
+import { asignMatch } from '../../api/users'
+import { useSnackbar } from 'notistack'
+import MatchDialog from '../MatchDialog'
 
-const UserProfileDialog = ({ openDialog, setOpenDialog, userId }) => {
+const UserProfileDialog = ({
+  openDialog,
+  setOpenDialog,
+  setOpenMatchDialog,
+  userId,
+  enableSelect
+}) => {
   const [user, setUser] = useState({})
   const [loading, setLoading] = useState(true)
-  const { userList } = useUser()
+  const [loadingMatch, setLoadingMatch] = useState(false)
+  const { userList, user: loggedUser } = useUser()
   const [formAnswers, setFormAnswers] = useState({})
+  const { enqueueSnackbar } = useSnackbar()
 
   useEffect(() => {
     if (openDialog) {
@@ -45,6 +57,22 @@ const UserProfileDialog = ({ openDialog, setOpenDialog, userId }) => {
       fetchUser()
     }
   }, [openDialog, userId, userList])
+
+  const handleMatch = async () => {
+    setLoadingMatch(true)
+    const res = await asignMatch(loggedUser.uid, userId)
+    if (res.ok) {
+      setOpenDialog(false)
+      setTimeout(() => {
+        setOpenMatchDialog(true) // Open the match dialog after a delay
+      }, 600)
+    } else {
+      console.error('Error assigning match:', res.error)
+      enqueueSnackbar('Error assigning match', {
+        variant: 'error'
+      })
+    }
+  }
 
   return (
     <Dialog
@@ -166,16 +194,18 @@ const UserProfileDialog = ({ openDialog, setOpenDialog, userId }) => {
                   )}
                 </Typography>
 
-                {false && (
-                  <Button
+                {enableSelect && (
+                  <LoadingButton
                     variant="contained"
                     sx={{
                       width: 'fit-content',
                       alignSelf: 'center'
                     }}
+                    onClick={handleMatch}
+                    loading={loadingMatch}
                   >
                     Choose as mentor
-                  </Button>
+                  </LoadingButton>
                 )}
               </Stack>
             </Stack>

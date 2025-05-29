@@ -10,9 +10,19 @@ import {
 import { LocationOnOutlined as LocationIcon } from '@mui/icons-material'
 import UserProfileDialog from '../profile/UserProfileDialog'
 import ProfilePicture from '../ProfilePicture'
+import MatchDialog from '../MatchDialog'
 
-const UserGrid = ({ id, name, role, affiliation, location, image, select }) => {
+const UserGrid = ({
+  id,
+  name,
+  role,
+  affiliation,
+  location,
+  image,
+  enableSelect
+}) => {
   const [openDialog, setOpenDialog] = useState(false)
+  const [openMatchDialog, setOpenMatchDialog] = useState(false)
 
   return (
     <Grid size={4}>
@@ -22,11 +32,15 @@ const UserGrid = ({ id, name, role, affiliation, location, image, select }) => {
           transition: 'box-shadow 0.3s',
           '&:hover': {
             boxShadow: 2,
-            cursor: 'pointer'
+            cursor: enableSelect ? '' : 'pointer'
           }
         }}
         variant="outlined"
-        onClick={() => setOpenDialog(true)}
+        onClick={() => {
+          if (!enableSelect) {
+            setOpenDialog(true)
+          }
+        }}
       >
         <Stack spacing={1} p={2} sx={{ height: '100%' }}>
           <Stack direction={'row'} spacing={2} sx={{ height: '100%' }}>
@@ -40,7 +54,25 @@ const UserGrid = ({ id, name, role, affiliation, location, image, select }) => {
                 >
                   {name}
                 </Typography>
-                <Typography fontWeight={'light'}>{role ? role : ''}</Typography>
+                {enableSelect && (
+                  <Typography
+                    variant={'body2'}
+                    fontWeight={'light'}
+                    my={0.5}
+                    mb={1}
+                    display={'inline-flex'}
+                  >
+                    Match Score:{' '}
+                    <Typography variant={'body2'} pl={0.3} color="primary">
+                      85%
+                    </Typography>
+                  </Typography>
+                )}
+                {!enableSelect && (
+                  <Typography fontWeight={'light'}>
+                    {role ? role : ''}
+                  </Typography>
+                )}
               </Box>
               <Box sx={{ flexGrow: 1 }} />
               <Box>
@@ -65,13 +97,16 @@ const UserGrid = ({ id, name, role, affiliation, location, image, select }) => {
             </Stack>
           </Stack>
           <Box sx={{ flexGrow: 1 }} />
-          {select && (
+          {enableSelect && (
             <Button
               variant="contained"
               size="small"
               sx={{ width: 'fit-content', alignSelf: 'center' }}
+              onClick={() => {
+                setOpenDialog(true)
+              }}
             >
-              Select Mentor
+              View Mentor
             </Button>
           )}
         </Stack>
@@ -81,6 +116,12 @@ const UserGrid = ({ id, name, role, affiliation, location, image, select }) => {
         setOpenDialog={setOpenDialog}
         userId={id}
         editable={false}
+        enableSelect={enableSelect}
+        setOpenMatchDialog={setOpenMatchDialog}
+      />
+      <MatchDialog
+        openDialog={openMatchDialog}
+        setOpenDialog={setOpenMatchDialog}
       />
     </Grid>
   )
