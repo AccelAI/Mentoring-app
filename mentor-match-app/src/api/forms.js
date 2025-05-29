@@ -1,4 +1,4 @@
-import { doc, setDoc, updateDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore'
 import { db } from './firebaseConfig'
 
 export const setMentorForm = async (user, formData) => {
@@ -97,6 +97,58 @@ export const setMentorMenteeForm = async (user, formData) => {
     return { ok: true }
   } catch (err) {
     console.error('Error updating mentor and mentee form:', err)
+    return { ok: false, error: err.message }
+  }
+}
+
+export const getFormAnswers = async (userId) => {
+  try {
+    const mentorDoc = doc(db, 'mentors', userId)
+    const menteeDoc = doc(db, 'mentees', userId)
+    const mentorDocSnap = await getDoc(mentorDoc)
+    const menteeDocSnap = await getDoc(menteeDoc)
+    const mentorData = mentorDocSnap.data()
+    const menteeData = menteeDocSnap.data()
+    if (!mentorData && !menteeData) {
+      return null
+    }
+    console.log('getFormData', { mentorData, menteeData })
+    return { mentorData, menteeData }
+  } catch (err) {
+    console.error('Error fetching form answers:', err)
+    return { ok: false, error: err.message }
+  }
+}
+
+export const deleteFormAnswers = async (userId, formType) => {
+  try {
+    const deleteDocByType = {
+      Mentor: async () => {
+        const mentorDoc = doc(db, 'mentors', userId)
+        await deleteDoc(mentorDoc)
+      },
+      Mentee: async () => {
+        const menteeDoc = doc(db, 'mentees', userId)
+        await deleteDoc(menteeDoc)
+      },
+      Combined: async () => {
+        const mentorDoc = doc(db, 'mentors', userId)
+        const menteeDoc = doc(db, 'mentees', userId)
+        await Promise.all([deleteDoc(mentorDoc), deleteDoc(menteeDoc)])
+      }
+    }
+
+    if (deleteDocByType[formType]) {
+      await deleteDocByType[formType]()
+      const profileDoc = doc(db, 'users', userId)
+      await updateDoc(profileDoc, { role: '' })
+    } else {
+      throw new Error('Invalid form type')
+    }
+
+    return { ok: true }
+  } catch (err) {
+    console.error('Error deleting form answers:', err)
     return { ok: false, error: err.message }
   }
 }

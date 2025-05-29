@@ -24,6 +24,8 @@ import { Form, Formik } from 'formik'
 import { useAuthHandlers } from '../../utils/authUtils'
 import { LoadingButton } from '@mui/lab'
 import ResetPasswordDialog from '../ResetPasswordDialog'
+import ProfilePicture from '../ProfilePicture'
+import LoggedUserProfile from '../profile/LoggedUserProfile'
 
 const ProfileWidget = () => {
   const { user } = useUser()
@@ -31,11 +33,12 @@ const ProfileWidget = () => {
   const { initialValues, schema, onSubmit, googleLogin, githubLogin } =
     useAuthHandlers()
 
-  const [openDialog, setOpenDialog] = useState(false)
-
+  const [openPasswordDialog, setOpenPasswordDialog] = useState(false)
   const handleDialogClose = () => {
-    setOpenDialog(false)
+    setOpenPasswordDialog(false)
   }
+
+  const [openSettingsDialog, setOpenSettingsDialog] = useState(false)
   return (
     <Card
       sx={{
@@ -48,28 +51,23 @@ const ProfileWidget = () => {
         <Stack spacing={0.5} px={2} pb={2} pt={1}>
           <IconButton
             sx={{ alignSelf: 'end' }}
-            onClick={() => navigate('/profile-settings')}
+            onClick={() => setOpenSettingsDialog(true)}
           >
-            <Tooltip title="Profile Settings">
+            <Tooltip title="Account Settings">
               <SettingsIcon color="primary" />
             </Tooltip>
           </IconButton>
 
-          <Box
-            component="img"
-            src={
-              user.profilePicture
-                ? user.profilePicture
-                : 'https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg'
-            }
-            alt="profile-picture"
-            sx={{
-              height: '120px',
-              width: '120px',
-              borderRadius: '100%',
-              objectFit: 'cover',
-              alignSelf: 'center'
-            }}
+          <LoggedUserProfile
+            openDialog={openSettingsDialog}
+            setOpenDialog={setOpenSettingsDialog}
+          />
+
+          <ProfilePicture
+            img={user.profilePicture}
+            size={120}
+            borderRadius={100}
+            props={{ alignSelf: 'center' }}
           />
 
           <Typography
@@ -86,6 +84,7 @@ const ProfileWidget = () => {
           <Stack
             direction={'row'}
             spacing={1}
+            alignItems={'center'}
             divider={<Divider orientation="vertical" flexItem />}
           >
             <Typography variant="body2" color="text.secondary">
@@ -144,7 +143,7 @@ const ProfileWidget = () => {
                 />
 
                 <Link
-                  onClick={() => setOpenDialog(true)}
+                  onClick={() => setOpenPasswordDialog(true)}
                   sx={{ alignSelf: 'start', cursor: 'pointer' }}
                 >
                   <Typography variant="body2">Forgot password?</Typography>
@@ -155,7 +154,7 @@ const ProfileWidget = () => {
                     isSubmitting,
                     setSubmitting,
                     resetForm,
-                    openDialog,
+                    openPasswordDialog,
                     handleDialogClose
                   }}
                 />

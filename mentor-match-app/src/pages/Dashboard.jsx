@@ -1,21 +1,19 @@
+import React, { useEffect, useState } from 'react'
 import { Container, Stack } from '@mui/material'
-import { useState, useEffect } from 'react'
 import ProfileWidget from '../components/dashboard/ProfileWidget'
-import { getUsers } from '../api/users'
 import Header from '../components/Header'
 import UserListView from '../components/dashboard/UserListView'
+import { useUser } from '../hooks/useUser'
 
 const Dashboard = () => {
-  const [users, setUsers] = useState([])
+  const { userList, user } = useUser()
+  const [listWithoutLoggedUser, setListWithoutLoggedUser] = useState([])
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      const usersList = await getUsers()
-      console.log('usersList', usersList)
-      setUsers(usersList)
+    if (user) {
+      setListWithoutLoggedUser(userList.filter((u) => u.id !== user.uid))
     }
-    fetchUsers()
-  }, [])
+  }, [user, userList])
 
   return (
     <>
@@ -29,7 +27,11 @@ const Dashboard = () => {
           }}
         >
           <ProfileWidget />
-          <UserListView usersList={users} />
+          {user ? (
+            <UserListView usersList={listWithoutLoggedUser} />
+          ) : (
+            <UserListView usersList={userList} />
+          )}
         </Stack>
       </Container>
     </>

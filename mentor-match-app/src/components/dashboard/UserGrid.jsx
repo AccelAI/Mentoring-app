@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   Grid2 as Grid,
   Stack,
@@ -8,10 +8,12 @@ import {
   Button
 } from '@mui/material'
 import { LocationOnOutlined as LocationIcon } from '@mui/icons-material'
-import { useNavigate } from 'react-router-dom'
+import UserProfileDialog from '../profile/UserProfileDialog'
+import ProfilePicture from '../ProfilePicture'
 
 const UserGrid = ({ id, name, role, affiliation, location, image, select }) => {
-  const navigate = useNavigate()
+  const [openDialog, setOpenDialog] = useState(false)
+
   return (
     <Grid size={4}>
       <Card
@@ -19,29 +21,16 @@ const UserGrid = ({ id, name, role, affiliation, location, image, select }) => {
           height: '100%',
           transition: 'box-shadow 0.3s',
           '&:hover': {
-            boxShadow: 2
+            boxShadow: 2,
+            cursor: 'pointer'
           }
         }}
         variant="outlined"
-        /* onClick={() => navigate(`/profile/${id}`)} */
+        onClick={() => setOpenDialog(true)}
       >
         <Stack spacing={1} p={2} sx={{ height: '100%' }}>
           <Stack direction={'row'} spacing={2} sx={{ height: '100%' }}>
-            <Box
-              component="img"
-              src={
-                image
-                  ? image
-                  : 'https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg'
-              }
-              alt="profile-picture"
-              sx={{
-                height: '80px',
-                width: '80px',
-                borderRadius: '10%',
-                objectFit: 'cover'
-              }}
-            />
+            <ProfilePicture img={image} size={80} borderRadius={10} />
             <Stack sx={{ maxWidth: '58%' }}>
               <Box>
                 <Typography
@@ -87,6 +76,12 @@ const UserGrid = ({ id, name, role, affiliation, location, image, select }) => {
           )}
         </Stack>
       </Card>
+      <UserProfileDialog
+        openDialog={openDialog}
+        setOpenDialog={setOpenDialog}
+        userId={id}
+        editable={false}
+      />
     </Grid>
   )
 }

@@ -13,15 +13,14 @@ import Dashboard from './pages/Dashboard'
 import MenteeForm from './pages/MenteeForm'
 import MentorForm from './pages/MentorForm'
 import MentorMenteeForm from './pages/MentorMenteeForm'
-import UserProfile from './pages/UserProfile'
 import Login from './pages/Login'
 import GetStarted from './pages/GetStarted'
 import Signup from './pages/Signup'
-import ProfileSettings from './pages/ProfileSettings'
 import { CssBaseline } from '@mui/material'
 import UnAuthPage from './components/UnAuthPage'
 import AuthPage from './components/AuthPage'
 import { UserProvider } from './hooks/useUser'
+import ErrorPage from './components/ErrorPage'
 
 function App() {
   return (
@@ -56,9 +55,17 @@ function App() {
                 path="/mentor-mentee-form"
                 element={<MentorMenteeForm />}
               />
-              <Route path="/profile-settings" element={<ProfileSettings />} />
+              <Route path="/mentee-form/:id" element={<MenteeForm />} />
+              <Route path="/mentor-form/:id" element={<MentorForm />} />
+              <Route
+                path="/mentor-mentee-form/:id"
+                element={<MentorMenteeForm />}
+              />
+              <Route
+                path="/form-not-found"
+                element={<ErrorPage>Couldn't find this form!</ErrorPage>}
+              />
             </Route>
-            <Route path="/profile/:id" element={<UserProfile />} />
           </Routes>
         </BrowserRouter>
       </ThemeContextProvider>
