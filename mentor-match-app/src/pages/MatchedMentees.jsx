@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react'
 import { Container, Stack, LinearProgress } from '@mui/material'
 import ProfileWidget from '../components/dashboard/ProfileWidget'
 import Header from '../components/Header'
 import UserListView from '../components/dashboard/UserListView'
 import { useUser } from '../hooks/useUser'
+import SideMenu from '../components/dashboard/SideMenu'
 
-const UserMatch = () => {
+const MatchedMentees = () => {
   const { userList, loading } = useUser()
 
   return (
@@ -22,14 +22,18 @@ const UserMatch = () => {
               alignItems: 'flex-start'
             }}
           >
+            <Stack spacing={2} width={'30%'}>
+              <ProfileWidget />
+              <SideMenu />
+            </Stack>
             <UserListView
               usersList={userList}
-              title={
-                'Based on your application, here are our top mentor picks for you:'
-              }
+              title={'Current Mentees'}
               showMentorshipButton={false}
-              showSearchBar={false}
-              enableSelect={true}
+              showSearchBar={true}
+              showChatButton={true}
+              showManageMenteesButton={true}
+              subtitle="Here are your current mentee matches. Select a mentee to view their profile and start a conversation."
             />
           </Stack>
         </Container>
@@ -38,4 +42,4 @@ const UserMatch = () => {
   )
 }
 
-export default UserMatch
+export default MatchedMentees

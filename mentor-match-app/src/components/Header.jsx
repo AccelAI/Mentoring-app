@@ -17,14 +17,26 @@ import { signOut } from '../api/auth'
 import { useThemeContext } from '../hooks/useTheme'
 import { useUser } from '../hooks/useUser'
 import { useNavigate } from 'react-router-dom'
+import { useSnackbar } from 'notistack'
 
 const Header = () => {
   const { user } = useUser()
   const navigate = useNavigate()
   const { mode, toggleColorMode } = useThemeContext()
+  const { enqueueSnackbar } = useSnackbar()
 
   const handleLogoClick = () => {
     navigate('/')
+  }
+
+  const handleSignOut = () => {
+    try {
+      signOut()
+      enqueueSnackbar('Logged out successfully', { variant: 'success' })
+      navigate('/')
+    } catch (error) {
+      enqueueSnackbar('Failed to log out', { variant: 'error' })
+    }
   }
 
   return (
@@ -54,7 +66,7 @@ const Header = () => {
                 <IconButton
                   color="primary"
                   aria-label="logout"
-                  onClick={signOut}
+                  onClick={handleSignOut}
                 >
                   <Logout />
                 </IconButton>

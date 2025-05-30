@@ -19,7 +19,9 @@ import {
   Link as LinkIcon,
   SchoolRounded as SchoolIcon,
   Person as PersonIcon,
-  Close as CloseIcon
+  Close as CloseIcon,
+  ChatOutlined as ChatIcon,
+  Email as EmailIcon
 } from '@mui/icons-material'
 import ProfilePicture from '../ProfilePicture'
 import { useUser } from '../../hooks/useUser'
@@ -33,7 +35,8 @@ const UserProfileDialog = ({
   setOpenDialog,
   setOpenMatchDialog,
   userId,
-  enableSelect
+  showSelectAsMentorButton,
+  showChatButton
 }) => {
   const [user, setUser] = useState({})
   const [loading, setLoading] = useState(true)
@@ -192,9 +195,29 @@ const UserProfileDialog = ({
                       </Link>
                     </Stack>
                   )}
+                  {/* Display the user's email only if the profile is from the match list (if the chat button is enabled) */}
+                  {user.email && showChatButton && (
+                    <Stack direction="row" spacing={0.5} alignItems={'center'}>
+                      <EmailIcon fontSize="small" color="primary" />
+                      <span>Email: {user.email}</span>
+                    </Stack>
+                  )}
                 </Typography>
-
-                {enableSelect && (
+                {showChatButton && (
+                  <Button
+                    variant="contained"
+                    size="small"
+                    sx={{ width: 'fit-content', alignSelf: 'end' }}
+                    startIcon={<ChatIcon />}
+                    onClick={() => {
+                      setOpenDialog(false)
+                      // Open chat dialog or navigate to chat page
+                    }}
+                  >
+                    Start Chat
+                  </Button>
+                )}
+                {showSelectAsMentorButton && (
                   <LoadingButton
                     variant="contained"
                     sx={{

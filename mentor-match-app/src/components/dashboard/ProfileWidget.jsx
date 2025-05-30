@@ -42,7 +42,6 @@ const ProfileWidget = () => {
   return (
     <Card
       sx={{
-        width: { md: user ? '28%' : '36%', xs: '100%' },
         height: 'max-content'
       }}
     >

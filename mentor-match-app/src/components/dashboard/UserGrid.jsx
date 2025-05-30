@@ -19,7 +19,9 @@ const UserGrid = ({
   affiliation,
   location,
   image,
-  enableSelect
+  showSelectAsMentorButton,
+  showChatButton,
+  showViewProfileButton
 }) => {
   const [openDialog, setOpenDialog] = useState(false)
   const [openMatchDialog, setOpenMatchDialog] = useState(false)
@@ -32,12 +34,12 @@ const UserGrid = ({
           transition: 'box-shadow 0.3s',
           '&:hover': {
             boxShadow: 2,
-            cursor: enableSelect ? '' : 'pointer'
+            cursor: showSelectAsMentorButton ? '' : 'pointer'
           }
         }}
         variant="outlined"
         onClick={() => {
-          if (!enableSelect) {
+          if (!showSelectAsMentorButton) {
             setOpenDialog(true)
           }
         }}
@@ -54,7 +56,7 @@ const UserGrid = ({
                 >
                   {name}
                 </Typography>
-                {enableSelect && (
+                {showSelectAsMentorButton && (
                   <Typography
                     variant={'body2'}
                     fontWeight={'light'}
@@ -68,7 +70,7 @@ const UserGrid = ({
                     </Typography>
                   </Typography>
                 )}
-                {!enableSelect && (
+                {!showSelectAsMentorButton && (
                   <Typography fontWeight={'light'}>
                     {role ? role : ''}
                   </Typography>
@@ -97,7 +99,7 @@ const UserGrid = ({
             </Stack>
           </Stack>
           <Box sx={{ flexGrow: 1 }} />
-          {enableSelect && (
+          {showViewProfileButton && (
             <Button
               variant="contained"
               size="small"
@@ -106,7 +108,7 @@ const UserGrid = ({
                 setOpenDialog(true)
               }}
             >
-              View Mentor
+              View Profile
             </Button>
           )}
         </Stack>
@@ -114,10 +116,10 @@ const UserGrid = ({
       <UserProfileDialog
         openDialog={openDialog}
         setOpenDialog={setOpenDialog}
-        userId={id}
-        editable={false}
-        enableSelect={enableSelect}
         setOpenMatchDialog={setOpenMatchDialog}
+        userId={id}
+        showSelectAsMentorButton={showSelectAsMentorButton}
+        showChatButton={showChatButton}
       />
       <MatchDialog
         openDialog={openMatchDialog}

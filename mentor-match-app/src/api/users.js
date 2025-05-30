@@ -62,7 +62,10 @@ export const asignMatch = async (userId, mentorId) => {
     await updateDoc(userDoc, { mentorId: mentorId })
 
     const mentorDoc = doc(db, 'users', mentorId)
-    await updateDoc(mentorDoc, { menteeId: userId })
+    await updateDoc(mentorDoc, {
+      mentees: [...userId],
+      newMenteeMatch: true
+    })
 
     return { ok: true }
   } catch (err) {

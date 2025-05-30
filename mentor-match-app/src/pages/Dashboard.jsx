@@ -5,6 +5,7 @@ import Header from '../components/Header'
 import UserListView from '../components/dashboard/UserListView'
 import { useUser } from '../hooks/useUser'
 import MatchAlert from '../components/dashboard/MatchAlert'
+import SideMenu from '../components/dashboard/SideMenu'
 
 const Dashboard = () => {
   const { userList, user, loading } = useUser()
@@ -30,9 +31,13 @@ const Dashboard = () => {
               alignItems: 'flex-start'
             }}
           >
-            <ProfileWidget />
+            <Stack spacing={2} width={user ? '30%' : '45%'}>
+              <ProfileWidget />
+              {user && <SideMenu />}
+            </Stack>
             <Stack spacing={2}>
-              <MatchAlert />
+              {/*TODO: Show match alert when theres a new mentee match or when mentor match results are ready*/}
+              {false && <MatchAlert />}
               {user ? (
                 <UserListView usersList={listWithoutLoggedUser} />
               ) : (

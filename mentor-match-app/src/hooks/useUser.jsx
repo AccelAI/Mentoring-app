@@ -54,9 +54,11 @@ const UserProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchUsers = async () => {
+      setLoading(true)
       const usersList = await getUsers()
       console.log('usersList', usersList)
       setUserList(usersList)
+      setLoading(false)
     }
     fetchUsers()
   }, [])
