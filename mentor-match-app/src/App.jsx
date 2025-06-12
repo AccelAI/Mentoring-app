@@ -22,7 +22,6 @@ import AuthPage from './components/AuthPage'
 import { UserProvider } from './hooks/useUser'
 import ErrorPage from './components/ErrorPage'
 import MentorPick from './pages/MentorPick'
-import MatchedMentees from './pages/MatchedMentees'
 
 function App() {
   return (
@@ -68,7 +67,6 @@ function App() {
                 element={<ErrorPage>Couldn't find this form!</ErrorPage>}
               />
               <Route path="/mentor-pick" element={<MentorPick />} />
-              <Route path="/matches" element={<MatchedMentees />} />
             </Route>
           </Routes>
         </BrowserRouter>

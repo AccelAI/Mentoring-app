@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth, db } from '../api/firebaseConfig'
 import { doc, getDoc } from 'firebase/firestore'
-import { getUsers } from '../api/users'
+import { getUsers, getUserArrayByIds } from '../api/users'
 
 // Create a UserContext
 const UserContext = createContext()
@@ -12,6 +12,7 @@ const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [userList, setUserList] = useState([])
+  const [mentees, setMentees] = useState([])
 
   // Function to fetch the logged-in user's data
   const fetchLoggedUser = async (uid) => {
@@ -63,8 +64,20 @@ const UserProvider = ({ children }) => {
     fetchUsers()
   }, [])
 
+  useEffect(() => {
+    const fetchMenteeList = async () => {
+      if (user && user.mentees) {
+        const menteeArr = await getUserArrayByIds(user.mentees)
+        setMentees(menteeArr)
+      }
+    }
+    fetchMenteeList()
+  }, [user?.mentees])
+
   return (
-    <UserContext.Provider value={{ user, loading, userList, refreshUser }}>
+    <UserContext.Provider
+      value={{ user, loading, userList, refreshUser, mentees }}
+    >
       {children}
     </UserContext.Provider>
   )

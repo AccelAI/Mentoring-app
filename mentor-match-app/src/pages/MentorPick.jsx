@@ -1,12 +1,22 @@
-import { Container, Stack, LinearProgress } from '@mui/material'
+import { Container, Stack, LinearProgress, Typography } from '@mui/material'
 import ProfileWidget from '../components/dashboard/ProfileWidget'
 import Header from '../components/Header'
 import UserListView from '../components/dashboard/UserListView'
 import { useUser } from '../hooks/useUser'
+import ErrorPage from '../components/ErrorPage'
 
 const MentorPick = () => {
-  const { userList, loading } = useUser()
+  const { user, userList, loading } = useUser()
 
+  /*   if (!user.mentorMatchResults) {
+    return (
+      <ErrorPage>
+        <Typography variant="h6">
+          You don't have matches assigned to you yet. Please come back later!
+        </Typography>
+      </ErrorPage>
+    )
+  } */
   return (
     <>
       <Header />
@@ -26,10 +36,7 @@ const MentorPick = () => {
               title={
                 'Based on your application, here are our top mentor picks for you:'
               }
-              showMentorshipButton={false}
-              showSearchBar={false}
-              showSelectAsMentorButton={true}
-              showViewProfileButton={true}
+              listType={'mentor-pick'}
             />
           </Stack>
         </Container>

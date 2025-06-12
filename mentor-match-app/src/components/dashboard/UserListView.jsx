@@ -12,10 +12,10 @@ import {
 } from '@mui/material'
 import {
   SchoolRounded as SchoolIcon,
-  Edit as EditIcon
+  ErrorOutline as ErrorIcon
 } from '@mui/icons-material'
 import SearchBar from './SearchBar'
-import MentorshipFormDialog from '../MentorshipFormDialog'
+import MentorshipFormDialog from '../dialogs/MentorshipFormDialog'
 import UserGrid from './UserGrid'
 import { filterUsers } from '../../api/users'
 import { useUser } from '../../hooks/useUser'
@@ -24,35 +24,46 @@ const UserListView = ({
   usersList,
   title = 'All Mentors & Mentees',
   subtitle,
-  showMentorshipButton = true,
-  showSearchBar = true,
-  showSelectAsMentorButton = false,
-  showChatButton = false,
-  showViewProfileButton = false,
-  showManageMenteesButton = false
+  gridSize,
+  listType,
+  showMentorshipButton,
+  showSearchBar,
+  showSelectAsMentorButton,
+  showChatButton,
+  showViewProfileButton,
+  showEndMentorshipButton
 }) => {
   const [openDialog, setOpenDialog] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const filteredUsers = filterUsers(searchQuery, usersList)
+  const filteredUsers = Array.isArray(usersList)
+    ? filterUsers(searchQuery, usersList)
+    : []
   const { user, loading } = useUser()
+
+  const isDashboard = listType === 'dashboard'
+  const isMentorPick = listType === 'mentor-pick'
+  const isCurrentMentees = listType === 'currentMentees'
+
+  const showMentorship = isDashboard || showMentorshipButton
+  const showSearch = isDashboard || isCurrentMentees || showSearchBar
+  const showProfile = isMentorPick || showViewProfileButton
+  const showSelectMentor = isMentorPick || showSelectAsMentorButton
+  const showChat = isCurrentMentees || showChatButton
+  const showEndMentorship = isCurrentMentees || showEndMentorshipButton
 
   return (
     <Card
       sx={{
         width: loading ? '-webkit-fill-available' : '100%',
-        maxHeight: '75vh'
+        maxHeight: '75vh',
+        minWidth: { lg: '835px' },
+        overflowY: 'auto'
       }}
     >
       <Box px={3} py={2}>
         {loading ? (
           <Box display={'flex'} justifyContent="center" alignItems="center">
             <CircularProgress />
-          </Box>
-        ) : usersList.length === 0 ? (
-          <Box display={'flex'} justifyContent="center" alignItems="center">
-            <Typography variant="body2" color="text.secondary">
-              No users found.
-            </Typography>
           </Box>
         ) : (
           <Stack spacing={subtitle ? 0 : 1.5}>
@@ -67,8 +78,8 @@ const UserListView = ({
                 {title}
               </Typography>
               <Box flexGrow={1} />
-              {showSearchBar && <SearchBar setSearchQuery={setSearchQuery} />}
-              {user && showMentorshipButton && (
+              {showSearch && <SearchBar setSearchQuery={setSearchQuery} />}
+              {user && showMentorship && (
                 <Button
                   variant={'contained'}
                   onClick={() => setOpenDialog(true)}
@@ -78,7 +89,7 @@ const UserListView = ({
                   Mentorship Program
                 </Button>
               )}
-              {showManageMenteesButton && (
+              {/*               {showManageMenteesButton && (
                 <Tooltip title="Manage Mentees">
                   <IconButton
                     color="secondary"
@@ -88,7 +99,7 @@ const UserListView = ({
                     <EditIcon />
                   </IconButton>
                 </Tooltip>
-              )}
+              )} */}
               <MentorshipFormDialog
                 openDialog={openDialog}
                 setOpenDialog={setOpenDialog}
@@ -104,23 +115,30 @@ const UserListView = ({
               </Typography>
             )}
 
-            <Box flexGrow={1} sx={{ overflowY: 'auto' }}>
+            <Box flexGrow={1}>
               <Grid container spacing={2}>
                 {usersList &&
                   filteredUsers.map((user, i) => (
                     <UserGrid
                       key={i}
-                      id={user.id}
-                      name={user.displayName}
-                      affiliation={user.affiliation}
-                      role={user.role}
-                      location={user.location}
-                      image={user.profilePicture}
-                      showSelectAsMentorButton={showSelectAsMentorButton}
-                      showChatButton={showChatButton}
-                      showViewProfileButton={showViewProfileButton}
+                      user={user}
+                      gridSize={gridSize}
+                      showSelectAsMentorButton={showSelectMentor}
+                      showChatButton={showChat}
+                      showViewProfileButton={showProfile}
+                      showEndMentorshipButton={showEndMentorship}
                     />
                   ))}
+                {(!usersList || usersList.length === 0) && (
+                  <Grid size={12} display="flex" justifyContent="center" py={5}>
+                    <Stack direction={'row'} spacing={1} alignItems="center">
+                      <ErrorIcon color="error" />
+                      <Typography variant="h6" fontWeight={'regular'}>
+                        No users found
+                      </Typography>
+                    </Stack>
+                  </Grid>
+                )}
               </Grid>
             </Box>
           </Stack>

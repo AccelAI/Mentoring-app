@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { Box, Card, Stack, Button, Typography } from '@mui/material'
 import { CheckCircleOutlined as CheckCircleIcon } from '@mui/icons-material'
 import { useUser } from '../../hooks/useUser'
+import { updateNewMatchNotification } from '../../api/match'
 
 const MatchAlert = () => {
   const navigate = useNavigate()
@@ -12,6 +13,13 @@ const MatchAlert = () => {
       navigate('/mentor-pick')
     }
     if (user.newMenteeMatch) {
+      updateNewMatchNotification(user.uid)
+        .then(() => {
+          console.log('New match notification updated successfully')
+        })
+        .catch((error) => {
+          console.error('Error updating new match notification:', error)
+        })
       navigate('/matches')
     }
   }
@@ -28,11 +36,11 @@ const MatchAlert = () => {
           <Stack direction={'row'} spacing={1} alignItems={'center'}>
             <CheckCircleIcon color="primary" />
 
-            {user.mentorMatchResults && (
+            {user?.mentorMatchResults && (
               <Typography>Your mentor match results are ready!</Typography>
             )}
-            {user.newMenteeMatch && (
-              <Typography>You have a new match!</Typography>
+            {user?.newMenteeMatch && (
+              <Typography>You have a new mentee match!</Typography>
             )}
           </Stack>
           <Button size="small" variant={'contained'} onClick={handleNavigate}>

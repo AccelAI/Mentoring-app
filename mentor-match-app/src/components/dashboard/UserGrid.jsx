@@ -10,24 +10,21 @@ import {
 import { LocationOnOutlined as LocationIcon } from '@mui/icons-material'
 import UserProfileDialog from '../profile/UserProfileDialog'
 import ProfilePicture from '../ProfilePicture'
-import MatchDialog from '../MatchDialog'
+import MatchDialog from '../dialogs/MatchDialog'
 
 const UserGrid = ({
-  id,
-  name,
-  role,
-  affiliation,
-  location,
-  image,
+  user,
+  gridSize = 4,
   showSelectAsMentorButton,
   showChatButton,
-  showViewProfileButton
+  showViewProfileButton,
+  showEndMentorshipButton
 }) => {
   const [openDialog, setOpenDialog] = useState(false)
   const [openMatchDialog, setOpenMatchDialog] = useState(false)
 
   return (
-    <Grid size={4}>
+    <Grid size={gridSize}>
       <Card
         sx={{
           height: '100%',
@@ -46,7 +43,11 @@ const UserGrid = ({
       >
         <Stack spacing={1} p={2} sx={{ height: '100%' }}>
           <Stack direction={'row'} spacing={2} sx={{ height: '100%' }}>
-            <ProfilePicture img={image} size={80} borderRadius={10} />
+            <ProfilePicture
+              img={user.profilePicture}
+              size={80}
+              borderRadius={10}
+            />
             <Stack sx={{ maxWidth: '58%' }}>
               <Box>
                 <Typography
@@ -54,7 +55,7 @@ const UserGrid = ({
                   fontWeight={'regular'}
                   lineHeight={1.2}
                 >
-                  {name}
+                  {user.displayName}
                 </Typography>
                 {showSelectAsMentorButton && (
                   <Typography
@@ -72,7 +73,7 @@ const UserGrid = ({
                 )}
                 {!showSelectAsMentorButton && (
                   <Typography fontWeight={'light'}>
-                    {role ? role : ''}
+                    {user.role ? user.role : ''}
                   </Typography>
                 )}
               </Box>
@@ -83,7 +84,7 @@ const UserGrid = ({
                   fontWeight={'light'}
                   color="text.secondary"
                 >
-                  {affiliation}
+                  {user.affiliation}
                 </Typography>
                 <Stack direction={'row'} spacing={0.4} alignItems={'center'}>
                   <LocationIcon fontSize="small" color="secondary" />
@@ -92,7 +93,7 @@ const UserGrid = ({
                     fontWeight={'light'}
                     color="text.secondary"
                   >
-                    {location}
+                    {user.location}
                   </Typography>
                 </Stack>
               </Box>
@@ -117,9 +118,10 @@ const UserGrid = ({
         openDialog={openDialog}
         setOpenDialog={setOpenDialog}
         setOpenMatchDialog={setOpenMatchDialog}
-        userId={id}
+        userId={user.uid}
         showSelectAsMentorButton={showSelectAsMentorButton}
         showChatButton={showChatButton}
+        showEndMentorshipButton={showEndMentorshipButton}
       />
       <MatchDialog
         openDialog={openMatchDialog}

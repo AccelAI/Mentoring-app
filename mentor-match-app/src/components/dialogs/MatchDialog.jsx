@@ -11,7 +11,7 @@ import {
   Box
 } from '@mui/material'
 import Lottie from 'lottie-react'
-import successAnimation from '../assets/success_animation.json'
+import successAnimation from '../../assets/success_animation.json'
 
 const MatchDialog = ({ openDialog, setOpenDialog }) => {
   const navigate = useNavigate()

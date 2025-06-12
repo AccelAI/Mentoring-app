@@ -7,9 +7,9 @@ import {
   Stack,
   Typography
 } from '@mui/material'
-import TextField from './questions/text/TextField'
+import TextField from '../questions/text/TextField'
 import { LoadingButton } from '@mui/lab'
-import { useAuthHandlers } from '../utils/authUtils'
+import { useAuthHandlers } from '../../utils/authUtils'
 
 const ResetPasswordDialog = ({
   values,

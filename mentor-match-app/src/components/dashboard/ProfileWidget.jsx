@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+// React hooks
+import { useState } from 'react'
+
+// MUI components
 import {
   Stack,
   Typography,
@@ -16,20 +18,25 @@ import {
   Google as GoogleIcon,
   GitHub as GitHubIcon
 } from '@mui/icons-material'
-import { useUser } from '../../hooks/useUser'
-import logo from '../../assets/logo.png'
-import PasswordField from '../PasswordField'
-import TextField from '../questions/text/TextField'
+import { LoadingButton } from '@mui/lab'
+
+// Hooks and services
 import { Form, Formik } from 'formik'
 import { useAuthHandlers } from '../../utils/authUtils'
-import { LoadingButton } from '@mui/lab'
-import ResetPasswordDialog from '../ResetPasswordDialog'
+import { useUser } from '../../hooks/useUser'
+
+// Components
+import ResetPasswordDialog from '../dialogs/ResetPasswordDialog'
 import ProfilePicture from '../ProfilePicture'
 import LoggedUserProfile from '../profile/LoggedUserProfile'
+import TextField from '../questions/text/TextField'
+import PasswordField from '../PasswordField'
+
+// Assets
+import logo from '../../assets/logo.png'
 
 const ProfileWidget = () => {
   const { user } = useUser()
-  const navigate = useNavigate()
   const { initialValues, schema, onSubmit, googleLogin, githubLogin } =
     useAuthHandlers()
 

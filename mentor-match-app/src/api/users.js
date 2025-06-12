@@ -1,4 +1,4 @@
-import { doc, updateDoc, getDocs, collection } from 'firebase/firestore'
+import { doc, updateDoc, getDocs, getDoc, collection } from 'firebase/firestore'
 import { db } from './firebaseConfig'
 
 export const updateUserProfile = async (user, values) => {
@@ -21,7 +21,7 @@ export const getUsers = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, 'users'))
     const users = querySnapshot.docs
-      .map((doc) => ({ ...doc.data(), id: doc.id }))
+      .map((doc) => ({ ...doc.data(), uid: doc.id }))
       .filter((user) => user.publicProfile === true)
     return users
   } catch (err) {
@@ -30,16 +30,16 @@ export const getUsers = async () => {
   }
 }
 
-/* export const getUserById = async (userId) => {
+export const getUserById = async (userId) => {
   try {
     const userDoc = doc(db, 'users', userId)
     const user = await getDoc(userDoc)
-    return { ...user.data(), id: user.id }
+    return { ...user.data(), uid: user.id }
   } catch (err) {
     console.error('Error fetching user:', err)
     return { ok: false, error: err.message }
   }
-} */
+}
 
 export const filterUsers = (query, users) => {
   if (!query) {
@@ -56,20 +56,21 @@ export const filterUsers = (query, users) => {
   }
 }
 
-export const asignMatch = async (userId, mentorId) => {
+export const getUserArrayByIds = async (userIds) => {
+  if (!userIds || userIds.length === 0) {
+    return []
+  }
   try {
-    const userDoc = doc(db, 'users', userId)
-    await updateDoc(userDoc, { mentorId: mentorId })
-
-    const mentorDoc = doc(db, 'users', mentorId)
-    await updateDoc(mentorDoc, {
-      mentees: [...userId],
-      newMenteeMatch: true
-    })
-
-    return { ok: true }
+    const users = await Promise.all(
+      userIds.map(async (id) => {
+        const user = await getUserById(id)
+        return user
+      })
+    )
+    console.log('Fetched users:', users)
+    return users
   } catch (err) {
-    console.error('Error asigning match:', err)
-    return { ok: false, error: err.message }
+    console.error('Error fetching user list by IDs:', err)
+    return []
   }
 }
