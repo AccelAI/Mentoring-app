@@ -70,7 +70,9 @@ const EndMentorshipDialog = ({
       return
     }
     setOpenDialog(false)
-    setOpenProfileDialog(false)
+    if (setOpenProfileDialog) {
+      setOpenProfileDialog(false)
+    }
   }
 
   const handleDialogClose = () => {

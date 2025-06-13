@@ -95,3 +95,35 @@ export const endMentorship = async (
     return { ok: false, error: err.message }
   }
 }
+
+export const getMentorshipStartDate = async (menteeId, mentorId) => {
+  try {
+    const mentorHistoryDoc = doc(
+      db,
+      'users',
+      mentorId,
+      'mentor-history',
+      menteeId
+    )
+    const mentorHistorySnap = await getDoc(mentorHistoryDoc)
+
+    if (mentorHistorySnap.exists()) {
+      const data = mentorHistorySnap.data()
+      const date = new Date(data.mentorshipStartDate).toLocaleDateString(
+        'en-US',
+        {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }
+      )
+      return date
+    } else {
+      console.error('Mentorship history not found')
+      return null
+    }
+  } catch (err) {
+    console.error('Error fetching mentorship start date:', err)
+    return null
+  }
+}

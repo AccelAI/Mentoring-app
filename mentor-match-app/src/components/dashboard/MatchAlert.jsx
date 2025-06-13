@@ -4,7 +4,7 @@ import { CheckCircleOutlined as CheckCircleIcon } from '@mui/icons-material'
 import { useUser } from '../../hooks/useUser'
 import { updateNewMatchNotification } from '../../api/match'
 
-const MatchAlert = () => {
+const MatchAlert = ({ setView }) => {
   const navigate = useNavigate()
   const { user } = useUser()
 
@@ -20,7 +20,7 @@ const MatchAlert = () => {
         .catch((error) => {
           console.error('Error updating new match notification:', error)
         })
-      navigate('/matches')
+      setView('currentMentees')
     }
   }
 

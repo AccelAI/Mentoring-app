@@ -50,7 +50,7 @@ const UserProfileDialog = ({
   const [user, setUser] = useState({})
   const [loading, setLoading] = useState(true)
   const [loadingMatch, setLoadingMatch] = useState(false)
-  const { userList, user: loggedUser } = useUser()
+  const { userList, user: loggedUser, refreshUser } = useUser()
   const [formAnswers, setFormAnswers] = useState({})
   const { enqueueSnackbar } = useSnackbar()
 
@@ -75,6 +75,7 @@ const UserProfileDialog = ({
     setLoadingMatch(true)
     const res = await asignMatch(loggedUser.uid, userId)
     if (res.ok) {
+      refreshUser() // Refresh the logged-in user's data
       setOpenDialog(false)
       setTimeout(() => {
         setOpenMatchDialog(true) // Open the match dialog after a delay

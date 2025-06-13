@@ -6,6 +6,7 @@ import UserListView from '../components/dashboard/UserListView'
 import { useUser } from '../hooks/useUser'
 import MatchAlert from '../components/dashboard/MatchAlert'
 import SideMenu from '../components/dashboard/SideMenu'
+import CurrentMentor from '../components/dashboard/CurrentMentor'
 
 const Dashboard = () => {
   const { userList, user, loading, mentees } = useUser()
@@ -39,7 +40,7 @@ const Dashboard = () => {
               </Stack>
               <Stack spacing={2}>
                 {/* TODO: Show match alert when theres a new mentee match or when mentor match results are ready */}
-                {false && <MatchAlert />}
+                {false && <MatchAlert setView={setViewType} />}
 
                 {user && viewType === 'dashboard' && (
                   <UserListView
@@ -59,6 +60,7 @@ const Dashboard = () => {
                     subtitle="Here are your current mentee matches. Select a mentee to view their profile and start a conversation."
                   />
                 )}
+                {user && viewType === 'currentMentor' && <CurrentMentor />}
               </Stack>
             </Stack>
           </Container>
