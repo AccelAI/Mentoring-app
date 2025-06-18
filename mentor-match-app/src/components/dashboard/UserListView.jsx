@@ -1,4 +1,7 @@
-import React, { useState } from 'react'
+// React hooks
+import { useState } from 'react'
+
+// MUI components
 import {
   Box,
   Card,
@@ -6,17 +9,19 @@ import {
   Stack,
   Button,
   Typography,
-  CircularProgress,
-  IconButton,
-  Tooltip
+  CircularProgress
 } from '@mui/material'
 import {
   SchoolRounded as SchoolIcon,
   ErrorOutline as ErrorIcon
 } from '@mui/icons-material'
+
+// Components
 import SearchBar from './SearchBar'
 import MentorshipFormDialog from '../dialogs/MentorshipFormDialog'
 import UserGrid from './UserGrid'
+
+// Hooks and services
 import { filterUsers } from '../../api/users'
 import { useUser } from '../../hooks/useUser'
 

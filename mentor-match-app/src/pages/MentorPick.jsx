@@ -1,5 +1,4 @@
 import { Container, Stack, LinearProgress, Typography } from '@mui/material'
-import ProfileWidget from '../components/dashboard/ProfileWidget'
 import Header from '../components/Header'
 import UserListView from '../components/dashboard/UserListView'
 import { useUser } from '../hooks/useUser'
@@ -8,7 +7,7 @@ import ErrorPage from '../components/ErrorPage'
 const MentorPick = () => {
   const { user, userList, loading } = useUser()
 
-  /*   if (!user.mentorMatchResults) {
+  if (!user.mentorMatchResults && user.role.includes('Mentee')) {
     return (
       <ErrorPage>
         <Typography variant="h6">
@@ -16,7 +15,19 @@ const MentorPick = () => {
         </Typography>
       </ErrorPage>
     )
-  } */
+  }
+
+  if (user.role === 'Mentor') {
+    return (
+      <ErrorPage>
+        <Typography variant="h6">
+          Mentors can't view mentor picks. Please check your mentees or wait for
+          new matches.
+        </Typography>
+      </ErrorPage>
+    )
+  }
+
   return (
     <>
       <Header />

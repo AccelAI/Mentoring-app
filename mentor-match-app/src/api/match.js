@@ -60,14 +60,19 @@ export const endMentorship = async (
   additionalInfo
 ) => {
   try {
+    console.log(
+      `Ending mentorship between Mentee: ${menteeId} and Mentor: ${mentorId}`
+    )
     const menteeDoc = doc(db, 'users', menteeId)
     await updateDoc(menteeDoc, { mentorId: null })
 
     const mentorDoc = doc(db, 'users', mentorId)
     const mentorSnap = await getDoc(mentorDoc)
-    const updatedMentees = mentorSnap
-      .data()
-      .mentees.filter((uid) => uid !== menteeId)
+    const mentees = Array.isArray(mentorSnap.data().mentees)
+      ? mentorSnap.data().mentees
+      : []
+    const updatedMentees = mentees.filter((uid) => uid !== menteeId)
+    console.log('Updated mentees:', updatedMentees)
     await updateDoc(mentorDoc, {
       mentees: updatedMentees
     })

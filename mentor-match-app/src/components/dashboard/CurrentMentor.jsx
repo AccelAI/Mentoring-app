@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react'
+// React hooks
+import { useState } from 'react'
+
+// MUI components
 import {
   Box,
   Card,
@@ -16,37 +19,18 @@ import {
   Email as EmailIcon,
   AccountCircle as MentorIcon
 } from '@mui/icons-material'
-import UserGrid from './UserGrid'
+
+// Hooks and services
 import { useUser } from '../../hooks/useUser'
-import { getUserById } from '../../api/users'
-import { getMentorshipStartDate } from '../../api/match'
+
+// Components
+import UserGrid from './UserGrid'
 import EndMentorshipDialog from '../dialogs/EndMentorshipDialog'
 
-const CurrentMentor = () => {
+const CurrentMentor = ({ mentorData, loadingMentor }) => {
   const { user, loading } = useUser()
-  const [mentorData, setMentorData] = useState(null)
-  const [loadingMentor, setLoadingMentor] = useState(false)
-  const [openEndMentorshipDialog, setOpenEndMentorshipDialog] = useState(false)
 
-  useEffect(() => {
-    if (user.mentorId) {
-      setLoadingMentor(true)
-      const fetchMentorData = async () => {
-        try {
-          const mentor = await getUserById(user.mentorId)
-          const mentorshipStartDate = await getMentorshipStartDate(
-            user.uid,
-            user.mentorId
-          )
-          setMentorData({ ...mentor, mentorshipStartDate })
-        } catch (error) {
-          console.error('Error fetching mentor data:', error)
-        }
-      }
-      fetchMentorData()
-      setLoadingMentor(false)
-    }
-  }, [user])
+  const [openEndMentorshipDialog, setOpenEndMentorshipDialog] = useState(false)
 
   return (
     <Card
@@ -59,22 +43,18 @@ const CurrentMentor = () => {
       }}
     >
       <Box px={3} py={2}>
-        {loading || loadingMentor ? (
-          <Box display={'flex'} justifyContent="center" alignItems="center">
-            <CircularProgress />
-          </Box>
-        ) : (
-          <Box flexGrow={1}>
-            <Stack
-              direction={'row'}
-              spacing={2}
-              alignItems={'center'}
-              sx={{ pb: 2 }}
-            >
-              <Typography variant="h6" fontWeight={'light'}>
-                Mentorship Information
-              </Typography>
-            </Stack>
+        <Box flexGrow={1}>
+          <Stack
+            direction={'row'}
+            spacing={2}
+            alignItems={'center'}
+            sx={{ pb: 2 }}
+          >
+            <Typography variant="h6" fontWeight={'light'}>
+              Mentorship Information
+            </Typography>
+          </Stack>
+          {!loadingMentor ? (
             <Grid container spacing={4}>
               {mentorData && (
                 <>
@@ -153,24 +133,26 @@ const CurrentMentor = () => {
                   />
                 </>
               )}
-              {!mentorData && !loading && (
-                <Grid size={12} display="flex" justifyContent="center" py={5}>
-                  <Stack direction={'row'} spacing={1} alignItems="center">
-                    <ErrorIcon color="error" />
-                    <Typography variant="h6" fontWeight={'regular'}>
-                      No mentor assigned yet
-                    </Typography>
-                  </Stack>
-                </Grid>
-              )}
             </Grid>
-          </Box>
+          ) : (
+            <CircularProgress />
+          )}
+        </Box>
+        {mentorData === null && !loadingMentor && (
+          <Grid size={12} display="flex" justifyContent="center" py={5}>
+            <Stack direction={'row'} spacing={1} alignItems="center">
+              <ErrorIcon color="error" />
+              <Typography variant="h6" fontWeight={'regular'}>
+                No mentor assigned yet
+              </Typography>
+            </Stack>
+          </Grid>
         )}
       </Box>
       <EndMentorshipDialog
         openDialog={openEndMentorshipDialog}
         setOpenDialog={setOpenEndMentorshipDialog}
-        mentorId={user.mentorId}
+        userId={user.mentorId}
       />
     </Card>
   )

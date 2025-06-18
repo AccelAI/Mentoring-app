@@ -1,7 +1,5 @@
-import { useNavigate } from 'react-router-dom'
 import {
   Card,
-  Typography,
   MenuList,
   MenuItem,
   ListItemIcon,
@@ -15,7 +13,6 @@ import {
 import { useUser } from '../../hooks/useUser'
 
 const SideMenu = ({ setView }) => {
-  const navigate = useNavigate()
   const { user } = useUser()
   const isMentor = user?.role === 'Mentor' || user?.role === 'Mentor/Mentee'
 

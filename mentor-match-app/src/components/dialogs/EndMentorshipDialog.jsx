@@ -36,12 +36,21 @@ const EndMentorshipDialog = ({
 
   const handleSubmit = async () => {
     try {
+      console.log(
+        'logged user role:' +
+          loggedUser.role +
+          ', userId: ' +
+          userId +
+          ', loggedUser uid: ' +
+          loggedUser.uid
+      )
       let res
       if (
         (loggedUser.role === 'Mentor' || loggedUser.role === 'Mentor/Mentee') &&
         loggedUser.mentees.includes(userId)
       ) {
         // Mentor is ending mentorship with a mentee
+        console.log('Mentor is ending mentorship with a mentee')
         res = await endMentorship(
           userId,
           loggedUser.uid,
@@ -49,6 +58,7 @@ const EndMentorshipDialog = ({
           additionalInfo
         )
       } else {
+        console.log('Mentee is ending mentorship with a mentor')
         // Mentee is ending mentorship with a mentor
         res = await endMentorship(
           loggedUser.uid,
@@ -57,11 +67,11 @@ const EndMentorshipDialog = ({
           additionalInfo
         )
       }
-
-      await refreshUser()
+      console.log('End mentorship response:', res)
       if (res.ok) {
         enqueueSnackbar('Mentorship ended successfully', { variant: 'success' })
       }
+      await refreshUser()
     } catch (err) {
       console.error('Error ending mentorship:', err)
       enqueueSnackbar('Error ending mentorship: ' + err.message, {
