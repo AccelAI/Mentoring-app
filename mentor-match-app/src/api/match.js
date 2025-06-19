@@ -1,10 +1,10 @@
-import { doc, updateDoc, getDoc, collection, setDoc } from 'firebase/firestore'
+import { doc, updateDoc, getDoc, setDoc } from 'firebase/firestore'
 import { db } from './firebaseConfig'
 
 export const asignMatch = async (menteeId, mentorId) => {
   try {
     const userDoc = doc(db, 'users', menteeId)
-    await updateDoc(userDoc, { mentorId: mentorId })
+    await updateDoc(userDoc, { mentorId })
 
     const mentorDoc = doc(db, 'users', mentorId)
     const mentorSnap = await getDoc(mentorDoc)
@@ -26,7 +26,7 @@ export const asignMatch = async (menteeId, mentorId) => {
       menteeId
     )
     await setDoc(mentorHistoryDoc, {
-      menteeId: menteeId,
+      menteeId,
       mentorshipStartDate: new Date().toISOString(),
       mentorshipStatus: 'ongoing',
       additionalInfo: '',
