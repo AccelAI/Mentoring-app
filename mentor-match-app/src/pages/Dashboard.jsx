@@ -1,5 +1,15 @@
-import React, { useEffect, useState } from 'react'
-import { Container, Stack, LinearProgress } from '@mui/material'
+import React, { useEffect, useState, useCallback } from 'react'
+import {
+  Container,
+  Stack,
+  LinearProgress,
+  SwipeableDrawer,
+  Button,
+  Typography,
+  Box,
+  Fab
+} from '@mui/material'
+import { Chat as ChatIcon } from '@mui/icons-material'
 import ProfileWidget from '../components/dashboard/ProfileWidget'
 import Header from '../components/Header'
 import UserListView from '../components/dashboard/UserListView'
@@ -9,6 +19,7 @@ import SideMenu from '../components/dashboard/SideMenu'
 import CurrentMentor from '../components/dashboard/CurrentMentor'
 import { getUserById } from '../api/users'
 import { getMentorshipStartDate } from '../api/match'
+import Chat from '../components/chat/Chat'
 
 const Dashboard = () => {
   const { userList, user, loading, mentees } = useUser()
@@ -16,6 +27,8 @@ const Dashboard = () => {
   const [viewType, setViewType] = useState('dashboard')
   const [mentorData, setMentorData] = useState(null)
   const [loadingMentor, setLoadingMentor] = useState(false)
+  const [toggleChat, setToggleChat] = useState(false)
+  const [selectedChatRoomId, setSelectedChatRoomId] = useState(null)
 
   useEffect(() => {
     if (user) {
@@ -49,6 +62,14 @@ const Dashboard = () => {
     setLoadingMentor(false)
   }, [user])
 
+  const handleStartChat = useCallback((chatRoomId) => {
+    console.log('Dashboard handleStartChat called with chatRoomId:', chatRoomId)
+    setSelectedChatRoomId(chatRoomId)
+    setToggleChat(true)
+    console.log('Dashboard - setSelectedChatRoomId to:', chatRoomId)
+    console.log('Dashboard - setToggleChat to true')
+  }, [])
+
   return (
     <>
       <Header />
@@ -76,10 +97,15 @@ const Dashboard = () => {
                   <UserListView
                     listType={viewType}
                     usersList={listWithoutLoggedUser}
+                    onStartChat={handleStartChat}
                   />
                 )}
                 {!user && viewType === 'dashboard' && (
-                  <UserListView listType={'dashboard'} usersList={userList} />
+                  <UserListView
+                    listType={'dashboard'}
+                    usersList={userList}
+                    onStartChat={handleStartChat}
+                  />
                 )}
                 {user && viewType === 'currentMentees' && (
                   <UserListView
@@ -88,16 +114,98 @@ const Dashboard = () => {
                     gridSize={6}
                     listType={viewType}
                     subtitle="Here are your current mentee matches. Select a mentee to view their profile and start a conversation."
+                    onStartChat={handleStartChat}
                   />
                 )}
                 {user && viewType === 'currentMentor' && (
                   <CurrentMentor
                     mentorData={mentorData}
                     loadingMentor={loadingMentor}
+                    onStartChat={handleStartChat}
                   />
                 )}
               </Stack>
             </Stack>
+
+            {/* Floating Action Button for Chat - visible when drawer is closed */}
+            {!toggleChat && (
+              <Fab
+                color="primary"
+                aria-label="chat"
+                onClick={() => setToggleChat(true)}
+                sx={{
+                  position: 'fixed',
+                  bottom: 16,
+                  right: 16,
+                  zIndex: 1000,
+                  pointerEvents: 'auto'
+                }}
+              >
+                <ChatIcon />
+              </Fab>
+            )}
+
+            <SwipeableDrawer
+              anchor="right"
+              onClose={() => setToggleChat(false)}
+              onOpen={() => setToggleChat(true)}
+              open={toggleChat}
+              keepMounted
+              disableSwipeToOpen={true}
+              PaperProps={{
+                sx: {
+                  width: { xs: '100%', sm: '400px', md: '40%' },
+                  height: '100vh',
+                  borderTopLeftRadius: 16,
+                  borderBottomLeftRadius: 16,
+                  overflow: 'visible'
+                }
+              }}
+            >
+              {/* Chat Tab Handle - visible when drawer is open */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: -20,
+                  transform: 'translateY(-50%)',
+                  width: 20,
+                  height: 60,
+                  backgroundColor: 'primary.main',
+                  borderTopLeftRadius: 8,
+                  borderBottomLeftRadius: 8,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    backgroundColor: 'primary.dark'
+                  }
+                }}
+                onClick={() => setToggleChat(false)}
+              >
+                <Box
+                  sx={{
+                    width: 4,
+                    height: 30,
+                    backgroundColor: 'white',
+                    borderRadius: 2
+                  }}
+                />
+              </Box>
+
+              {/* Chat Content */}
+              <Box
+                sx={{
+                  height: '100%',
+                  pt: 3,
+                  px: 2,
+                  pb: 2
+                }}
+              >
+                <Chat selectedChatRoomId={selectedChatRoomId} />
+              </Box>
+            </SwipeableDrawer>
           </Container>
         </>
       )}
