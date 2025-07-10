@@ -74,6 +74,12 @@ export const sendMessage = async (chatRoomId, senderId, messageText) => {
       lastMessage: messageText,
       lastMessageTime: serverTimestamp()
     })
+    console.log(
+      'Updated chatRoom',
+      chatRoomId,
+      'with lastMessage:',
+      messageText
+    )
 
     return { ok: true, messageId: messageRef.id }
   } catch (error) {
@@ -164,6 +170,29 @@ export const markMessagesAsRead = async (chatRoomId, userId) => {
     console.error('Error marking messages as read:', error)
     return { ok: false, error: error.message }
   }
+}
+
+// Set typing status for a user in a chat room
+export const setTypingStatus = async (chatRoomId, userId, isTyping) => {
+  try {
+    const chatRoomRef = doc(db, 'chatRooms', chatRoomId)
+    await updateDoc(chatRoomRef, {
+      [`typing.${userId}`]: isTyping
+    })
+    return { ok: true }
+  } catch (error) {
+    console.error('Error setting typing status:', error)
+    return { ok: false, error: error.message }
+  }
+}
+
+// Listen to typing status changes in a chat room
+export const listenToTypingStatus = (chatRoomId, callback) => {
+  const chatRoomRef = doc(db, 'chatRooms', chatRoomId)
+  return onSnapshot(chatRoomRef, (docSnap) => {
+    const data = docSnap.data()
+    callback(data?.typing || {})
+  })
 }
 
 export const deleteChatRoom = async (chatRoomId) => {

@@ -10,10 +10,13 @@ import {
   MessageGroup,
   Message,
   MessageList,
-  MessageInput
+  MessageInput,
+  TypingIndicator
 } from '@chatscope/chat-ui-kit-react'
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css'
+import './Chat.css'
 import { useUser } from '../../hooks/useUser'
+import { useThemeContext } from '../../hooks/useTheme'
 import {
   Box,
   Typography,
@@ -22,7 +25,8 @@ import {
   Dialog,
   DialogTitle,
   DialogActions,
-  Button
+  Button,
+  Stack
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import {
@@ -31,12 +35,15 @@ import {
   sendMessage,
   markMessagesAsRead,
   getOrCreateChatRoom,
-  deleteChatRoom
+  deleteChatRoom,
+  setTypingStatus,
+  listenToTypingStatus
 } from '../../api/chat'
 import { getUserById } from '../../api/users'
 
 const Chat = ({ selectedChatRoomId }) => {
   const { user } = useUser()
+  const { theme, mode } = useThemeContext()
   const [chatRooms, setChatRooms] = useState([])
   const [selectedChatRoom, setSelectedChatRoom] = useState(null)
   const [messages, setMessages] = useState([])
@@ -47,6 +54,8 @@ const Chat = ({ selectedChatRoomId }) => {
   const [conversationUsers, setConversationUsers] = useState({})
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [chatRoomToDelete, setChatRoomToDelete] = useState(null)
+  const [isOtherUserTyping, setIsOtherUserTyping] = useState(false)
+  let typingTimeout = null
 
   useEffect(() => {
     if (!user?.uid) {
@@ -116,6 +125,17 @@ const Chat = ({ selectedChatRoomId }) => {
   }, [selectedChatRoomId, chatRooms])
 
   useEffect(() => {
+    if (!selectedChatRoom?.id || !user?.uid) return
+    const unsubscribe = listenToTypingStatus(selectedChatRoom.id, (typing) => {
+      const otherUserId = selectedChatRoom.participants.find(
+        (id) => id !== user.uid
+      )
+      setIsOtherUserTyping(!!typing[otherUserId])
+    })
+    return () => unsubscribe && unsubscribe()
+  }, [selectedChatRoom?.id, user?.uid])
+
+  useEffect(() => {
     return () => {
       if (unsubscribeChatRooms) unsubscribeChatRooms()
       if (unsubscribeMessages) unsubscribeMessages()
@@ -132,6 +152,15 @@ const Chat = ({ selectedChatRoomId }) => {
     },
     [selectedChatRoom?.id, user?.uid]
   )
+
+  const handleTyping = useCallback(() => {
+    if (!selectedChatRoom?.id || !user?.uid) return
+    setTypingStatus(selectedChatRoom.id, user.uid, true)
+    if (typingTimeout) clearTimeout(typingTimeout)
+    typingTimeout = setTimeout(() => {
+      setTypingStatus(selectedChatRoom.id, user.uid, false)
+    }, 2000)
+  }, [selectedChatRoom?.id, user?.uid])
 
   const handleConversationSelect = useCallback(
     (chatRoomId) => {
@@ -179,13 +208,14 @@ const Chat = ({ selectedChatRoomId }) => {
     setChatRoomToDelete(null)
   }
 
-  if (loading) {
+  if (loading || (selectedChatRoom && !otherUser)) {
     return (
       <Box
         display="flex"
         justifyContent="center"
         alignItems="center"
         height="100vh"
+        sx={{ backgroundColor: 'transparent' }}
       >
         <CircularProgress />
       </Box>
@@ -193,75 +223,73 @@ const Chat = ({ selectedChatRoomId }) => {
   }
 
   return (
-    <MainContainer responsive>
-      <Sidebar position="left" scrollable={false}>
-        <ConversationList>
-          {conversations.map((conversation) => (
-            <Conversation
-              key={conversation.id}
-              name={conversation.name}
-              info={conversation.lastMessage}
-              unreadCnt={conversation.unread ? 1 : 0}
-              onClick={() => handleConversationSelect(conversation.id)}
-              active={selectedChatRoom?.id === conversation.id}
-              style={{ position: 'relative' }}
-            >
-              <Avatar
-                src={conversation.avatar}
-                name={conversation.name}
-                size="md"
-              />
-            </Conversation>
-          ))}
-          {conversations.length === 0 && (
-            <div style={{ padding: '16px', textAlign: 'center' }}>
-              <Typography variant="body2" color="text.secondary">
-                No conversations yet
-              </Typography>
-            </div>
-          )}
-        </ConversationList>
-        <Dialog open={deleteDialogOpen} onClose={handleCancelDelete}>
-          <DialogTitle>Delete this conversation?</DialogTitle>
-          <DialogActions>
-            <Button onClick={handleCancelDelete}>Cancel</Button>
-            <Button
-              onClick={handleConfirmDelete}
-              color="error"
-              variant="contained"
-            >
-              Delete
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </Sidebar>
+    <MainContainer
+      responsive
+      style={{
+        backgroundColor: 'transparent',
+        color: theme.palette.text.primary
+      }}
+      data-mui-color-scheme={mode}
+    >
       {selectedChatRoom ? (
-        <ChatContainer>
-          <ConversationHeader>
+        <ChatContainer
+          style={{
+            backgroundColor: 'transparent',
+            borderColor: 'transparent'
+          }}
+        >
+          <ConversationHeader
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(10px)',
+              borderBottom: `1px solid ${theme.palette.divider}`
+            }}
+          >
             <ConversationHeader.Back />
             <Avatar
               src={otherUser?.profilePicture}
-              name={otherUser?.displayName || 'User'}
+              name={otherUser?.displayName || ''}
             />
             <ConversationHeader.Content>
-              <div>
-                <div style={{ fontWeight: 'bold' }}>
-                  {otherUser?.displayName || 'User'}
-                </div>
-                <div style={{ fontSize: '0.8em', color: '#666' }}>
-                  {otherUser?.role || 'User'}
-                </div>
-              </div>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Stack spacing={0.3}>
+                  <Typography
+                    fontSize={16}
+                    fontWeight={'medium'}
+                    sx={{ color: theme.palette.text.primary }}
+                  >
+                    {otherUser?.displayName || ''}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: theme.palette.text.secondary }}
+                  >
+                    {otherUser?.role || ''}
+                  </Typography>
+                </Stack>
+                <IconButton
+                  size="small"
+                  onClick={() => handleDeleteClick(selectedChatRoom.id)}
+                  style={{ marginLeft: 'auto' }}
+                  sx={{ color: theme.palette.text.secondary }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Stack>
             </ConversationHeader.Content>
-            <IconButton
-              size="small"
-              onClick={() => handleDeleteClick(selectedChatRoom.id)}
-              style={{ marginLeft: 'auto' }}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
           </ConversationHeader>
-          <MessageList>
+          <MessageList
+            style={{
+              backgroundColor: 'transparent'
+            }}
+            typingIndicator={
+              isOtherUserTyping && otherUser ? (
+                <TypingIndicator
+                  content={`${otherUser.displayName} is typing`}
+                />
+              ) : null
+            }
+          >
             {messages.length === 0
               ? [
                   <MessageGroup key="empty" direction="incoming">
@@ -272,6 +300,14 @@ const Chat = ({ selectedChatRoomId }) => {
                           direction: 'incoming',
                           position: 'single',
                           sender: 'system'
+                        }}
+                        style={{
+                          backgroundColor:
+                            theme.palette.mode === 'dark'
+                              ? 'rgba(45, 55, 72, 0.8)'
+                              : 'rgba(247, 250, 252, 0.8)',
+                          color: theme.palette.text.primary,
+                          backdropFilter: 'blur(10px)'
                         }}
                       />
                     </MessageGroup.Messages>
@@ -301,6 +337,20 @@ const Chat = ({ selectedChatRoomId }) => {
                               : 'incoming',
                           position: 'last'
                         }}
+                        style={{
+                          backgroundColor:
+                            msg.senderId === user?.uid
+                              ? theme.palette.primary.main
+                              : theme.palette.mode === 'dark'
+                              ? 'rgba(45, 55, 72, 0.8)'
+                              : 'rgba(247, 250, 252, 0.8)',
+                          color:
+                            msg.senderId === user?.uid
+                              ? theme.palette.primary.contrastText
+                              : theme.palette.text.primary,
+                          backdropFilter:
+                            msg.senderId !== user?.uid ? 'blur(10px)' : 'none'
+                        }}
                       />
                     </MessageGroup.Messages>
                   </MessageGroup>
@@ -310,6 +360,12 @@ const Chat = ({ selectedChatRoomId }) => {
             attachButton={false}
             placeholder="Type here..."
             onSend={handleSendMessage}
+            onChange={handleTyping}
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(10px)',
+              borderTop: `1px solid ${theme.palette.divider}`
+            }}
           />
         </ChatContainer>
       ) : (
@@ -321,17 +377,107 @@ const Chat = ({ selectedChatRoomId }) => {
             alignItems: 'center',
             height: '100vh',
             padding: '24px',
-            backgroundColor: '#f5f5f5'
+            backgroundColor: 'transparent'
           }}
         >
-          <Typography variant="h6" color="text.secondary" gutterBottom>
+          <Typography
+            variant="h6"
+            sx={{ color: theme.palette.text.secondary }}
+            gutterBottom
+          >
             Select a conversation
           </Typography>
-          <Typography variant="body2" color="text.secondary" textAlign="center">
+          <Typography
+            variant="body2"
+            sx={{ color: theme.palette.text.secondary }}
+            textAlign="center"
+          >
             Choose a conversation from the sidebar to start chatting
           </Typography>
         </div>
       )}
+      <Sidebar
+        position="right"
+        scrollable={false}
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(10px)',
+          borderLeft: `1px solid ${theme.palette.divider}`
+        }}
+      >
+        <ConversationList>
+          {conversations.map((conversation) => (
+            <Conversation
+              key={conversation.id}
+              name={conversation.name}
+              info={conversation.lastMessage}
+              unreadCnt={conversation.unread ? 1 : 0}
+              onClick={() => handleConversationSelect(conversation.id)}
+              active={selectedChatRoom?.id === conversation.id}
+              style={{
+                position: 'relative',
+                backgroundColor:
+                  selectedChatRoom?.id === conversation.id
+                    ? theme.palette.mode === 'dark'
+                      ? 'rgba(45, 55, 72, 0.8)'
+                      : 'rgba(227, 242, 253, 0.8)'
+                    : 'transparent',
+                color: theme.palette.text.primary,
+                backdropFilter:
+                  selectedChatRoom?.id === conversation.id
+                    ? 'blur(10px)'
+                    : 'none'
+              }}
+            >
+              <Avatar
+                src={conversation.avatar}
+                name={conversation.name}
+                size="md"
+              />
+            </Conversation>
+          ))}
+          {conversations.length === 0 && (
+            <div style={{ padding: '16px', textAlign: 'center' }}>
+              <Typography
+                variant="body2"
+                sx={{ color: theme.palette.text.secondary }}
+              >
+                No conversations yet
+              </Typography>
+            </div>
+          )}
+        </ConversationList>
+        <Dialog
+          open={deleteDialogOpen}
+          onClose={handleCancelDelete}
+          PaperProps={{
+            style: {
+              padding: 2,
+              backgroundColor: theme.palette.background.paper,
+              color: theme.palette.text.primary
+            }
+          }}
+        >
+          <DialogTitle sx={{ color: theme.palette.text.primary }}>
+            Delete this conversation?
+          </DialogTitle>
+          <DialogActions>
+            <Button
+              onClick={handleCancelDelete}
+              sx={{ color: theme.palette.text.secondary }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmDelete}
+              color="error"
+              variant="contained"
+            >
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Sidebar>
     </MainContainer>
   )
 }

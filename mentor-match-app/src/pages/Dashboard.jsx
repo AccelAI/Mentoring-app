@@ -156,44 +156,12 @@ const Dashboard = () => {
                 sx: {
                   width: { xs: '100%', sm: '400px', md: '40%' },
                   height: '100vh',
-                  borderTopLeftRadius: 16,
-                  borderBottomLeftRadius: 16,
+                  borderTopLeftRadius: 8,
+                  borderBottomLeftRadius: 8,
                   overflow: 'visible'
                 }
               }}
             >
-              {/* Chat Tab Handle - visible when drawer is open */}
-              <Box
-                sx={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: -20,
-                  transform: 'translateY(-50%)',
-                  width: 20,
-                  height: 60,
-                  backgroundColor: 'primary.main',
-                  borderTopLeftRadius: 8,
-                  borderBottomLeftRadius: 8,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  '&:hover': {
-                    backgroundColor: 'primary.dark'
-                  }
-                }}
-                onClick={() => setToggleChat(false)}
-              >
-                <Box
-                  sx={{
-                    width: 4,
-                    height: 30,
-                    backgroundColor: 'white',
-                    borderRadius: 2
-                  }}
-                />
-              </Box>
-
               {/* Chat Content */}
               <Box
                 sx={{
