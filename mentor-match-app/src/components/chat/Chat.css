@@ -12,7 +12,7 @@
   --chat-active-conversation-bg: #c6e3fa;
 }
 
-[data-mui-color-scheme='dark'] {
+[data-mui-color-scheme="dark"] {
   --chat-outgoing-bg: #759aff;
   --chat-outgoing-color: white;
   --chat-incoming-bg: #094375;

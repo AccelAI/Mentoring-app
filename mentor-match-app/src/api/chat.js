@@ -190,7 +190,7 @@ export const listenToTypingStatus = (chatRoomId, callback) => {
   const chatRoomRef = doc(db, 'chatRooms', chatRoomId)
   return onSnapshot(chatRoomRef, (docSnap) => {
     const data = docSnap.data()
-    callback(data?.typing || {})
+    callback(null, data?.typing || {})
   })
 }
 
