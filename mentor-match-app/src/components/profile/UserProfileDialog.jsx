@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react'
+// React hooks
+import { useState, useEffect } from 'react'
+
+// MUI components
 import {
   Dialog,
   DialogContent,
@@ -11,6 +14,7 @@ import {
   Link,
   IconButton
 } from '@mui/material'
+import { LoadingButton } from '@mui/lab'
 import {
   Business as BusinessIcon,
   Language as LanguageIcon,
@@ -18,171 +22,267 @@ import {
   Link as LinkIcon,
   SchoolRounded as SchoolIcon,
   Person as PersonIcon,
-  Close as CloseIcon
+  Close as CloseIcon,
+  ChatOutlined as ChatIcon,
+  Email as EmailIcon,
+  Cancel as CancelIcon
 } from '@mui/icons-material'
-import ProfilePicture from '../ProfilePicture'
+
+// Hooks and services
 import { useUser } from '../../hooks/useUser'
 import { getFormAnswers } from '../../api/forms'
+import { asignMatch } from '../../api/match'
+import { useSnackbar } from 'notistack'
 
-const UserProfileDialog = ({ openDialog, setOpenDialog, userId }) => {
+// Components
+import ProfilePicture from '../ProfilePicture'
+import EndMentorshipDialog from '../dialogs/EndMentorshipDialog'
+
+const UserProfileDialog = ({
+  openDialog,
+  setOpenDialog,
+  setOpenMatchDialog,
+  userId,
+  showSelectAsMentorButton,
+  showChatButton,
+  showEndMentorshipButton
+}) => {
   const [user, setUser] = useState({})
   const [loading, setLoading] = useState(true)
-  const { userList } = useUser()
+  const [loadingMatch, setLoadingMatch] = useState(false)
+  const { userList, user: loggedUser, refreshUser } = useUser()
   const [formAnswers, setFormAnswers] = useState({})
+  const { enqueueSnackbar } = useSnackbar()
+
+  const [openEndMentorshipDialog, setOpenEndMentorshipDialog] = useState(false)
 
   useEffect(() => {
     if (openDialog) {
       const fetchUser = async () => {
-        const res = userList.find((user) => user.id === userId)
+        const res = userList.find((user) => user.uid === userId)
         console.log('user', res)
         setUser(res)
 
         const ans = await getFormAnswers(userId)
         setFormAnswers(ans)
-        console.log('formAnswers', ans)
         setLoading(false)
       }
       fetchUser()
     }
   }, [openDialog, userId, userList])
 
+  const handleMatch = async () => {
+    setLoadingMatch(true)
+    const res = await asignMatch(loggedUser.uid, userId)
+    if (res.ok) {
+      refreshUser() // Refresh the logged-in user's data
+      setOpenDialog(false)
+      setTimeout(() => {
+        setOpenMatchDialog(true) // Open the match dialog after a delay
+      }, 600)
+    } else {
+      console.error('Error assigning match:', res.error)
+      enqueueSnackbar('Error assigning match', {
+        variant: 'error'
+      })
+    }
+  }
+
   return (
-    <Dialog
-      open={openDialog}
-      onClose={() => setOpenDialog(false)}
-      maxWidth={'md'}
-      fullWidth
-    >
-      <DialogContent>
-        {loading ? (
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            pt={2}
-          >
-            <CircularProgress />
-          </Box>
-        ) : (
-          <Stack
-            //alignItems={'center'}
-            sx={{ width: '100%' }}
-            spacing={1}
-            pb={5}
-          >
-            <IconButton
-              onClick={() => {
-                setOpenDialog(false)
-              }}
-              color="text.secondary"
-              sx={{ alignSelf: 'flex-end' }}
+    <>
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        maxWidth={'md'}
+        fullWidth
+      >
+        <DialogContent>
+          {loading ? (
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              pt={2}
             >
-              <CloseIcon />
-            </IconButton>
-            <Stack direction="row" spacing={2} width={'100%'} pr={6} pl={2}>
-              <Stack
-                width={'35%'}
-                alignItems={'center'}
-                justifyContent={'center'}
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Stack
+              //alignItems={'center'}
+              sx={{ width: '100%' }}
+              spacing={1}
+              pb={5}
+            >
+              <IconButton
+                onClick={() => {
+                  setOpenDialog(false)
+                }}
+                color="text.secondary"
+                sx={{ alignSelf: 'flex-end' }}
               >
-                <ProfilePicture
-                  img={user.profilePicture}
-                  size={200}
-                  borderRadius={100}
-                  props={{ alignSelf: 'center' }}
-                />
-              </Stack>
-
-              <Stack spacing={1} width={'65%'}>
+                <CloseIcon />
+              </IconButton>
+              <Stack direction="row" spacing={2} width={'100%'} pr={6} pl={2}>
                 <Stack
-                  direction="row"
-                  justifyContent={'space-between'}
+                  width={'35%'}
                   alignItems={'center'}
+                  justifyContent={'space-between'}
+                  pl={1}
                 >
-                  <Typography variant={'h6'} fontWeight={'regular'}>
-                    {user.displayName}
-                  </Typography>
-
-                  {user.role && (
-                    <Stack direction="row" spacing={0.5}>
-                      <Typography variant={'body2'} color="text.secondary">
-                        {user.role}
-                      </Typography>
-                      <SchoolIcon fontSize="small" color="secondary" />
-                    </Stack>
+                  <ProfilePicture
+                    img={user.profilePicture}
+                    size={200}
+                    borderRadius={100}
+                    props={{ alignSelf: 'center' }}
+                  />
+                  {showEndMentorshipButton && (
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      startIcon={<CancelIcon />}
+                      onClick={() => {
+                        setOpenEndMentorshipDialog(true)
+                      }}
+                      sx={{ width: 'fit-content', alignSelf: 'start' }}
+                    >
+                      End Mentorship
+                    </Button>
                   )}
                 </Stack>
-                <Divider orientation="horizontal" />
 
-                {user.profileDescription && (
-                  <Typography variant={'body2'} color="text.secondary" py={1.5}>
-                    {user.profileDescription}
-                  </Typography>
-                )}
-
-                <Typography variant={'body2'} lineHeight={2}>
-                  {user.title && (
-                    <Stack direction="row" spacing={0.5} alignItems="center">
-                      <PersonIcon fontSize="small" color="primary" />
-                      <span>{user.title}</span>
-                    </Stack>
-                  )}
-                  {user.affiliation && (
-                    <Stack direction="row" spacing={0.5} alignItems="center">
-                      <BusinessIcon fontSize="small" color="primary" />
-                      <span>Affiliation: {user.affiliation}</span>
-                    </Stack>
-                  )}
-                  {user.location && (
-                    <Stack direction="row" spacing={0.5} alignItems="center">
-                      <LocationIcon fontSize="small" color="primary" />
-                      <span>Location: {user.location}</span>
-                    </Stack>
-                  )}
-
-                  {formAnswers && (
-                    <Stack direction="row" spacing={0.5} alignItems="center">
-                      <LanguageIcon fontSize="small" color="primary" />
-                      <span>
-                        Languages:{' '}
-                        {formAnswers.mentorData
-                          ? formAnswers.mentorData.languages.join(', ')
-                          : formAnswers.menteeData.languages.join(', ')}
-                      </span>
-                    </Stack>
-                  )}
-                  {user.websiteUrl && (
-                    <Stack direction="row" spacing={0.5} alignItems={'center'}>
-                      <LinkIcon fontSize="small" color="primary" />
-                      <Link
-                        color="inherit"
-                        target="_blank"
-                        rel="noopener"
-                        href={user.websiteUrl}
-                      >
-                        {user.websiteUrl}
-                      </Link>
-                    </Stack>
-                  )}
-                </Typography>
-
-                {false && (
-                  <Button
-                    variant="contained"
-                    sx={{
-                      width: 'fit-content',
-                      alignSelf: 'center'
-                    }}
+                <Stack spacing={1} width={'65%'}>
+                  <Stack
+                    direction="row"
+                    justifyContent={'space-between'}
+                    alignItems={'center'}
                   >
-                    Choose as mentor
-                  </Button>
-                )}
+                    <Typography variant={'h6'} fontWeight={'regular'}>
+                      {user.displayName}
+                    </Typography>
+
+                    {user.role && (
+                      <Stack direction="row" spacing={0.5}>
+                        <Typography variant={'body2'} color="text.secondary">
+                          {user.role}
+                        </Typography>
+                        <SchoolIcon fontSize="small" color="secondary" />
+                      </Stack>
+                    )}
+                  </Stack>
+                  <Divider orientation="horizontal" />
+
+                  {user.profileDescription && (
+                    <Typography
+                      variant={'body2'}
+                      color="text.secondary"
+                      py={1.5}
+                    >
+                      {user.profileDescription}
+                    </Typography>
+                  )}
+
+                  <Typography variant={'body2'} lineHeight={2}>
+                    {user.title && (
+                      <Stack direction="row" spacing={0.5} alignItems="center">
+                        <PersonIcon fontSize="small" color="primary" />
+                        <span>{user.title}</span>
+                      </Stack>
+                    )}
+                    {user.affiliation && (
+                      <Stack direction="row" spacing={0.5} alignItems="center">
+                        <BusinessIcon fontSize="small" color="primary" />
+                        <span>Affiliation: {user.affiliation}</span>
+                      </Stack>
+                    )}
+                    {user.location && (
+                      <Stack direction="row" spacing={0.5} alignItems="center">
+                        <LocationIcon fontSize="small" color="primary" />
+                        <span>Location: {user.location}</span>
+                      </Stack>
+                    )}
+
+                    {formAnswers && (
+                      <Stack direction="row" spacing={0.5} alignItems="center">
+                        <LanguageIcon fontSize="small" color="primary" />
+                        <span>
+                          Languages:{' '}
+                          {formAnswers.mentorData
+                            ? formAnswers.mentorData.languages.join(', ')
+                            : formAnswers.menteeData.languages.join(', ')}
+                        </span>
+                      </Stack>
+                    )}
+                    {user.websiteUrl && (
+                      <Stack
+                        direction="row"
+                        spacing={0.5}
+                        alignItems={'center'}
+                      >
+                        <LinkIcon fontSize="small" color="primary" />
+                        <Link
+                          color="inherit"
+                          target="_blank"
+                          rel="noopener"
+                          href={user.websiteUrl}
+                        >
+                          {user.websiteUrl}
+                        </Link>
+                      </Stack>
+                    )}
+                    {/* Display the user's email only if the profile is from the match list (if the chat button is enabled) */}
+                    {user.email && showChatButton && (
+                      <Stack
+                        direction="row"
+                        spacing={0.5}
+                        alignItems={'center'}
+                      >
+                        <EmailIcon fontSize="small" color="primary" />
+                        <span>Email: {user.email}</span>
+                      </Stack>
+                    )}
+                  </Typography>
+
+                  {showChatButton && (
+                    <Button
+                      variant="contained"
+                      size="small"
+                      sx={{ width: 'fit-content', alignSelf: 'end' }}
+                      startIcon={<ChatIcon />}
+                      onClick={() => {
+                        setOpenDialog(false)
+                        // Open chat dialog or navigate to chat page
+                      }}
+                    >
+                      Start Chat
+                    </Button>
+                  )}
+                  {showSelectAsMentorButton && (
+                    <LoadingButton
+                      variant="contained"
+                      sx={{
+                        width: 'fit-content',
+                        alignSelf: 'center'
+                      }}
+                      onClick={handleMatch}
+                      loading={loadingMatch}
+                    >
+                      Choose as mentor
+                    </LoadingButton>
+                  )}
+                </Stack>
               </Stack>
             </Stack>
-          </Stack>
-        )}
-      </DialogContent>
-    </Dialog>
+          )}
+        </DialogContent>
+      </Dialog>
+      <EndMentorshipDialog
+        openDialog={openEndMentorshipDialog}
+        setOpenDialog={setOpenEndMentorshipDialog}
+        userId={userId}
+        setOpenProfileDialog={setOpenDialog}
+      />
+    </>
   )
 }
 

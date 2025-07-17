@@ -18,7 +18,7 @@ import {
 
 import { useUser } from '../../hooks/useUser'
 import { getFormAnswers, deleteFormAnswers } from '../../api/forms'
-import MentorshipFormDialog from '../MentorshipFormDialog'
+import MentorshipFormDialog from '../dialogs/MentorshipFormDialog'
 
 const SubmittedFormsSection = () => {
   const { user } = useUser()

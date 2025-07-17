@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@chatscope/chat-ui-kit-react": "^2.1.1",
+    "@chatscope/chat-ui-kit-styles": "^1.4.0",
+    "@chatscope/use-chat": "^3.1.2",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@fontsource-variable/onest": "^5.1.0",
@@ -14,6 +17,7 @@
     "@testing-library/user-event": "^13.5.0",
     "firebase": "^10.13.1",
     "formik": "^2.4.6",
+    "lottie-react": "^2.4.1",
     "notistack": "^3.0.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
