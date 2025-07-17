@@ -9,7 +9,6 @@ import {
   limit,
   serverTimestamp,
   where,
-  or,
   getDocs,
   deleteDoc
 } from 'firebase/firestore'
@@ -117,16 +116,16 @@ export const getUserChatRooms = (userId, callback) => {
         })
 
         console.log('Chat rooms found:', chatRooms.length)
-        callback(chatRooms)
+        callback(null, chatRooms)
       },
       (error) => {
         console.error('Error getting chat rooms:', error)
-        callback([])
+        callback(error, [])
       }
     )
   } catch (error) {
     console.error('Error setting up chat rooms listener:', error)
-    callback([])
+    callback(error, [])
   }
 }
 
@@ -146,7 +145,7 @@ export const getChatMessages = (chatRoomId, callback) => {
         ...doc.data()
       })
     })
-    callback(messages)
+    callback(null, messages)
   })
 }
 

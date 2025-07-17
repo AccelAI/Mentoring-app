@@ -1,11 +1,11 @@
-/* Custom styles for Chat component */
+/* stylelint-disable selector-class-pattern */
 
 :root {
   --chat-outgoing-bg: #3d8fda;
   --chat-outgoing-color: white;
-  --chat-incoming-bg: rgba(241, 241, 241, 0.8);
+  --chat-incoming-bg: rgb(241 241 241 / 80%);
   --chat-incoming-color: #333;
-  --chat-hover-opacity: 0.9;
+  --chat-hover-opacity: 90%;
   --chat-border: #e2e8f0;
   --chat-text-color: #333;
   --chat-input-bg: #c6e3fa;
@@ -17,8 +17,8 @@
   --chat-outgoing-color: white;
   --chat-incoming-bg: #094375;
   --chat-incoming-color: #e2e8f0;
-  --chat-hover-opacity: 0.8;
-  --chat-border: rgba(0, 0, 0, 0.2);
+  --chat-hover-opacity: 80%;
+  --chat-border: rgb(0 0 0 / 20%);
   --chat-input-bg: #425978;
   --chat-active-conversation-bg: #094375;
 }
@@ -30,7 +30,7 @@
 }
 
 .cs-message.cs-message--outgoing.cs-message--last {
-  border-radius: 10px 10px 0 10px !important;
+  border-radius: 10px 10px 0 !important;
 }
 
 .cs-message--incoming .cs-message__content {
@@ -40,7 +40,7 @@
 }
 
 .cs-message.cs-message--incoming.cs-message--last {
-  border-radius: 10px 10px 10px 0px !important;
+  border-radius: 10px 10px 10px 0 !important;
 }
 
 .cs-main-container .cs-sidebar.cs-sidebar--right {
