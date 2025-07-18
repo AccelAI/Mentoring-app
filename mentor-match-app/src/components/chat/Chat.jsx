@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useEffect, useState } from 'react'
+import React, { useMemo, useCallback, useEffect, useState } from "react"
 import {
   MainContainer,
   Sidebar,
@@ -12,11 +12,11 @@ import {
   MessageList,
   MessageInput,
   TypingIndicator
-} from '@chatscope/chat-ui-kit-react'
-import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css'
-import './Chat.css'
-import { useUser } from '../../hooks/useUser'
-import { useThemeContext } from '../../hooks/useTheme'
+} from "@chatscope/chat-ui-kit-react"
+import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css"
+import "./Chat.css"
+import { useUser } from "../../hooks/useUser"
+import { useThemeContext } from "../../hooks/useTheme"
 import {
   Box,
   Typography,
@@ -27,8 +27,8 @@ import {
   DialogActions,
   Button,
   Stack
-} from '@mui/material'
-import DeleteIcon from '@mui/icons-material/Delete'
+} from "@mui/material"
+import DeleteIcon from "@mui/icons-material/Delete"
 import {
   getUserChatRooms,
   getChatMessages,
@@ -38,8 +38,8 @@ import {
   deleteChatRoom,
   setTypingStatus,
   listenToTypingStatus
-} from '../../api/chat'
-import { getUserById } from '../../api/users'
+} from "../../api/chat"
+import { getUserById } from "../../api/users"
 
 const Chat = ({ selectedChatRoomId }) => {
   const { user } = useUser()
@@ -63,8 +63,13 @@ const Chat = ({ selectedChatRoomId }) => {
       return
     }
     const timeoutId = setTimeout(() => setLoading(false), 5000)
-    const unsubscribe = getUserChatRooms(user.uid, async (rooms) => {
+    const unsubscribe = getUserChatRooms(user.uid, async (error, rooms) => {
       clearTimeout(timeoutId)
+      if (error) {
+        setChatRooms([])
+        setLoading(false)
+        return
+      }
       setChatRooms(rooms)
       setLoading(false)
       // Fetch other users' info for conversation list
@@ -89,7 +94,11 @@ const Chat = ({ selectedChatRoomId }) => {
 
   useEffect(() => {
     if (!selectedChatRoom?.id) return
-    const unsubscribe = getChatMessages(selectedChatRoom.id, (msgs) => {
+    const unsubscribe = getChatMessages(selectedChatRoom.id, (error, msgs) => {
+      if (error) {
+        setMessages([])
+        return
+      }
       setMessages(msgs)
     })
     setUnsubscribeMessages(() => unsubscribe)
@@ -126,12 +135,19 @@ const Chat = ({ selectedChatRoomId }) => {
 
   useEffect(() => {
     if (!selectedChatRoom?.id || !user?.uid) return
-    const unsubscribe = listenToTypingStatus(selectedChatRoom.id, (typing) => {
-      const otherUserId = selectedChatRoom.participants.find(
-        (id) => id !== user.uid
-      )
-      setIsOtherUserTyping(!!typing[otherUserId])
-    })
+    const unsubscribe = listenToTypingStatus(
+      selectedChatRoom.id,
+      (error, typing) => {
+        if (error) {
+          setIsOtherUserTyping(false)
+          return
+        }
+        const otherUserId = selectedChatRoom.participants.find(
+          (id) => id !== user.uid
+        )
+        setIsOtherUserTyping(!!typing[otherUserId])
+      }
+    )
     return () => unsubscribe && unsubscribe()
   }, [selectedChatRoom?.id, user?.uid])
 
@@ -147,7 +163,7 @@ const Chat = ({ selectedChatRoomId }) => {
       if (!selectedChatRoom?.id || !user?.uid || !message.trim()) return
       const result = await sendMessage(selectedChatRoom.id, user.uid, message)
       if (!result.ok) {
-        console.error('Failed to send message:', result.error)
+        console.error("Failed to send message:", result.error)
       }
     },
     [selectedChatRoom?.id, user?.uid]
@@ -178,9 +194,9 @@ const Chat = ({ selectedChatRoomId }) => {
         : undefined
       return {
         id: room.id,
-        name: otherUserData?.displayName || otherUserId || 'Loading...',
-        avatar: otherUserData?.profilePicture || '',
-        lastMessage: room.lastMessage || 'No messages yet',
+        name: otherUserData?.displayName || otherUserId || "Loading...",
+        avatar: otherUserData?.profilePicture || "",
+        lastMessage: room.lastMessage || "No messages yet",
         timestamp: room.lastMessageTime?.toDate?.() || new Date(),
         unread: false
       }
@@ -215,7 +231,7 @@ const Chat = ({ selectedChatRoomId }) => {
         justifyContent="center"
         alignItems="center"
         height="100vh"
-        sx={{ backgroundColor: 'transparent' }}
+        sx={{ backgroundColor: "transparent" }}
       >
         <CircularProgress />
       </Box>
@@ -226,7 +242,7 @@ const Chat = ({ selectedChatRoomId }) => {
     <MainContainer
       responsive
       style={{
-        backgroundColor: 'transparent',
+        backgroundColor: "transparent",
         color: theme.palette.text.primary
       }}
       data-mui-color-scheme={mode}
@@ -234,43 +250,43 @@ const Chat = ({ selectedChatRoomId }) => {
       {selectedChatRoom ? (
         <ChatContainer
           style={{
-            backgroundColor: 'transparent',
-            borderColor: 'transparent'
+            backgroundColor: "transparent",
+            borderColor: "transparent"
           }}
         >
           <ConversationHeader
             style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              backdropFilter: 'blur(10px)',
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              backdropFilter: "blur(10px)",
               borderBottom: `1px solid ${theme.palette.divider}`
             }}
           >
             <ConversationHeader.Back />
             <Avatar
               src={otherUser?.profilePicture}
-              name={otherUser?.displayName || ''}
+              name={otherUser?.displayName || ""}
             />
             <ConversationHeader.Content>
               <Stack direction="row" spacing={1} alignItems="center">
                 <Stack spacing={0.3}>
                   <Typography
                     fontSize={16}
-                    fontWeight={'medium'}
+                    fontWeight={"medium"}
                     sx={{ color: theme.palette.text.primary }}
                   >
-                    {otherUser?.displayName || ''}
+                    {otherUser?.displayName || ""}
                   </Typography>
                   <Typography
                     variant="caption"
                     sx={{ color: theme.palette.text.secondary }}
                   >
-                    {otherUser?.role || ''}
+                    {otherUser?.role || ""}
                   </Typography>
                 </Stack>
                 <IconButton
                   size="small"
                   onClick={() => handleDeleteClick(selectedChatRoom.id)}
-                  style={{ marginLeft: 'auto' }}
+                  style={{ marginLeft: "auto" }}
                   sx={{ color: theme.palette.text.secondary }}
                 >
                   <DeleteIcon fontSize="small" />
@@ -280,7 +296,7 @@ const Chat = ({ selectedChatRoomId }) => {
           </ConversationHeader>
           <MessageList
             style={{
-              backgroundColor: 'transparent'
+              backgroundColor: "transparent"
             }}
             typingIndicator={
               isOtherUserTyping && otherUser ? (
@@ -296,18 +312,18 @@ const Chat = ({ selectedChatRoomId }) => {
                     <MessageGroup.Messages>
                       <Message
                         model={{
-                          message: 'No messages yet. Say hello!',
-                          direction: 'incoming',
-                          position: 'single',
-                          sender: 'system'
+                          message: "No messages yet. Say hello!",
+                          direction: "incoming",
+                          position: "single",
+                          sender: "system"
                         }}
                         style={{
                           backgroundColor:
-                            theme.palette.mode === 'dark'
-                              ? 'rgba(45, 55, 72, 0.8)'
-                              : 'rgba(247, 250, 252, 0.8)',
+                            theme.palette.mode === "dark"
+                              ? "rgba(45, 55, 72, 0.8)"
+                              : "rgba(247, 250, 252, 0.8)",
                           color: theme.palette.text.primary,
-                          backdropFilter: 'blur(10px)'
+                          backdropFilter: "blur(10px)"
                         }}
                       />
                     </MessageGroup.Messages>
@@ -317,7 +333,7 @@ const Chat = ({ selectedChatRoomId }) => {
                   <MessageGroup
                     key={msg.id}
                     direction={
-                      msg.senderId === user?.uid ? 'outgoing' : 'incoming'
+                      msg.senderId === user?.uid ? "outgoing" : "incoming"
                     }
                   >
                     <MessageGroup.Messages>
@@ -327,29 +343,29 @@ const Chat = ({ selectedChatRoomId }) => {
                           sentTime: (
                             msg.timestamp?.toDate?.() || new Date()
                           ).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit'
+                            hour: "2-digit",
+                            minute: "2-digit"
                           }),
-                          sender: msg.senderId === user?.uid ? 'me' : 'them',
+                          sender: msg.senderId === user?.uid ? "me" : "them",
                           direction:
                             msg.senderId === user?.uid
-                              ? 'outgoing'
-                              : 'incoming',
-                          position: 'last'
+                              ? "outgoing"
+                              : "incoming",
+                          position: "last"
                         }}
                         style={{
                           backgroundColor:
                             msg.senderId === user?.uid
                               ? theme.palette.primary.main
-                              : theme.palette.mode === 'dark'
-                              ? 'rgba(45, 55, 72, 0.8)'
-                              : 'rgba(247, 250, 252, 0.8)',
+                              : theme.palette.mode === "dark"
+                              ? "rgba(45, 55, 72, 0.8)"
+                              : "rgba(247, 250, 252, 0.8)",
                           color:
                             msg.senderId === user?.uid
                               ? theme.palette.primary.contrastText
                               : theme.palette.text.primary,
                           backdropFilter:
-                            msg.senderId !== user?.uid ? 'blur(10px)' : 'none'
+                            msg.senderId !== user?.uid ? "blur(10px)" : "none"
                         }}
                       />
                     </MessageGroup.Messages>
@@ -362,8 +378,8 @@ const Chat = ({ selectedChatRoomId }) => {
             onSend={handleSendMessage}
             onChange={handleTyping}
             style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              backdropFilter: 'blur(10px)',
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              backdropFilter: "blur(10px)",
               borderTop: `1px solid ${theme.palette.divider}`
             }}
           />
@@ -371,13 +387,13 @@ const Chat = ({ selectedChatRoomId }) => {
       ) : (
         <div
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100vh',
-            padding: '24px',
-            backgroundColor: 'transparent'
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+            padding: "24px",
+            backgroundColor: "transparent"
           }}
         >
           <Typography
@@ -400,8 +416,8 @@ const Chat = ({ selectedChatRoomId }) => {
         position="right"
         scrollable={false}
         style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.1)',
-          backdropFilter: 'blur(10px)',
+          backgroundColor: "rgba(255, 255, 255, 0.1)",
+          backdropFilter: "blur(10px)",
           borderLeft: `1px solid ${theme.palette.divider}`
         }}
       >
@@ -415,18 +431,18 @@ const Chat = ({ selectedChatRoomId }) => {
               onClick={() => handleConversationSelect(conversation.id)}
               active={selectedChatRoom?.id === conversation.id}
               style={{
-                position: 'relative',
+                position: "relative",
                 backgroundColor:
                   selectedChatRoom?.id === conversation.id
-                    ? theme.palette.mode === 'dark'
-                      ? 'rgba(45, 55, 72, 0.8)'
-                      : 'rgba(227, 242, 253, 0.8)'
-                    : 'transparent',
+                    ? theme.palette.mode === "dark"
+                      ? "rgba(45, 55, 72, 0.8)"
+                      : "rgba(227, 242, 253, 0.8)"
+                    : "transparent",
                 color: theme.palette.text.primary,
                 backdropFilter:
                   selectedChatRoom?.id === conversation.id
-                    ? 'blur(10px)'
-                    : 'none'
+                    ? "blur(10px)"
+                    : "none"
               }}
             >
               <Avatar
@@ -437,7 +453,7 @@ const Chat = ({ selectedChatRoomId }) => {
             </Conversation>
           ))}
           {conversations.length === 0 && (
-            <div style={{ padding: '16px', textAlign: 'center' }}>
+            <div style={{ padding: "16px", textAlign: "center" }}>
               <Typography
                 variant="body2"
                 sx={{ color: theme.palette.text.secondary }}
