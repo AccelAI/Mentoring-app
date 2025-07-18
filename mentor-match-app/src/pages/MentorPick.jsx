@@ -7,7 +7,7 @@ import ErrorPage from '../components/ErrorPage'
 const MentorPick = () => {
   const { user, userList, loading } = useUser()
 
-  if (!user.mentorMatchResults && user.role.includes('Mentee')) {
+  /*   if (!user.mentorMatchResults && user.role.includes('Mentee')) {
     return (
       <ErrorPage>
         <Typography variant="h6">
@@ -15,7 +15,7 @@ const MentorPick = () => {
         </Typography>
       </ErrorPage>
     )
-  }
+  } */
 
   if (user.role === 'Mentor') {
     return (

@@ -121,7 +121,7 @@ const schema = yup.object().shape({
 })
 
 const MentorForm = () => {
-  const { user } = useUser()
+  const { user, refreshUser } = useUser()
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
   const { initialValues, loading } = useFormData(
@@ -138,9 +138,10 @@ const MentorForm = () => {
         if (res.ok) {
           console.log('Form submitted successfully')
           enqueueSnackbar('Form submitted successfully', { variant: 'success' })
+          refreshUser() // Refresh the user data
           setTimeout(() => {
             navigate('/dashboard')
-          }, 4000)
+          }, 3000)
         }
       } catch (err) {
         console.error('Error submitting form:', err)
@@ -148,7 +149,7 @@ const MentorForm = () => {
       }
       setSubmitting(false)
     },
-    [enqueueSnackbar, navigate, user]
+    [enqueueSnackbar, navigate, user, refreshUser]
   )
 
   return (

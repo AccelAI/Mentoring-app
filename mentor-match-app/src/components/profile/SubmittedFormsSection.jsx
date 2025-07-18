@@ -21,7 +21,7 @@ import { getFormAnswers, deleteFormAnswers } from '../../api/forms'
 import MentorshipFormDialog from '../dialogs/MentorshipFormDialog'
 
 const SubmittedFormsSection = () => {
-  const { user } = useUser()
+  const { user, refreshUser } = useUser()
   const navigate = useNavigate()
   const [formType, setFormType] = useState('')
   const [warningDialogOpen, setWarningDialogOpen] = useState(false)
@@ -98,6 +98,7 @@ const SubmittedFormsSection = () => {
         console.log('Form deleted successfully')
         setFormType(null) // Reset form type after deletion
         fetchForms() // Refetch forms to update the UI
+        refreshUser() // Refresh the user data
         setWarningDialogOpen(false) // Close the warning dialog
       } else {
         console.error('Error deleting form:', res.error)

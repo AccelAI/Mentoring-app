@@ -15,6 +15,7 @@ import { useUser } from '../../hooks/useUser'
 const SideMenu = ({ setView }) => {
   const { user } = useUser()
   const isMentor = user?.role === 'Mentor' || user?.role === 'Mentor/Mentee'
+  const isMentee = user?.role === 'Mentee' || user?.role === 'Mentor/Mentee'
 
   return (
     <Card>
@@ -25,14 +26,15 @@ const SideMenu = ({ setView }) => {
           </ListItemIcon>
           <ListItemText>Dashboard</ListItemText>
         </MenuItem>
-        {isMentor ? (
+        {isMentor && (
           <MenuItem onClick={() => setView('currentMentees')}>
             <ListItemIcon>
               <GroupIcon fontSize="small" color="primary" />
             </ListItemIcon>
             <ListItemText>Current Mentees</ListItemText>
           </MenuItem>
-        ) : (
+        )}
+        {isMentee && (
           <MenuItem onClick={() => setView('currentMentor')}>
             <ListItemIcon>
               <MentorIcon fontSize="small" color="primary" />

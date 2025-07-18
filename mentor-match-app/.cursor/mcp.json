@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "firebase-mcp": {
+      "command": "npx",
+      "args": ["-y", "firebase-tools@latest", "experimental:mcp"],
+      "env": {
+        "FIREBASE_API_KEY": "${REACT_APP_FIREBASE_API_KEY}"
+      }
+    }
+  }
+}

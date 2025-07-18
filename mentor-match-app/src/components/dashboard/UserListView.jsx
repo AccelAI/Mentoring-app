@@ -36,7 +36,8 @@ const UserListView = ({
   showSelectAsMentorButton,
   showChatButton,
   showViewProfileButton,
-  showEndMentorshipButton
+  showEndMentorshipButton,
+  onStartChat
 }) => {
   const [openDialog, setOpenDialog] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -132,6 +133,7 @@ const UserListView = ({
                       showChatButton={showChat}
                       showViewProfileButton={showProfile}
                       showEndMentorshipButton={showEndMentorship}
+                      onStartChat={onStartChat}
                     />
                   ))}
                 {(!usersList || usersList.length === 0) && (

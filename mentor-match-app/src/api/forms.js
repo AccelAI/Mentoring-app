@@ -10,7 +10,12 @@ export const setMentorForm = async (user, formData) => {
     const mentorDoc = doc(db, 'mentors', user.uid)
     await setDoc(mentorDoc, formData, { merge: true })
     const profileDoc = doc(db, 'users', user.uid)
-    if (doc(db, 'mentees', user.uid)) {
+
+    // Check if mentee document exists
+    const menteeDocRef = doc(db, 'mentees', user.uid)
+    const menteeDocSnap = await getDoc(menteeDocRef)
+
+    if (menteeDocSnap.exists()) {
       await updateDoc(profileDoc, { role: 'Mentor/Mentee' })
     } else {
       await updateDoc(profileDoc, { role: 'Mentor' })
@@ -31,7 +36,12 @@ export const setMenteeForm = async (user, formData) => {
     const menteeDoc = doc(db, 'mentees', user.uid)
     await setDoc(menteeDoc, formData, { merge: true })
     const profileDoc = doc(db, 'users', user.uid)
-    if (doc(db, 'mentors', user.uid)) {
+
+    // Check if mentor document exists
+    const mentorDocRef = doc(db, 'mentors', user.uid)
+    const mentorDocSnap = await getDoc(mentorDocRef)
+
+    if (mentorDocSnap.exists()) {
       await updateDoc(profileDoc, { role: 'Mentor/Mentee' })
     } else {
       await updateDoc(profileDoc, { role: 'Mentee' })
@@ -107,8 +117,10 @@ export const getFormAnswers = async (userId) => {
     const menteeDoc = doc(db, 'mentees', userId)
     const mentorDocSnap = await getDoc(mentorDoc)
     const menteeDocSnap = await getDoc(menteeDoc)
-    const mentorData = mentorDocSnap.data()
-    const menteeData = menteeDocSnap.data()
+
+    const mentorData = mentorDocSnap.exists() ? mentorDocSnap.data() : null
+    const menteeData = menteeDocSnap.exists() ? menteeDocSnap.data() : null
+
     if (!mentorData && !menteeData) {
       return null
     }

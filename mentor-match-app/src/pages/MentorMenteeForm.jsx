@@ -162,7 +162,7 @@ const schema = yup.object().shape({
 })
 
 const MentorMenteeForm = () => {
-  const { user } = useUser()
+  const { user, refreshUser } = useUser()
   const { enqueueSnackbar } = useSnackbar()
 
   const navigate = useNavigate()
@@ -172,13 +172,14 @@ const MentorMenteeForm = () => {
       // Submit the form data to the backend
       setSubmitting(true)
       try {
-        const res = await setMentorMenteeForm(user, values) //TODO: Implement setMentorMenteeForm
+        const res = await setMentorMenteeForm(user, values)
         if (res.ok) {
           console.log('Form submitted successfully')
           enqueueSnackbar('Form submitted successfully', { variant: 'success' })
+          refreshUser() // Refresh the user data
           setTimeout(() => {
             navigate('/dashboard')
-          }, 4000)
+          }, 3000)
         }
       } catch (err) {
         console.error('Error submitting form:', err)
@@ -186,7 +187,7 @@ const MentorMenteeForm = () => {
       }
       setSubmitting(false)
     },
-    [enqueueSnackbar, navigate, user]
+    [enqueueSnackbar, navigate, user, refreshUser]
   )
 
   const mergeFormAnswers = useCallback(

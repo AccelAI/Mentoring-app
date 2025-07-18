@@ -33,6 +33,7 @@ import { useUser } from '../../hooks/useUser'
 import { getFormAnswers } from '../../api/forms'
 import { asignMatch } from '../../api/match'
 import { useSnackbar } from 'notistack'
+import { getOrCreateChatRoom } from '../../api/chat'
 
 // Components
 import ProfilePicture from '../ProfilePicture'
@@ -45,11 +46,13 @@ const UserProfileDialog = ({
   userId,
   showSelectAsMentorButton,
   showChatButton,
-  showEndMentorshipButton
+  showEndMentorshipButton,
+  onStartChat
 }) => {
   const [user, setUser] = useState({})
   const [loading, setLoading] = useState(true)
   const [loadingMatch, setLoadingMatch] = useState(false)
+  const [loadingChat, setLoadingChat] = useState(false)
   const { userList, user: loggedUser, refreshUser } = useUser()
   const [formAnswers, setFormAnswers] = useState({})
   const { enqueueSnackbar } = useSnackbar()
@@ -85,6 +88,32 @@ const UserProfileDialog = ({
       enqueueSnackbar('Error assigning match', {
         variant: 'error'
       })
+    }
+  }
+
+  const handleStartChat = async () => {
+    if (!loggedUser?.uid || !userId) return
+
+    setLoadingChat(true)
+    try {
+      const result = await getOrCreateChatRoom(loggedUser.uid, userId)
+      if (result.ok) {
+        setOpenDialog(false)
+        // Call the callback to open chat drawer
+        if (onStartChat) {
+          onStartChat(result.chatRoomId)
+        }
+        enqueueSnackbar('Chat started successfully!', { variant: 'success' })
+      } else {
+        enqueueSnackbar('Failed to start chat: ' + result.error, {
+          variant: 'error'
+        })
+      }
+    } catch (error) {
+      console.error('Error starting chat:', error)
+      enqueueSnackbar('Error starting chat', { variant: 'error' })
+    } finally {
+      setLoadingChat(false)
     }
   }
 
@@ -249,12 +278,10 @@ const UserProfileDialog = ({
                       size="small"
                       sx={{ width: 'fit-content', alignSelf: 'end' }}
                       startIcon={<ChatIcon />}
-                      onClick={() => {
-                        setOpenDialog(false)
-                        // Open chat dialog or navigate to chat page
-                      }}
+                      onClick={handleStartChat}
+                      disabled={loadingChat}
                     >
-                      Start Chat
+                      {loadingChat ? 'Starting...' : 'Start Chat'}
                     </Button>
                   )}
                   {showSelectAsMentorButton && (
