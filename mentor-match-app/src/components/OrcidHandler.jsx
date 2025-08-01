@@ -18,19 +18,14 @@ const OrcidHandler = () => {
       const clientSecret = process.env.REACT_APP_ORCID_CLIENT_SECRET
       const redirectUri = process.env.REACT_APP_ORCID_REDIRECT_URI
 
-      const response = await fetch('https://sandbox.orcid.org/oauth/token', {
+      // In OrcidHandler.jsx
+      const response = await fetch('http://localhost:5000/api/orcid/token', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          client_id: clientId,
-          client_secret: clientSecret,
-          grant_type: 'authorization_code',
-          code,
-          redirect_uri: redirectUri
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
       })
-
       const data = await response.json()
+
       if (data.access_token) {
         localStorage.setItem('orcid_access_token', data.access_token)
         localStorage.setItem('orcid_id', data.orcid)
