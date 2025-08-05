@@ -1,0 +1,105 @@
+/* stylelint-disable selector-class-pattern */
+
+:root {
+  --chat-outgoing-bg: #3d8fda;
+  --chat-outgoing-color: white;
+  --chat-incoming-bg: rgb(241 241 241 / 80%);
+  --chat-incoming-color: #333;
+  --chat-hover-opacity: 90%;
+  --chat-border: #e2e8f0;
+  --chat-text-color: #333;
+  --chat-input-bg: #c6e3fa;
+  --chat-active-conversation-bg: #c6e3fa;
+}
+
+[data-mui-color-scheme="dark"] {
+  --chat-outgoing-bg: #759aff;
+  --chat-outgoing-color: white;
+  --chat-incoming-bg: #094375;
+  --chat-incoming-color: #e2e8f0;
+  --chat-hover-opacity: 80%;
+  --chat-border: rgb(0 0 0 / 20%);
+  --chat-input-bg: #425978;
+  --chat-active-conversation-bg: #094375;
+}
+
+.cs-message--outgoing .cs-message__content {
+  background-color: var(--chat-outgoing-bg) !important;
+  color: var(--chat-outgoing-color) !important;
+  border-radius: 10px !important;
+}
+
+.cs-message.cs-message--outgoing.cs-message--last {
+  border-radius: 10px 10px 0 !important;
+}
+
+.cs-message--incoming .cs-message__content {
+  background-color: var(--chat-incoming-bg) !important;
+  color: var(--chat-incoming-color) !important;
+  border-radius: 10px !important;
+}
+
+.cs-message.cs-message--incoming.cs-message--last {
+  border-radius: 10px 10px 10px 0 !important;
+}
+
+.cs-main-container .cs-sidebar.cs-sidebar--right {
+  flex-basis: 40% !important;
+  min-width: auto !important;
+  max-width: auto !important;
+  border-left: 1px solid var(--chat-border) !important;
+}
+
+.cs-main-container {
+  border: 1px solid var(--chat-border) !important;
+}
+
+.cs-conversation:hover {
+  background-color: var(--chat-hover-bg, transparent) !important;
+}
+
+.cs-message-input__content-editor {
+  background-color: var(--chat-input-bg) !important;
+  color: var(--chat-incoming-color) !important;
+  border: 1px solid transparent !important;
+}
+
+.cs-message-input__content-editor-wrapper {
+  background-color: var(--chat-input-bg) !important;
+}
+
+.cs-chat-container .cs-message-list .cs-conversation-list {
+  background-color: transparent !important;
+}
+
+.cs-conversation-header {
+  background-color: transparent !important;
+  border-bottom: 1px solid var(--chat-border) !important;
+}
+
+.cs-message-input {
+  background-color: transparent !important;
+  border-top: 1px solid var(--chat-border) !important;
+}
+
+.cs-sidebar {
+  background-color: transparent !important;
+  border-left: 1px solid var(--chat-border) !important;
+}
+
+.cs-conversation.cs-conversation--active {
+  background-color: var(--chat-input-bg) !important;
+}
+
+.cs-conversation__name {
+  color: var(--chat-incoming-color) !important;
+}
+
+.cs-conversation__info {
+  color: var(--chat-incoming-color) !important;
+}
+
+.cs-typing-indicator {
+  background-color: transparent !important;
+  color: var(--chat-incoming-color) !important;
+}

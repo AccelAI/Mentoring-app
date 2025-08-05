@@ -22,15 +22,33 @@ import {
 
 // Hooks and services
 import { useUser } from '../../hooks/useUser'
+import { getOrCreateChatRoom } from '../../api/chat'
 
 // Components
 import UserGrid from './UserGrid'
 import EndMentorshipDialog from '../dialogs/EndMentorshipDialog'
 
-const CurrentMentor = ({ mentorData, loadingMentor }) => {
+const CurrentMentor = ({ mentorData, loadingMentor, onStartChat }) => {
   const { user, loading } = useUser()
 
   const [openEndMentorshipDialog, setOpenEndMentorshipDialog] = useState(false)
+  const [loadingChat, setLoadingChat] = useState(false)
+
+  const handleStartChat = async () => {
+    if (!user?.uid || !mentorData?.uid) return
+
+    setLoadingChat(true)
+    try {
+      const result = await getOrCreateChatRoom(user.uid, mentorData.uid)
+      if (result.ok && onStartChat) {
+        onStartChat(result.chatRoomId)
+      }
+    } catch (error) {
+      console.error('Error starting chat:', error)
+    } finally {
+      setLoadingChat(false)
+    }
+  }
 
   return (
     <Card
@@ -105,11 +123,10 @@ const CurrentMentor = ({ mentorData, loadingMentor }) => {
                           width="-webkit-fill-available"
                           size="small"
                           startIcon={<ChatIcon />}
-                          onClick={() => {
-                            // Handle chat with mentor
-                          }}
+                          onClick={handleStartChat}
+                          disabled={loadingChat}
                         >
-                          Chat with Mentor
+                          {loadingChat ? 'Starting...' : 'Chat with Mentor'}
                         </Button>
                         <Button
                           variant="outlined"

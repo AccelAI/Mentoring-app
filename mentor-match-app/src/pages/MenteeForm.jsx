@@ -119,7 +119,7 @@ const MenteeForm = () => {
     defaultInitialValues,
     (mentorData, menteeData) => menteeData
   )
-  const { user } = useUser()
+  const { user, refreshUser } = useUser()
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
 
@@ -132,9 +132,10 @@ const MenteeForm = () => {
         if (res.ok) {
           console.log('Form submitted successfully')
           enqueueSnackbar('Form submitted successfully', { variant: 'success' })
+          refreshUser() // Refresh the user data
           setTimeout(() => {
             navigate('/dashboard')
-          }, 4000)
+          }, 3000)
         }
       } catch (err) {
         console.error('Error submitting form:', err)
@@ -142,7 +143,7 @@ const MenteeForm = () => {
       }
       setSubmitting(false)
     },
-    [user, enqueueSnackbar, navigate]
+    [user, enqueueSnackbar, navigate, refreshUser]
   )
 
   return (

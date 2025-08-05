@@ -18,7 +18,8 @@ const UserGrid = ({
   showSelectAsMentorButton,
   showChatButton,
   showViewProfileButton,
-  showEndMentorshipButton
+  showEndMentorshipButton,
+  onStartChat
 }) => {
   const [openDialog, setOpenDialog] = useState(false)
   const [openMatchDialog, setOpenMatchDialog] = useState(false)
@@ -122,6 +123,7 @@ const UserGrid = ({
         showSelectAsMentorButton={showSelectAsMentorButton}
         showChatButton={showChatButton}
         showEndMentorshipButton={showEndMentorshipButton}
+        onStartChat={onStartChat}
       />
       <MatchDialog
         openDialog={openMatchDialog}
