@@ -33,6 +33,7 @@ import ProfilePicture from '../components/ProfilePicture'
 import MainCard from '../components/MainCard'
 import TextField from '../components/questions/text/TextField'
 import UploadImageButton from '../components/UploadImageButton'
+import CountrySelect from '../components/CountrySelect'
 
 // Hooks and services
 import { updateUserProfile } from '../api/users'
@@ -232,13 +233,18 @@ const GetStarted = () => {
                         </Stack>
                         <Stack spacing={1}>
                           <Typography>
-                            What is your City, State, Country of Origin?
+                            What is your Country of Origin?
                           </Typography>
-                          <TextField
+                          {/* <TextField
                             name="location"
                             label="Origin Location"
                             variant="outlined"
                             sx={{ width: '100%' }}
+                          /> */}
+                          <CountrySelect
+                            values={values}
+                            setFieldValue={setFieldValue}
+                            name="location"
                           />
                         </Stack>
                         <Stack spacing={1}>
