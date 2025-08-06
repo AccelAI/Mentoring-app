@@ -1,6 +1,6 @@
 import React from 'react'
 import { Select, MenuItem, FormControl, InputLabel } from '@mui/material'
-import countries from '../assets/countries.json'
+import countries from '../../assets/countries.json'
 
 const CountrySelect = ({
   values,

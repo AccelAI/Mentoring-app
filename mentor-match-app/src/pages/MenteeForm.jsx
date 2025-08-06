@@ -14,9 +14,10 @@ import { useSnackbar } from 'notistack'
 
 // Component imports
 import FormCard from '../components/FormCard'
-import TextfieldQuestion from '../components/questions/text/TextfieldQuestion'
+import TextfieldQuestion from '../components/questions/TextfieldQuestion'
 import RadioQuestion from '../components/questions/RadioQuestion'
-import CheckboxQuestion from '../components/questions/checkbox/CheckboxQuestion'
+import CheckboxQuestion from '../components/questions/CheckboxQuestion'
+import TimezoneQuestion from '../components/questions/TimezoneQuestion'
 import ConditionalQuestions from '../components/questions/ConditionalQuestions'
 import ConditionalQuestionsMentee from '../components/questions/ConditionalQuestionsMentee'
 
@@ -193,7 +194,7 @@ const MenteeForm = () => {
                   options={['English', 'Spanish', 'Portuguese', 'French']}
                   name={'languages'}
                 />
-                <TextfieldQuestion
+                <TimezoneQuestion
                   question="What is your preferred timezone for meetings?"
                   description="We'll do our best to match you with a mentor available in a similar timezone. | Haremos todo lo posible para emparejarlo con un mentor disponible en una zona horaria similar. | Faremos o nosso melhor para encontrar um mentor disponível em um fuso horário semelhante."
                   name={'preferredTimezone'}
