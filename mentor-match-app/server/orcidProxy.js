@@ -1,4 +1,4 @@
-require('dotenv').config()
+require('dotenv').config({ path: './server/.env' })
 const express = require('express')
 const fetch = require('node-fetch')
 const cors = require('cors')

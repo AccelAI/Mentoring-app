@@ -1,10 +1,14 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const OrcidHandler = () => {
   const navigate = useNavigate()
+  const hasRun = useRef(false)
 
   useEffect(() => {
+    if (hasRun.current) return
+    hasRun.current = true
+
     const urlParams = new URLSearchParams(window.location.search)
     const code = urlParams.get('code')
 
@@ -27,8 +31,8 @@ const OrcidHandler = () => {
       const data = await response.json()
 
       if (data.access_token) {
-        localStorage.setItem('orcid_access_token', data.access_token)
-        localStorage.setItem('orcid_id', data.orcid)
+        localStorage.setItem('REACT_APP_ORCID_access_token', data.access_token)
+        localStorage.setItem('REACT_APP_ORCID_id', data.orcid)
         navigate('/dashboard')
       } else {
         alert('ORCID authentication failed')
