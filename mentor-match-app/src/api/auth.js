@@ -8,16 +8,7 @@ import {
   GithubAuthProvider,
   sendPasswordResetEmail
 } from 'firebase/auth'
-import {
-  doc,
-  setDoc,
-  updateDoc,
-  getDoc,
-  collection,
-  query,
-  where,
-  getDocs
-} from 'firebase/firestore'
+import { doc, setDoc, updateDoc, getDoc } from 'firebase/firestore'
 import { getToken } from 'firebase/messaging'
 import {
   auth,
@@ -132,37 +123,24 @@ export const signInWithOrcid = async (orcidData, accessToken) => {
       country
     } = orcidData
 
-    // Check if user already exists by ORCID ID
-    const usersRef = collection(db, 'users')
-    const q = query(usersRef, where('orcidId', '==', orcidId))
-    const querySnapshot = await getDocs(q)
+    // Sign in anonymously to get Firestore write permissions
+    const authResult = await signInAnonymously(auth)
+    const firebaseUser = authResult.user
 
-    let firebaseUser
-    let isNewUser = querySnapshot.empty
+    // Deterministic user document ID based on ORCID (without hyphens)
+    const orcidDocId = orcidId.replace(/-/g, '')
+    const userDocRef = doc(db, 'users', orcidDocId)
 
-    if (isNewUser) {
-      // Create new Firebase Auth user for new ORCID user
-      const authResult = await signInAnonymously(auth)
-      firebaseUser = authResult.user
-      console.log(
-        'New ORCID user will be created with Firebase Auth ID:',
-        firebaseUser.uid
-      )
-    } else {
-      // For existing users, create new anonymous auth (since we can't reuse anonymous users)
-      const authResult = await signInAnonymously(auth)
-      firebaseUser = authResult.user
-      console.log(
-        'Existing ORCID user signed in with new Firebase Auth ID:',
-        firebaseUser.uid
-      )
-    }
+    // Check existing deterministic document
+    const snap = await getDoc(userDocRef)
 
     let userData
+    const isNewUser = !snap.exists()
 
     if (isNewUser) {
-      // For new users, create full profile with ORCID data
+      // Create new user profile
       userData = {
+        uid: orcidDocId,
         displayName: fullName || `${firstName} ${lastName}`.trim(),
         email: email || '',
         orcidId,
@@ -170,47 +148,36 @@ export const signInWithOrcid = async (orcidData, accessToken) => {
         location: country || '',
         authProvider: 'orcid',
         orcidToken: accessToken,
+        authUidLast: firebaseUser.uid,
         createdTime: new Date(),
         updatedTime: new Date(),
-        username: email
-          ? email.split('@')[0]
-          : `orcid_${orcidId.replace(/-/g, '')}`
+        username: email ? email.split('@')[0] : `orcid_${orcidDocId}`
       }
-
-      // Create user document with Firebase Auth UID
-      await setDoc(doc(db, 'users', firebaseUser.uid), userData)
+      await setDoc(userDocRef, userData)
     } else {
-      // For existing users, get their existing data and update it
-      const existingUserDoc = querySnapshot.docs[0]
-      const existingData = existingUserDoc.data()
-
-      // Update the existing user document to use the new Firebase Auth UID
+      // Update existing profile without overwriting manual fields
       const updateData = {
-        ...existingData,
-        orcidToken: accessToken, // Always update token
+        orcidToken: accessToken,
+        authUidLast: firebaseUser.uid,
         updatedTime: new Date(),
-        // Only update these if ORCID provides better data
         ...(fullName && { displayName: fullName }),
-        ...(email && { email: email })
-        // Note: affiliation and location are preserved from existing data
+        ...(email && { email }),
+        ...(currentAffiliation && { affiliation: currentAffiliation }),
+        ...(country && { location: country })
       }
-
-      // Create new document with current Firebase Auth UID
-      await setDoc(doc(db, 'users', firebaseUser.uid), updateData)
-      userData = updateData
+      await setDoc(userDocRef, updateData, { merge: true })
+      userData = { uid: orcidDocId, ...(snap.data() || {}), ...updateData }
     }
 
-    console.log('ORCID user data:', userData)
-
-    // Save notification token for the Firebase Auth user
+    // Save notification token for the current Firebase Auth user
     saveNotificationToken(firebaseUser.uid)
 
     return {
       ok: true,
-      userId: firebaseUser.uid,
+      userId: orcidDocId,
       isNewUser,
       userData: {
-        uid: firebaseUser.uid,
+        uid: orcidDocId,
         ...userData
       }
     }
