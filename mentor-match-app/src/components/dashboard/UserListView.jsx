@@ -61,9 +61,9 @@ const UserListView = ({
     <Card
       sx={{
         width: loading ? '-webkit-fill-available' : '100%',
-        maxWidth: 'min-content',
+        maxWidth: isMentorPick ? 'none' : 'min-content',
         maxHeight: '75vh',
-        minWidth: { lg: '835px' },
+        minWidth: isMentorPick ? undefined : { lg: '835px' },
         overflowY: 'auto'
       }}
     >
