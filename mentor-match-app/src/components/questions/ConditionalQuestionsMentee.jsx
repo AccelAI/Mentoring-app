@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useFormikContext } from 'formik'
 import { Box, Stack, Typography } from '@mui/material'
-import CheckboxQuestion from './checkbox/CheckboxQuestion'
+import CheckboxQuestion from './CheckboxQuestion'
 
 /* Component for the conditional questions that are part of the Mentee form */
 const ConditionalQuestionsMentee = () => {

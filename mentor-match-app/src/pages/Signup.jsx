@@ -6,8 +6,8 @@ import { LoadingButton } from '@mui/lab'
 import { Google as GoogleIcon, GitHub as GitHubIcon } from '@mui/icons-material'
 
 import MainCard from '../components/MainCard'
-import PasswordField from '../components/PasswordField'
-import TextField from '../components/questions/text/TextField'
+import PasswordField from '../components/inputFields/PasswordField'
+import TextField from '../components/inputFields/TextField'
 
 import { Form, Formik } from 'formik'
 import * as yup from 'yup'

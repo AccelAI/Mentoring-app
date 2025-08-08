@@ -7,7 +7,7 @@ import {
   Stack,
   Typography
 } from '@mui/material'
-import TextField from '../questions/text/TextField'
+import TextField from '../inputFields/TextField'
 import { LoadingButton } from '@mui/lab'
 import { useAuthHandlers } from '../../utils/authUtils'
 

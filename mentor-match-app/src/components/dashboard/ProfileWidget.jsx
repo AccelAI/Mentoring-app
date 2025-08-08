@@ -29,8 +29,8 @@ import { useUser } from '../../hooks/useUser'
 import ResetPasswordDialog from '../dialogs/ResetPasswordDialog'
 import ProfilePicture from '../ProfilePicture'
 import LoggedUserProfile from '../profile/LoggedUserProfile'
-import TextField from '../questions/text/TextField'
-import PasswordField from '../PasswordField'
+import TextField from '../inputFields/TextField'
+import PasswordField from '../inputFields/PasswordField'
 
 // Assets
 import logo from '../../assets/logo.png'
@@ -50,6 +50,7 @@ const ProfileWidget = () => {
     <Card
       sx={{
         height: 'max-content'
+        //minWidth: user ? '' : 'max-content'
       }}
     >
       {user ? (

@@ -29,9 +29,10 @@ import { LoadingButton } from '@mui/lab'
 
 // Component imports
 import ProfilePicture from '../ProfilePicture'
-import TextField from '../../components/questions/text/TextField'
+import TextField from '../inputFields/TextField'
 import SubmittedFormsSection from './SubmittedFormsSection'
 import ProfileField from './ProfileField'
+import CountrySelect from '../inputFields/CountrySelect'
 
 // Hooks and services
 import { useUser } from '../../hooks/useUser'
@@ -183,7 +184,14 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
             >
               <CloseIcon />
             </IconButton>
-            <Stack direction="row" spacing={2} width={'100%'} pr={6} pl={2}>
+            <Stack
+              direction="row"
+              spacing={2}
+              width={'100%'}
+              pr={6}
+              pl={2}
+              pb={2}
+            >
               <Formik
                 initialValues={initialValues}
                 validationSchema={schema}
@@ -319,7 +327,15 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                               </Stack>
                               <Stack spacing={1}>
                                 <ProfileField icon={LocationIcon}>
-                                  <TextField
+                                  {/* <TextField
+                                    name="location"
+                                    label="Location"
+                                    variant="standard"
+                                    size="small"
+                                  /> */}
+                                  <CountrySelect
+                                    values={values}
+                                    setFieldValue={setFieldValue}
                                     name="location"
                                     label="Location"
                                     variant="standard"
@@ -372,7 +388,7 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                       </Box>
                     ) : (
                       /* USER PROFILE */
-                      <Stack spacing={1} width={'65%'}>
+                      <Stack spacing={1} width={'65%'} minHeight={'270px'}>
                         <Stack
                           direction="row"
                           justifyContent={'space-between'}
@@ -436,23 +452,29 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                             </Stack>
                           )}
 
-                          {formAnswers && (
-                            <Stack
-                              direction="row"
-                              spacing={0.5}
-                              alignItems="center"
-                            >
-                              <LanguageIcon fontSize="small" color="primary" />
-                              <span>
-                                Languages:{' '}
-                                {formAnswers.mentorData
-                                  ? formAnswers.mentorData.languages?.join(', ')
-                                  : formAnswers.menteeData?.languages?.join(
-                                      ', '
-                                    )}
-                              </span>
-                            </Stack>
-                          )}
+                          {formAnswers &&
+                            Object.keys(formAnswers).length > 0 && (
+                              <Stack
+                                direction="row"
+                                spacing={0.5}
+                                alignItems="center"
+                              >
+                                <LanguageIcon
+                                  fontSize="small"
+                                  color="primary"
+                                />
+                                <span>
+                                  Languages:{' '}
+                                  {formAnswers.mentorData
+                                    ? formAnswers.mentorData.languages?.join(
+                                        ', '
+                                      )
+                                    : formAnswers.menteeData?.languages?.join(
+                                        ', '
+                                      )}
+                                </span>
+                              </Stack>
+                            )}
                           {user.websiteUrl && (
                             <Stack
                               direction="row"

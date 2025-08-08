@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { IconButton, InputAdornment } from '@mui/material'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
-import TextField from './questions/text/TextField'
+import TextField from './TextField'
 
 const PasswordField = (props) => {
   const [showPassword, setShowPassword] = useState(false)
