@@ -3,11 +3,21 @@ import {
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
   signInWithPopup,
+  signInAnonymously,
   GoogleAuthProvider,
   GithubAuthProvider,
   sendPasswordResetEmail
 } from 'firebase/auth'
-import { doc, setDoc, updateDoc, getDoc } from 'firebase/firestore'
+import {
+  doc,
+  setDoc,
+  updateDoc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs
+} from 'firebase/firestore'
 import { getToken } from 'firebase/messaging'
 import {
   auth,
@@ -110,6 +120,109 @@ export const signUp = async ({ name, email, password, username }) => {
   }
 }
 
+export const signInWithOrcid = async (orcidData, accessToken) => {
+  try {
+    const {
+      orcidId,
+      firstName,
+      lastName,
+      fullName,
+      email,
+      currentAffiliation,
+      country
+    } = orcidData
+
+    // Check if user already exists by ORCID ID
+    const usersRef = collection(db, 'users')
+    const q = query(usersRef, where('orcidId', '==', orcidId))
+    const querySnapshot = await getDocs(q)
+
+    let firebaseUser
+    let isNewUser = querySnapshot.empty
+
+    if (isNewUser) {
+      // Create new Firebase Auth user for new ORCID user
+      const authResult = await signInAnonymously(auth)
+      firebaseUser = authResult.user
+      console.log(
+        'New ORCID user will be created with Firebase Auth ID:',
+        firebaseUser.uid
+      )
+    } else {
+      // For existing users, create new anonymous auth (since we can't reuse anonymous users)
+      const authResult = await signInAnonymously(auth)
+      firebaseUser = authResult.user
+      console.log(
+        'Existing ORCID user signed in with new Firebase Auth ID:',
+        firebaseUser.uid
+      )
+    }
+
+    let userData
+
+    if (isNewUser) {
+      // For new users, create full profile with ORCID data
+      userData = {
+        displayName: fullName || `${firstName} ${lastName}`.trim(),
+        email: email || '',
+        orcidId,
+        affiliation: currentAffiliation || '',
+        location: country || '',
+        authProvider: 'orcid',
+        orcidToken: accessToken,
+        createdTime: new Date(),
+        updatedTime: new Date(),
+        username: email
+          ? email.split('@')[0]
+          : `orcid_${orcidId.replace(/-/g, '')}`
+      }
+
+      // Create user document with Firebase Auth UID
+      await setDoc(doc(db, 'users', firebaseUser.uid), userData)
+    } else {
+      // For existing users, get their existing data and update it
+      const existingUserDoc = querySnapshot.docs[0]
+      const existingData = existingUserDoc.data()
+
+      // Update the existing user document to use the new Firebase Auth UID
+      const updateData = {
+        ...existingData,
+        orcidToken: accessToken, // Always update token
+        updatedTime: new Date(),
+        // Only update these if ORCID provides better data
+        ...(fullName && { displayName: fullName }),
+        ...(email && { email: email })
+        // Note: affiliation and location are preserved from existing data
+      }
+
+      // Create new document with current Firebase Auth UID
+      await setDoc(doc(db, 'users', firebaseUser.uid), updateData)
+      userData = updateData
+    }
+
+    console.log('ORCID user data:', userData)
+
+    // Save notification token for the Firebase Auth user
+    saveNotificationToken(firebaseUser.uid)
+
+    return {
+      ok: true,
+      userId: firebaseUser.uid,
+      isNewUser,
+      userData: {
+        uid: firebaseUser.uid,
+        ...userData
+      }
+    }
+  } catch (err) {
+    console.error('Error signing in with ORCID:', err)
+    return {
+      ok: false,
+      error: err.message || 'Failed to sign in with ORCID'
+    }
+  }
+}
+
 export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider)
@@ -150,6 +263,10 @@ export const signInWithGithub = async () => {
 
 export const signOut = async () => {
   try {
+    // Clear ORCID session data
+    sessionStorage.removeItem('orcidUser')
+
+    // Sign out from Firebase Auth (if user is signed in)
     await firebaseSignOut(auth)
     console.log('Sign-out successful')
     return { ok: true }

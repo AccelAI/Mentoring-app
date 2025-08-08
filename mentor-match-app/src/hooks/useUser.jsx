@@ -72,7 +72,7 @@ const UserProvider = ({ children }) => {
       }
     }
     fetchMenteeList()
-  }, [user?.mentees])
+  }, [user])
 
   return (
     <UserContext.Provider
