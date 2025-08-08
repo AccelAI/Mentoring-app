@@ -61,6 +61,7 @@ const UserListView = ({
     <Card
       sx={{
         width: loading ? '-webkit-fill-available' : '100%',
+        maxWidth: 'min-content',
         maxHeight: '75vh',
         minWidth: { lg: '835px' },
         overflowY: 'auto'
