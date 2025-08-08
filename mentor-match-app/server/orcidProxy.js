@@ -9,25 +9,25 @@ app.use(cors()) // Allow requests from your frontend
 
 app.post('/api/orcid/token', async (req, res) => {
   const { code } = req.body
-  const client_id = process.env.ORCID_CLIENT_ID
-  const client_secret = process.env.ORCID_CLIENT_SECRET
-  const redirect_uri = process.env.ORCID_REDIRECT_URI
+  const clientId = process.env.ORCID_CLIENT_ID
+  const clientSecret = process.env.ORCID_CLIENT_SECRET
+  const redirectUri = process.env.ORCID_REDIRECT_URI
 
   console.log('Received token exchange request:')
   console.log('- Code:', code ? 'present' : 'missing')
-  console.log('- Client ID:', client_id ? 'present' : 'missing')
-  console.log('- Client Secret:', client_secret ? 'present' : 'missing')
-  console.log('- Redirect URI:', redirect_uri)
+  console.log('- Client ID:', clientId ? 'present' : 'missing')
+  console.log('- Client Secret:', clientSecret ? 'present' : 'missing')
+  console.log('- Redirect URI:', redirectUri)
 
-  if (!code || !client_id || !client_secret || !redirect_uri) {
+  if (!code || !clientId || !clientSecret || !redirectUri) {
     console.error('Missing required environment variables or code')
     return res.status(400).json({
       error: 'Missing required parameters',
       missing: {
         code: !code,
-        client_id: !client_id,
-        client_secret: !client_secret,
-        redirect_uri: !redirect_uri
+        clientId: !clientId,
+        clientSecret: !clientSecret,
+        redirectUri: !redirectUri
       }
     })
   }
@@ -38,11 +38,12 @@ app.post('/api/orcid/token', async (req, res) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
-        client_id,
-        client_secret,
+        // ORCID expects snake_case keys in the request body
+        client_id: clientId,
+        client_secret: clientSecret,
         grant_type: 'authorization_code',
         code,
-        redirect_uri
+        redirect_uri: redirectUri
       })
     })
 
