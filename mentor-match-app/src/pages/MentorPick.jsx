@@ -7,6 +7,16 @@ import ErrorPage from '../components/ErrorPage'
 const MentorPick = () => {
   const { user, userList, loading } = useUser()
 
+  // Show loading while user context resolves or if user is not yet available
+  if (loading || !user) {
+    return (
+      <>
+        <Header />
+        <LinearProgress />
+      </>
+    )
+  }
+
   /*   if (!user.mentorMatchResults && user.role.includes('Mentee')) {
     return (
       <ErrorPage>
@@ -17,7 +27,7 @@ const MentorPick = () => {
     )
   } */
 
-  if (user.role === 'Mentor') {
+  if (user?.role === 'Mentor') {
     return (
       <ErrorPage>
         <Typography variant="h6">

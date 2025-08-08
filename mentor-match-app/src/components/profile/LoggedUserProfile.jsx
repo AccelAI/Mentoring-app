@@ -48,7 +48,7 @@ import { Form, Formik } from 'formik'
 import * as yup from 'yup'
 
 const schema = yup.object().shape({
-  name: yup.string().required('Please enter your name'),
+  displayName: yup.string().required('Please enter your name'),
   title: yup.string().required('Please enter your title'),
   affiliation: yup.string().required('Please enter your affiliation'),
   //profilePicture: yup.string().url('Invalid URL'),
@@ -137,7 +137,7 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
 
   const initialValues = useMemo(
     () => ({
-      name: user?.displayName || '',
+      displayName: user?.displayName || '',
       description: user?.profileDescription || '',
       affiliation: user?.affiliation || '',
       title: user?.title || '',
@@ -264,7 +264,7 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                                 spacing={'40%'}
                               >
                                 <TextField
-                                  name="name"
+                                  name="displayName"
                                   label="Name"
                                   variant="standard"
                                 />
@@ -436,7 +436,7 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                             </Stack>
                           )}
 
-                          {formAnswers && (
+                          {formAnswers.ok && (
                             <Stack
                               direction="row"
                               spacing={0.5}

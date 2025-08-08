@@ -3,6 +3,7 @@ import {
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
   signInWithPopup,
+  signInAnonymously,
   GoogleAuthProvider,
   GithubAuthProvider,
   sendPasswordResetEmail
@@ -110,6 +111,85 @@ export const signUp = async ({ name, email, password, username }) => {
   }
 }
 
+export const signInWithOrcid = async (orcidData, accessToken) => {
+  try {
+    const {
+      orcidId,
+      firstName,
+      lastName,
+      fullName,
+      email,
+      currentAffiliation,
+      country
+    } = orcidData
+
+    // Sign in anonymously to get Firestore write permissions
+    const authResult = await signInAnonymously(auth)
+    const firebaseUser = authResult.user
+
+    // Deterministic user document ID based on ORCID (without hyphens)
+    const orcidDocId = orcidId.replace(/-/g, '')
+    const userDocRef = doc(db, 'users', orcidDocId)
+
+    // Check existing deterministic document
+    const snap = await getDoc(userDocRef)
+
+    let userData
+    const isNewUser = !snap.exists()
+
+    if (isNewUser) {
+      // Create new user profile
+      userData = {
+        uid: orcidDocId,
+        displayName: fullName || `${firstName} ${lastName}`.trim(),
+        email: email || '',
+        orcidId,
+        affiliation: currentAffiliation || '',
+        location: country || '',
+        authProvider: 'orcid',
+        orcidToken: accessToken,
+        authUidLast: firebaseUser.uid,
+        createdTime: new Date(),
+        updatedTime: new Date(),
+        username: email ? email.split('@')[0] : `orcid_${orcidDocId}`
+      }
+      await setDoc(userDocRef, userData)
+    } else {
+      // Update existing profile without overwriting manual fields
+      const updateData = {
+        orcidToken: accessToken,
+        authUidLast: firebaseUser.uid,
+        updatedTime: new Date(),
+        ...(fullName && { displayName: fullName }),
+        ...(email && { email }),
+        ...(currentAffiliation && { affiliation: currentAffiliation }),
+        ...(country && { location: country })
+      }
+      await setDoc(userDocRef, updateData, { merge: true })
+      userData = { uid: orcidDocId, ...(snap.data() || {}), ...updateData }
+    }
+
+    // Save notification token for the current Firebase Auth user
+    saveNotificationToken(firebaseUser.uid)
+
+    return {
+      ok: true,
+      userId: orcidDocId,
+      isNewUser,
+      userData: {
+        uid: orcidDocId,
+        ...userData
+      }
+    }
+  } catch (err) {
+    console.error('Error signing in with ORCID:', err)
+    return {
+      ok: false,
+      error: err.message || 'Failed to sign in with ORCID'
+    }
+  }
+}
+
 export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider)
@@ -150,6 +230,10 @@ export const signInWithGithub = async () => {
 
 export const signOut = async () => {
   try {
+    // Clear ORCID session data
+    sessionStorage.removeItem('orcidUser')
+
+    // Sign out from Firebase Auth (if user is signed in)
     await firebaseSignOut(auth)
     console.log('Sign-out successful')
     return { ok: true }
