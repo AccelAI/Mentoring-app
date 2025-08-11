@@ -68,7 +68,7 @@ export const useAuthHandlers = () => {
   const orcidLogin = () => {
     const clientId = process.env.REACT_APP_ORCID_CLIENT_ID
     const redirectUri = process.env.REACT_APP_ORCID_REDIRECT_URI
-    const url = `https://sandbox.orcid.org/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=/authenticate`
+    const url = `https://orcid.org/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=/authenticate`
     window.location.href = url
   }
 
