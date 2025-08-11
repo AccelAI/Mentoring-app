@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useUser } from '../hooks/useUser'
 import { LinearProgress } from '@mui/material'
+import { auth } from '../api/firebaseConfig'
 
 const AuthPage = ({ children }) => {
   const location = useLocation()
@@ -8,8 +9,9 @@ const AuthPage = ({ children }) => {
   if (loading) {
     return <LinearProgress /> // Show a loading indicator while checking authentication
   }
-  if (!user && location.pathname !== '/dashboard') {
-    return <Navigate to="/login" replace />
+  // Allow if either the app user is loaded OR Firebase Auth reports a signed-in user
+  if (!user && !auth.currentUser) {
+    return <Navigate to="/login" replace state={{ from: location }} />
   }
 
   return children
