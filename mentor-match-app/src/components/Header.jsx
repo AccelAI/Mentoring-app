@@ -5,7 +5,9 @@ import {
   Container,
   IconButton,
   Toolbar,
-  Tooltip
+  Tooltip,
+  Button,
+  Stack
 } from '@mui/material'
 import {
   Logout,
@@ -51,28 +53,39 @@ const Header = () => {
             onClick={handleLogoClick}
           />
           <Box sx={{ flexGrow: 1 }} />
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Toggle Theme">
-              <IconButton
-                color="primary"
-                aria-label="toggle theme"
-                onClick={toggleColorMode}
+          <Stack direction="row" spacing={2}>
+            {user?.isAdmin && (
+              <Button
+                color="success"
+                variant="outlined"
+                onClick={() => navigate('/admin')}
               >
-                {mode === 'light' ? <DarkMode /> : <LightMode />}
-              </IconButton>
-            </Tooltip>
-            {user && (
-              <Tooltip title="Log out">
+                Admin Dashboard
+              </Button>
+            )}
+            <Box>
+              <Tooltip title="Toggle Theme">
                 <IconButton
                   color="primary"
-                  aria-label="logout"
-                  onClick={handleSignOut}
+                  aria-label="toggle theme"
+                  onClick={toggleColorMode}
                 >
-                  <Logout />
+                  {mode === 'light' ? <DarkMode /> : <LightMode />}
                 </IconButton>
               </Tooltip>
-            )}
-          </Box>
+              {user && (
+                <Tooltip title="Log out">
+                  <IconButton
+                    color="primary"
+                    aria-label="logout"
+                    onClick={handleSignOut}
+                  >
+                    <Logout />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Box>
+          </Stack>
         </Toolbar>
       </Container>
     </AppBar>

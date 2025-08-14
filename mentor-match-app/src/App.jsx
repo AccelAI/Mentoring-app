@@ -21,6 +21,8 @@ import UnAuthPage from './components/UnAuthPage'
 import AuthPage from './components/AuthPage'
 import { UserProvider } from './hooks/useUser'
 import ErrorPage from './components/ErrorPage'
+import AdminRoute from './components/AdminRoute'
+import AdminDashboard from './pages/AdminDashboard'
 import MentorPick from './pages/MentorPick'
 
 function App() {
@@ -67,6 +69,14 @@ function App() {
                 element={<ErrorPage>Couldn't find this form!</ErrorPage>}
               />
               <Route path="/mentor-pick" element={<MentorPick />} />
+              <Route
+                path="/admin"
+                element={
+                  <AdminRoute>
+                    <AdminDashboard />
+                  </AdminRoute>
+                }
+              />
             </Route>
           </Routes>
         </BrowserRouter>

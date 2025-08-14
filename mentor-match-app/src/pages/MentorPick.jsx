@@ -47,7 +47,7 @@ const MentorPick = () => {
               title={
                 'Based on your application, here are our top mentor picks for you:'
               }
-              listType={'mentor-pick'}
+              listType={'mentorPick'}
             />
           </Stack>
         </Container>

@@ -1,15 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import {
-  Container,
-  Stack,
-  LinearProgress,
-  SwipeableDrawer,
-  Button,
-  Typography,
-  Box,
-  Fab
-} from '@mui/material'
-import { Chat as ChatIcon } from '@mui/icons-material'
+import { Container, Stack, LinearProgress } from '@mui/material'
 import ProfileWidget from '../components/dashboard/ProfileWidget'
 import Header from '../components/Header'
 import UserListView from '../components/dashboard/UserListView'
@@ -19,7 +9,7 @@ import SideMenu from '../components/dashboard/SideMenu'
 import CurrentMentor from '../components/dashboard/CurrentMentor'
 import { getUserById } from '../api/users'
 import { getMentorshipStartDate } from '../api/match'
-import Chat from '../components/chat/Chat'
+import ChatDrawer from '../components/chat/ChatDrawer'
 
 const Dashboard = () => {
   const { userList, user, loading, mentees } = useUser()
@@ -127,53 +117,13 @@ const Dashboard = () => {
               </Stack>
             </Stack>
 
-            {/* Floating Action Button for Chat - visible when drawer is closed */}
-            {!toggleChat && (
-              <Fab
-                color="primary"
-                aria-label="chat"
-                onClick={() => setToggleChat(true)}
-                sx={{
-                  position: 'fixed',
-                  bottom: 16,
-                  right: 16,
-                  zIndex: 1000,
-                  pointerEvents: 'auto'
-                }}
-              >
-                <ChatIcon />
-              </Fab>
-            )}
-
-            <SwipeableDrawer
-              anchor="right"
-              onClose={() => setToggleChat(false)}
-              onOpen={() => setToggleChat(true)}
+            <ChatDrawer
               open={toggleChat}
-              keepMounted
-              disableSwipeToOpen={true}
-              PaperProps={{
-                sx: {
-                  width: { xs: '100%', sm: '400px', md: '40%' },
-                  height: '100vh',
-                  borderTopLeftRadius: 8,
-                  borderBottomLeftRadius: 8,
-                  overflow: 'visible'
-                }
-              }}
-            >
-              {/* Chat Content */}
-              <Box
-                sx={{
-                  height: '100%',
-                  pt: 3,
-                  px: 2,
-                  pb: 2
-                }}
-              >
-                <Chat selectedChatRoomId={selectedChatRoomId} />
-              </Box>
-            </SwipeableDrawer>
+              onOpen={() => setToggleChat(true)}
+              onClose={() => setToggleChat(false)}
+              selectedChatRoomId={selectedChatRoomId}
+              setSelectedChatRoomId={setSelectedChatRoomId}
+            />
           </Container>
         </>
       )}

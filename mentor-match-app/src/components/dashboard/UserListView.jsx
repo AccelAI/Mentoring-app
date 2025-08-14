@@ -47,14 +47,16 @@ const UserListView = ({
   const { user, loading } = useUser()
 
   const isDashboard = listType === 'dashboard'
-  const isMentorPick = listType === 'mentor-pick'
+  const isMentorPick = listType === 'mentorPick'
   const isCurrentMentees = listType === 'currentMentees'
+  const isAdminList = listType === 'admin'
 
-  const showMentorship = isDashboard || showMentorshipButton
-  const showSearch = isDashboard || isCurrentMentees || showSearchBar
+  const showMentorship = !isAdminList && (isDashboard || showMentorshipButton)
+  const showSearch =
+    isDashboard || isCurrentMentees || isAdminList || showSearchBar
   const showProfile = isMentorPick || showViewProfileButton
   const showSelectMentor = isMentorPick || showSelectAsMentorButton
-  const showChat = isCurrentMentees || showChatButton
+  const showChat = isCurrentMentees || isAdminList || showChatButton
   const showEndMentorship = isCurrentMentees || showEndMentorshipButton
 
   return (
