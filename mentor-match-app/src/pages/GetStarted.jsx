@@ -31,8 +31,9 @@ import { LoadingButton } from '@mui/lab'
 // Component imports
 import ProfilePicture from '../components/ProfilePicture'
 import MainCard from '../components/MainCard'
-import TextField from '../components/questions/text/TextField'
+import TextField from '../components/inputFields/TextField'
 import UploadImageButton from '../components/UploadImageButton'
+import CountrySelect from '../components/inputFields/CountrySelect'
 
 // Hooks and services
 import { updateUserProfile } from '../api/users'
@@ -64,7 +65,7 @@ const GetStarted = () => {
   const [selectedValue, setSelectedValue] = useState('mentee')
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
-  const { user } = useUser()
+  const { user, refreshUser } = useUser()
 
   const handleValueChange = (event) => {
     setSelectedValue(event.target.value)
@@ -130,6 +131,7 @@ const GetStarted = () => {
           return enqueueSnackbar(res.error, { variant: 'error' })
         }
         enqueueSnackbar('Profile created successfully', { variant: 'success' })
+        refreshUser()
         setSubmitting(false)
         setOpenDialog(true)
       } catch (error) {
@@ -140,7 +142,7 @@ const GetStarted = () => {
         setSubmitting(false)
       }
     },
-    [enqueueSnackbar, user]
+    [enqueueSnackbar, user, refreshUser]
   )
 
   const initialValues = useMemo(
@@ -232,13 +234,18 @@ const GetStarted = () => {
                         </Stack>
                         <Stack spacing={1}>
                           <Typography>
-                            What is your City, State, Country of Origin?
+                            What is your Country of Origin?
                           </Typography>
-                          <TextField
+                          {/* <TextField
                             name="location"
                             label="Origin Location"
                             variant="outlined"
                             sx={{ width: '100%' }}
+                          /> */}
+                          <CountrySelect
+                            values={values}
+                            setFieldValue={setFieldValue}
+                            name="location"
                           />
                         </Stack>
                         <Stack spacing={1}>

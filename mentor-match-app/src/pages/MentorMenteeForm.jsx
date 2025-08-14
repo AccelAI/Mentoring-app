@@ -15,12 +15,13 @@ import { LoadingButton } from '@mui/lab'
 
 // Component imports
 import FormCard from '../components/FormCard'
-import TextfieldQuestion from '../components/questions/text/TextfieldQuestion'
+import TextfieldQuestion from '../components/questions/TextfieldQuestion'
 import RadioQuestion from '../components/questions/RadioQuestion'
-import CheckboxQuestion from '../components/questions/checkbox/CheckboxQuestion'
+import CheckboxQuestion from '../components/questions/CheckboxQuestion'
 import ConditionalQuestions from '../components/questions/ConditionalQuestions'
 import ConditionalQuestionsMentor from '../components/questions/ConditionalQuestionsMentor'
 import ConditionalQuestionsMentee from '../components/questions/ConditionalQuestionsMentee'
+import TimezoneQuestion from '../components/questions/TimezoneQuestion'
 
 // Form validation
 import { Form, Formik } from 'formik'
@@ -300,7 +301,7 @@ const MentorMenteeForm = () => {
                     options={['English', 'Spanish', 'Portuguese', 'French']}
                     name={'languages'}
                   />
-                  <TextfieldQuestion
+                  <TimezoneQuestion
                     question="What is your preferred timezone for meetings?"
                     description="We'll do our best to match you with a mentee available in a similar timezone."
                     name={'preferredTimezone'}
