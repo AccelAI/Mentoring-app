@@ -18,12 +18,13 @@ import logo from '../assets/logo.png'
 import { signOut } from '../api/auth'
 import { useThemeContext } from '../hooks/useTheme'
 import { useUser } from '../hooks/useUser'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useSnackbar } from 'notistack'
 
 const Header = () => {
   const { user } = useUser()
   const navigate = useNavigate()
+  const location = useLocation()
   const { mode, toggleColorMode } = useThemeContext()
   const { enqueueSnackbar } = useSnackbar()
 
@@ -56,13 +57,20 @@ const Header = () => {
           <Stack direction="row" spacing={2}>
             {user?.isAdmin && (
               <Button
-                color="success"
+                color="accent"
                 variant="outlined"
-                onClick={() => navigate('/admin')}
+                onClick={() =>
+                  navigate(
+                    location.pathname === '/admin' ? '/dashboard' : '/admin'
+                  )
+                }
               >
-                Admin Dashboard
+                {location.pathname === '/admin'
+                  ? 'User Dashboard'
+                  : 'Admin Dashboard'}
               </Button>
             )}
+
             <Box>
               <Tooltip title="Toggle Theme">
                 <IconButton

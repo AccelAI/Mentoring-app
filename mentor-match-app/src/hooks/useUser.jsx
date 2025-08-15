@@ -81,11 +81,18 @@ const UserProvider = ({ children }) => {
       }
     }
     fetchMenteeList()
-  }, [user?.mentees])
+  }, [user])
 
   return (
     <UserContext.Provider
-      value={{ user, loading, userList, refreshUser, mentees }}
+      value={{
+        user,
+        loading,
+        userList,
+        refreshUser,
+        mentees,
+        isAdmin: user?.isAdmin
+      }}
     >
       {children}
     </UserContext.Provider>

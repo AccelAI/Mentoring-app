@@ -6,7 +6,7 @@ import { useUser } from './useUser'
 
 const useFormData = (defaultInitialValues, mergeFormAnswers) => {
   const { id } = useParams()
-  const { user } = useUser()
+  const { user, isAdmin } = useUser()
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
   const [initialValues, setInitialValues] = useState(defaultInitialValues)
@@ -32,14 +32,14 @@ const useFormData = (defaultInitialValues, mergeFormAnswers) => {
       }
     }
 
-    if (id === user.uid) {
+    if (id === user.uid || isAdmin) {
       fetchFormData()
-    } else if (id && id !== user.uid) {
+    } else if (id && id !== user.uid && !isAdmin) {
       navigate('/form-not-found')
     } else {
       setLoading(false)
     }
-  }, [id, user.uid, enqueueSnackbar, navigate, mergeFormAnswers])
+  }, [id, user.uid, enqueueSnackbar, navigate, mergeFormAnswers, isAdmin])
 
   return { initialValues, loading }
 }

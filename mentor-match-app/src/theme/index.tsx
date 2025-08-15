@@ -41,6 +41,9 @@ export const getTheme = (mode: PaletteMode) => ({
           secondary: {
             main: '#91caf2'
           } as PaletteColorOptions,
+          accent: {
+            main: '#002382'
+          } as PaletteColorOptions,
           background: {
             paper: '#fff'
           },
@@ -56,6 +59,9 @@ export const getTheme = (mode: PaletteMode) => ({
           } as PaletteColorOptions,
           secondary: {
             main: '#90aae8'
+          } as PaletteColorOptions,
+          accent: {
+            main: '#91caf2'
           } as PaletteColorOptions,
           background: {
             paper: '#14181b'
