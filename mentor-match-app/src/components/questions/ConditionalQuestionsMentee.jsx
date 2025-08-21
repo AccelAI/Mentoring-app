@@ -1,15 +1,27 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useFormikContext } from 'formik'
 import { Box, Stack, Typography } from '@mui/material'
 import CheckboxQuestion from './CheckboxQuestion'
 
 /* Component for the conditional questions that are part of the Mentee form */
-const ConditionalQuestionsMentee = () => {
+const ConditionalQuestionsMentee = ({ disabled = false }) => {
   const { values, setFieldValue } = useFormikContext()
-  const { menteeMotivation } = values
+  const { menteeMotivation = [] } = values
+  const prevMenteeMotivationRef = useRef(menteeMotivation)
 
   useEffect(() => {
-    if (!menteeMotivation) return
+    if (!menteeMotivation || !Array.isArray(menteeMotivation)) return
+
+    // Only update if menteeMotivation actually changed
+    if (
+      JSON.stringify(prevMenteeMotivationRef.current) ===
+      JSON.stringify(menteeMotivation)
+    ) {
+      return
+    }
+
+    prevMenteeMotivationRef.current = menteeMotivation
+
     // Reset fields if "Strengthening skills" is removed from menteeMotivation
     if (
       !menteeMotivation.includes(
@@ -24,6 +36,11 @@ const ConditionalQuestionsMentee = () => {
       setFieldValue('topResearchAreas', [])
     }
   }, [menteeMotivation, setFieldValue])
+
+  // Early return if menteeMotivation is not available
+  if (!menteeMotivation || !Array.isArray(menteeMotivation)) {
+    return null
+  }
 
   return (
     <>
@@ -49,6 +66,7 @@ const ConditionalQuestionsMentee = () => {
               'Engineering to improve research outcomes'
             ]}
             required={true}
+            disabled={disabled}
           />
         </Stack>
       )}
@@ -65,7 +83,7 @@ const ConditionalQuestionsMentee = () => {
           </Box>
           <CheckboxQuestion
             question="What are the research areas you can consider mentoring?"
-            description="Choose up to 3 options | Elija hasta 3 opciones | Escolha até 3 opções"
+            description="Choose up to 3 options | Elija hasta 3 opciones | Escolha até 3 opciones"
             name="topResearchAreas"
             options={[
               'Reinforcement Learning',
@@ -82,6 +100,7 @@ const ConditionalQuestionsMentee = () => {
               'Generative Models'
             ]}
             required={true}
+            disabled={disabled}
           />
         </Stack>
       )}

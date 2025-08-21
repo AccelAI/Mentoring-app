@@ -1,15 +1,26 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useFormikContext } from 'formik'
 import { Box, Stack, Typography } from '@mui/material'
 import CheckboxQuestion from './CheckboxQuestion'
 
 /* Component for the conditional questions that are part of the Mentor form */
-const ConditionalQuestionsMentor = () => {
+const ConditionalQuestionsMentor = ({ disabled = false }) => {
   const { values, setFieldValue } = useFormikContext()
-  const { mentorArea } = values
+  const { mentorArea = [] } = values
+  const prevMentorAreaRef = useRef(mentorArea)
 
   useEffect(() => {
-    if (!mentorArea) return
+    if (!mentorArea || !Array.isArray(mentorArea)) return
+
+    // Only update if mentorArea actually changed
+    if (
+      JSON.stringify(prevMentorAreaRef.current) === JSON.stringify(mentorArea)
+    ) {
+      return
+    }
+
+    prevMentorAreaRef.current = mentorArea
+
     // Reset fields if "Strengthening skills" is removed from mentorArea
     if (
       !mentorArea.includes(
@@ -24,6 +35,11 @@ const ConditionalQuestionsMentor = () => {
       setFieldValue('areasConsideringMentoring', [])
     }
   }, [mentorArea, setFieldValue])
+
+  // Early return if mentorArea is not available
+  if (!mentorArea || !Array.isArray(mentorArea)) {
+    return null
+  }
 
   return (
     <>
@@ -49,6 +65,7 @@ const ConditionalQuestionsMentor = () => {
               'Engineering to improve research outcomes'
             ]}
             required={true}
+            disabled={disabled}
           />
         </Stack>
       )}
@@ -65,7 +82,7 @@ const ConditionalQuestionsMentor = () => {
           </Box>
           <CheckboxQuestion
             question="What are the research areas you can consider mentoring?"
-            description="Choose up to 3 options | Elija hasta 3 opciones | Escolha até 3 opções"
+            description="Choose up to 3 options | Elija hasta 3 opciones | Escolha até 3 opciones"
             name="areasConsideringMentoring"
             options={[
               'Reinforcement Learning',
@@ -82,6 +99,7 @@ const ConditionalQuestionsMentor = () => {
               'Generative Models'
             ]}
             required={true}
+            disabled={disabled}
           />
         </Stack>
       )}

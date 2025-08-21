@@ -12,7 +12,9 @@ import {
 import {
   Logout,
   DarkModeOutlined as DarkMode,
-  LightModeOutlined as LightMode
+  LightModeOutlined as LightMode,
+  ManageAccounts as AdminIcon,
+  Person as UserIcon
 } from '@mui/icons-material'
 import logo from '../assets/logo.png'
 import { signOut } from '../api/auth'
@@ -55,21 +57,17 @@ const Header = () => {
           />
           <Box sx={{ flexGrow: 1 }} />
           <Stack direction="row" spacing={2}>
-            {user?.isAdmin && (
+            {/* {user?.isAdmin && location.pathname === '/admin' && (
               <Button
                 color="accent"
                 variant="outlined"
-                onClick={() =>
-                  navigate(
-                    location.pathname === '/admin' ? '/dashboard' : '/admin'
-                  )
-                }
+                size="small"
+                startIcon={<UserIcon />}
+                onClick={() => navigate('/dashboard')}
               >
-                {location.pathname === '/admin'
-                  ? 'User Dashboard'
-                  : 'Admin Dashboard'}
+                User Dashboard
               </Button>
-            )}
+            )} */}
 
             <Box>
               <Tooltip title="Toggle Theme">

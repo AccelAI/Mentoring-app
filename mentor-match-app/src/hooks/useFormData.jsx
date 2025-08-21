@@ -4,8 +4,9 @@ import { useSnackbar } from 'notistack'
 import { getFormAnswers } from '../api/forms'
 import { useUser } from './useUser'
 
-const useFormData = (defaultInitialValues, mergeFormAnswers) => {
-  const { id } = useParams()
+const useFormData = (defaultInitialValues, mergeFormAnswers, userId = null) => {
+  const { id: urlId } = useParams()
+  const id = userId || urlId // Use provided userId or fall back to URL param
   const { user, isAdmin } = useUser()
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
@@ -15,7 +16,7 @@ const useFormData = (defaultInitialValues, mergeFormAnswers) => {
   useEffect(() => {
     const fetchFormData = async () => {
       try {
-        const formAnswers = await getFormAnswers(user.uid)
+        const formAnswers = await getFormAnswers(id)
         if (formAnswers.mentorData && formAnswers.menteeData) {
           setInitialValues(
             mergeFormAnswers(formAnswers.mentorData, formAnswers.menteeData)

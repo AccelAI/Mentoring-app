@@ -70,13 +70,14 @@ function App() {
               />
               <Route path="/mentor-pick" element={<MentorPick />} />
               <Route
-                path="/admin"
                 element={
                   <AdminRoute>
-                    <AdminDashboard />
+                    <Outlet />
                   </AdminRoute>
                 }
-              />
+              >
+                <Route path="/admin" element={<AdminDashboard />} />
+              </Route>
             </Route>
           </Routes>
         </BrowserRouter>

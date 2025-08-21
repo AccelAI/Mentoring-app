@@ -15,7 +15,8 @@ const CheckboxQuestion = ({
   question,
   description,
   options,
-  required = true
+  required = true,
+  disabled = false
 }) => {
   return (
     <Card sx={{ p: 2 }} variant="outlined">
@@ -43,6 +44,7 @@ const CheckboxQuestion = ({
                       value={option}
                       label={option}
                       checked={fieldValue.includes(option)}
+                      disabled={disabled}
                       onChange={() => {
                         if (fieldValue.includes(option)) {
                           const idx = fieldValue.indexOf(option)

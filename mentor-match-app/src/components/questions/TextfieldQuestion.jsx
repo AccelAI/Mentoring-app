@@ -1,14 +1,27 @@
-import { Typography, Card, Stack } from '@mui/material'
+import { Typography, Card, Stack, Link, Box } from '@mui/material'
 import TextField from '../inputFields/TextField'
-import { Field } from 'formik'
+import { Field, useFormikContext } from 'formik'
 import React from 'react'
 
 const TextfieldQuestion = ({
   name,
   question,
   description,
-  required = true
+  required = true,
+  disabled = false
 }) => {
+  const { values } = useFormikContext()
+  const fieldValue = values[name]
+
+  const isValidUrl = (string) => {
+    try {
+      new URL(string)
+      return true
+    } catch (_) {
+      return false
+    }
+  }
+
   const formatDescription = (text) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g
     const parts = text.split(urlRegex).map((part, index) => {
@@ -40,6 +53,34 @@ const TextfieldQuestion = ({
     ? formatDescription(description)
     : null
 
+  // Show link if disabled and value is a valid URL
+  if (disabled && fieldValue && isValidUrl(fieldValue)) {
+    return (
+      <Card sx={{ p: 2 }} variant="outlined">
+        <Stack spacing={0.75}>
+          <Typography variant="h6">{question}</Typography>
+          {formattedDescription && (
+            <Typography variant="body2">{formattedDescription}</Typography>
+          )}
+          <Box>
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              Answer:
+            </Typography>
+            <Link
+              href={fieldValue}
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="body1"
+              sx={{ wordBreak: 'break-all' }}
+            >
+              {fieldValue}
+            </Link>
+          </Box>
+        </Stack>
+      </Card>
+    )
+  }
+
   return (
     <Card sx={{ p: 2 }} variant="outlined">
       <Stack spacing={0.75}>
@@ -49,10 +90,11 @@ const TextfieldQuestion = ({
         )}
         <Field
           as={TextField}
-          label="Your answer"
+          label={disabled ? 'Answer' : 'Your answer'}
           name={name}
           variant="standard"
           required={required}
+          disabled={disabled}
         />
       </Stack>
     </Card>

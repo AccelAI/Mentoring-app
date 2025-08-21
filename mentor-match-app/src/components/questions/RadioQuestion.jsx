@@ -9,9 +9,9 @@ import {
   Radio,
   FormControl,
   FormLabel,
-  FormHelperText,
-} from "@mui/material";
-import { Field, ErrorMessage } from "formik";
+  FormHelperText
+} from '@mui/material'
+import { Field, ErrorMessage } from 'formik'
 
 const RadioQuestion = ({
   name,
@@ -19,6 +19,7 @@ const RadioQuestion = ({
   description,
   options,
   required = true,
+  disabled = false
 }) => {
   return (
     <Card sx={{ p: 2 }} variant="outlined">
@@ -27,7 +28,7 @@ const RadioQuestion = ({
           <FormLabel
             component={Typography}
             variant="h6"
-            sx={{ color: "#000", fontWeight: "500" }}
+            sx={{ color: '#000', fontWeight: '500' }}
           >
             {question}
           </FormLabel>
@@ -41,7 +42,7 @@ const RadioQuestion = ({
                   <FormControlLabel
                     key={option}
                     value={option}
-                    control={<Radio />}
+                    control={<Radio disabled={disabled} />}
                     label={option}
                   />
                 ))}
@@ -54,7 +55,7 @@ const RadioQuestion = ({
         </Stack>
       </FormControl>
     </Card>
-  );
-};
+  )
+}
 
-export default RadioQuestion;
+export default RadioQuestion

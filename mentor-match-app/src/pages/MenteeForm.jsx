@@ -1,6 +1,6 @@
 // React and hooks
-import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useCallback, useState } from 'react'
+// import { useNavigate } from 'react-router-dom' // removed
 
 // Material-UI components and icons
 import { Typography, Stack, CircularProgress } from '@mui/material'
@@ -20,6 +20,7 @@ import CheckboxQuestion from '../components/questions/CheckboxQuestion'
 import TimezoneQuestion from '../components/questions/TimezoneQuestion'
 import ConditionalQuestions from '../components/questions/ConditionalQuestions'
 import ConditionalQuestionsMentee from '../components/questions/ConditionalQuestionsMentee'
+import FormSubmittedDialog from '../components/dialogs/FormSubmittedDialog'
 
 // Hooks and services
 import { setMenteeForm } from '../api/forms'
@@ -122,7 +123,7 @@ const MenteeForm = () => {
   )
   const { user, refreshUser } = useUser()
   const { enqueueSnackbar } = useSnackbar()
-  const navigate = useNavigate()
+  const [openDialog, setOpenDialog] = useState(false)
 
   const onSubmit = useCallback(
     async (values, { setSubmitting }) => {
@@ -132,11 +133,8 @@ const MenteeForm = () => {
         const res = await setMenteeForm(user, values)
         if (res.ok) {
           console.log('Form submitted successfully')
-          enqueueSnackbar('Form submitted successfully', { variant: 'success' })
           refreshUser() // Refresh the user data
-          setTimeout(() => {
-            navigate('/dashboard')
-          }, 3000)
+          setOpenDialog(true)
         }
       } catch (err) {
         console.error('Error submitting form:', err)
@@ -144,7 +142,7 @@ const MenteeForm = () => {
       }
       setSubmitting(false)
     },
-    [user, enqueueSnackbar, navigate, refreshUser]
+    [user, enqueueSnackbar, refreshUser]
   )
 
   return (
@@ -327,6 +325,10 @@ Queremos entender sua motivação para se inscrever e sua consciência da respon
           )}
         </Formik>
       )}
+      <FormSubmittedDialog
+        openDialog={openDialog}
+        setOpenDialog={setOpenDialog}
+      />
     </FormCard>
   )
 }
