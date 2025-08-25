@@ -6,9 +6,11 @@ import {
 } from '../api/auth'
 import { useSnackbar } from 'notistack'
 import { useNavigate } from 'react-router-dom'
+import { useUser } from '../hooks/useUser'
 import * as yup from 'yup'
 
 export const useAuthHandlers = () => {
+  const { refreshUser } = useUser()
   const initialValues = {
     email: '',
     password: '',
@@ -27,6 +29,11 @@ export const useAuthHandlers = () => {
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
 
+  const handleRedirect = () => {
+    refreshUser()
+    navigate('/dashboard')
+  }
+
   const onSubmit = async (user, { setSubmitting }) => {
     setSubmitting(true)
 
@@ -38,7 +45,7 @@ export const useAuthHandlers = () => {
     }
 
     enqueueSnackbar('Welcome Back', { variant: 'success' })
-    navigate('/dashboard')
+    handleRedirect()
   }
 
   const googleLogin = async () => {
@@ -50,7 +57,7 @@ export const useAuthHandlers = () => {
       )
     }
     enqueueSnackbar('Welcome Back', { variant: 'success' })
-    navigate('/dashboard')
+    handleRedirect()
   }
 
   const githubLogin = async () => {
@@ -62,7 +69,7 @@ export const useAuthHandlers = () => {
       )
     }
     enqueueSnackbar('Welcome Back', { variant: 'success' })
-    navigate('/dashboard')
+    handleRedirect()
   }
 
   const handleResetPassword = async (

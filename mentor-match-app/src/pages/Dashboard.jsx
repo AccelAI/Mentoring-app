@@ -22,6 +22,7 @@ import UserListView from '../components/dashboard/UserListView'
 import MatchAlert from '../components/dashboard/MatchAlert'
 import SideMenu from '../components/dashboard/SideMenu'
 import CurrentMentor from '../components/dashboard/CurrentMentor'
+import ApplicationStatus from '../components/dashboard/ApplicationStatus'
 
 // Hooks and services
 import { getUserById } from '../api/users'
@@ -157,6 +158,9 @@ const Dashboard = () => {
                     loadingMentor={loadingMentor}
                     onStartChat={handleStartChat}
                   />
+                )}
+                {user && viewType === 'applicationStatus' && (
+                  <ApplicationStatus />
                 )}
               </Stack>
             </Stack>
