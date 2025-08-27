@@ -14,10 +14,10 @@ import { useSnackbar } from 'notistack'
 
 // Component imports
 import FormCard from '../components/FormCard'
+import CommonQuestions from '../components/questions/CommonQuestions'
 import TextfieldQuestion from '../components/questions/TextfieldQuestion'
 import RadioQuestion from '../components/questions/RadioQuestion'
 import CheckboxQuestion from '../components/questions/CheckboxQuestion'
-import TimezoneQuestion from '../components/questions/TimezoneQuestion'
 import ConditionalQuestions from '../components/questions/ConditionalQuestions'
 import ConditionalQuestionsMentee from '../components/questions/ConditionalQuestionsMentee'
 
@@ -27,92 +27,61 @@ import { useUser } from '../hooks/useUser'
 import useFormData from '../hooks/useFormData'
 
 const defaultInitialValues = {
+  academicPapers: '',
+  careerGoals: '',
+  commitmentStatement: '',
   currentInstitution: '',
   currentPosition: '',
-  linkToResearch: '',
-  preferredTimezone: '',
   languages: [],
-  menteeMotivation: [],
-  commitmentStatement: '',
-  preferredExpectations: [],
-  careerGoals: '',
-  conferences: [],
-  otherConferences: '',
-  openToDiscussImpacts: '',
+  linkToResearch: '',
+  menteeFields: [],
+  menteeProfile: '',
   mentoredSkills: [],
-  topResearchAreas: [],
-  reviewerInWorkshop: '',
-  publicationsInWorkshop: '',
-  reviewerInAiConferences: '',
-  publicationsInAiConferences: '',
-  reviewerInAiJournals: '',
-  publicationsInAiJournals: ''
-}
-
-const requiredWhenMenteeMotivationIncludes = (area) => {
-  // Return a yup schema that requires a field when menteeMotivation includes the given area
-  return yup.string().when('menteeMotivation', {
-    is: (menteeMotivation) =>
-      menteeMotivation && menteeMotivation.includes(area),
-    then: (schema) => schema.required('Please select an option'),
-    otherwise: (schema) => schema
-  })
+  mentorshipAspirations: '',
+  openToDiscussImpacts: '',
+  planningToSubmit: '',
+  preferredConnections: '',
+  preferredTimezone: '',
+  researchAreas: [],
+  shareExperience: '',
+  submittedInAiConferences: '',
+  submittedPapers: ''
 }
 
 // Form validation schema
 const schema = yup.object().shape({
+  academicPapers: yup.string().required('Please select an option'),
+  careerGoals: yup.string().required('Please enter your career goals'),
+  commitmentStatement: yup
+    .string()
+    .url('Invalid URL')
+    .required('Please enter the link to your commitment statement'),
   currentInstitution: yup
     .string()
     .required('Please enter your current institution'),
-  currentPosition: yup.string().required('Please enter your current position'),
+  currentPosition: yup.string().required('Please select an option'),
+  languages: yup.array().min(1, 'Please select at least one language'),
   linkToResearch: yup
     .string()
     .url('Invalid URL')
     .required('Please enter a link'),
+  menteeFields: yup.array().min(1, 'Please select at least one field'),
+  menteeProfile: yup.string().required('Please define your profile'),
+  mentoredSkills: yup
+    .array()
+    .min(1, 'Please select at least one skill')
+    .max(2, 'Please select up to 2 skills'),
+  mentorshipAspirations: yup.string().required('Please select an option'),
+  preferredConnections: yup.array().min(1, 'Please select at least 1 option'),
   preferredTimezone: yup
     .string()
     .required('Please enter your preferred timezone'),
-  languages: yup.array().min(1, 'Please select at least one language'),
-  menteeMotivation: yup.array().min(1, 'Please select at least one area'),
-  preferredExpectations: yup
+  researchAreas: yup
     .array()
-    .min(1, 'Please select at least one option'),
-  conferences: yup.array().min(1, 'Please select at least one conference'),
-  // REQUIRED CONDITIONAL QUESTIONS
-  mentoredSkills: yup.array().when('menteeMotivation', {
-    is: (menteeMotivation) =>
-      menteeMotivation &&
-      menteeMotivation.includes(
-        'Strengthening skills (Writing or Communication or Engineering)'
-      ),
-    then: (schema) => schema.min(1, 'Please select at least one skill'),
-    otherwise: (schema) => schema
-  }),
-  topResearchAreas: yup.array().when('menteeMotivation', {
-    is: (menteeMotivation) =>
-      menteeMotivation &&
-      menteeMotivation.includes('Research Guidance (AI Verticals)'),
-    then: (schema) => schema.min(1, 'Please select at least one research area'),
-    otherwise: (schema) => schema
-  }),
-  reviewerInWorkshop: requiredWhenMenteeMotivationIncludes(
-    'Improve as a Reviewer of Research Papers'
-  ),
-  publicationsInWorkshop: requiredWhenMenteeMotivationIncludes(
-    'Improve as a Reviewer of Research Papers'
-  ),
-  reviewerInAiConferences: requiredWhenMenteeMotivationIncludes(
-    'Improve as a Reviewer of Research Papers'
-  ),
-  publicationsInAiConferences: requiredWhenMenteeMotivationIncludes(
-    'Improve as a Reviewer of Research Papers'
-  ),
-  reviewerInAiJournals: requiredWhenMenteeMotivationIncludes(
-    'Improve as a Reviewer of Research Papers'
-  ),
-  publicationsInAiJournals: requiredWhenMenteeMotivationIncludes(
-    'Improve as a Reviewer of Research Papers'
-  )
+    .min(1, 'Please select at least one research area')
+    .max(3, 'Please select up to 3 research areas'),
+  shareExperience: yup.string().required('Please enter your response'),
+  submittedInAiConferences: yup.string().required('Please select an option')
 })
 
 const MenteeForm = () => {
@@ -165,138 +134,156 @@ const MenteeForm = () => {
           {({ isSubmitting, isValid }) => (
             <Form>
               <Stack spacing={3}>
-                <TextfieldQuestion
-                  question="Current Institution, Company or Organization Affiliation"
-                  description="Where do you study or work? | ¿Dónde estudias o trabajas? | Onde você estuda ou trabalha?"
-                  name={'currentInstitution'}
-                />
+                <Typography variant="h6">
+                  Basic Information / Información básica / Informações Básicas
+                </Typography>
                 <RadioQuestion
                   question="Current Position"
                   description=""
                   options={[
-                    'Early Career Professional (less than 5 years in academy or industry)',
                     'Senior Ph.D. Student (3rd year or more of Ph.D.)',
                     'Junior Ph.D. Students (1st or 2nd year of Ph.D.)',
-                    'Graduate Student (M.Sc., MBA or equivalent level)',
                     'Undergraduate Student (or already earned a B.Sc. degree)',
-                    'High School Graduate (minimum requirement to participate in LXAI mentoring program)'
+                    'Graduate Student (M.Sc., MBA or equivalent level)',
+                    'Early Career Professional (less than 5 years in academy or industry)',
+                    'Other'
                   ]}
                   name={'currentPosition'}
                 />
-                <TextfieldQuestion
-                  question="Link to Google scholar (preferred), website or LinkedIn page."
-                  description="Share a link to your current research publications or industry achievements. | Comparta un enlace a sus publicaciones de investigación actuales o logros académicos / industriales. | Compartilhe um link para suas publicações de pesquisa atuais ou realizações acadêmicas / industriais."
-                  name={'linkToResearch'}
-                />
-                <CheckboxQuestion
-                  question="What language(s) do you speak?"
-                  description="Only select your preferred language(s) for receiving mentoring. | Seleccione únicamente su (s) idioma (s) preferido (s) para recibir tutoría. | Selecione apenas seu (s) idioma (s) preferido (s) para receber orientação."
-                  options={['English', 'Spanish', 'Portuguese', 'French']}
-                  name={'languages'}
-                />
-                <TimezoneQuestion
-                  question="What is your preferred timezone for meetings?"
-                  description="We'll do our best to match you with a mentor available in a similar timezone. | Haremos todo lo posible para emparejarlo con un mentor disponible en una zona horaria similar. | Faremos o nosso melhor para encontrar um mentor disponível em um fuso horário semelhante."
-                  name={'preferredTimezone'}
-                />
-                <CheckboxQuestion
-                  question="Mentee Motivation. Which area do you prefer to be mentored in?"
-                  description="Where do you need the most guidance in order to reach your short term goals? | ¿Dónde necesita más orientación para alcanzar sus objetivos a corto plazo? | Onde você precisa de mais orientação para alcançar seus objetivos de curto prazo?"
-                  name={'menteeMotivation'}
+                <CommonQuestions />
+
+                <Typography variant="h6">
+                  Mentee Details / Detalles del Mentee / Detalhes do Mentee
+                </Typography>
+                <RadioQuestion
+                  question={`What do you hope to achieve in this area through the mentorship? / ¿Qué esperas lograr en esa área a través de la mentoría? / O que você espera alcançar nessa área por meio da mentoria?`}
+                  description="Select your top choice / Selecciona tu opción prioritaria / Selecione sua opção prioritária"
                   options={[
-                    'Strengthening skills (Writing or Communication or Engineering)',
-                    'Research Guidance (AI Verticals)',
-                    'Improve as a Reviewer of Research Papers'
+                    'Receive detailed feedback on a research paper or project / Recibir retroalimentación detallada sobre un artículo o proyecto / Receber feedback detalhado sobre um artigo ou projeto',
+                    'Prepare a submission for a conference (e.g., CVPR, ICML, NeurIPS) / Preparar una presentación para una conferencia (por ejemplo, NeurIPS) / Preparar uma submissão para uma conferência (por exemplo, NeurIPS)',
+                    'Understand career options and receive guidance / Comprender opciones profesionales y recibir orientación / Entender opções de carreira e receber orientação',
+                    'Learn best practices and tools in the area / Aprender mejores prácticas y herramientas en el área / Aprender boas práticas e ferramentas na área',
+                    'Build a lasting connection with a mentor in the field / Crear una conexión duradera con un mentor en el campo / Construir uma conexão duradoura com um mentor na área'
                   ]}
+                  spacing={1.5}
+                  name={'mentorshipAspirations'}
                 />
                 <TextfieldQuestion
-                  question="Commitment & Motivation statement (1-page pdf)"
-                  description={`We want to understand your motivation for applying and your awareness of the responsibility and commitment to the program & mentors. The statement can be written in English, Portuguese or Spanish. Submit a link to PDF in Google Drive or Dropbox.\n
-Motivation Letter Writing Resources:
-- https://www.mastersportal.com/articles/406/write-a-successful-motivation-letter-for-your-masters.html
-- https://www.indeed.com/career-advice/resumes-cover-letters/motivation-letter\n
-⎯⎯⎯⎯\n
-Queremos comprender su motivación para postularse y su conciencia de la responsabilidad y el compromiso con el programa y los mentores. La declaración puede estar escrita en inglés, portugués o español. Envíe un enlace al PDF almacenado en Google Drive o Dropbox.\n
-Queremos entender sua motivação para se inscrever e sua consciência da responsabilidade e compromisso com o programa e mentores. A declaração pode ser redigida em inglês, português ou espanhol. Envie um link para PDF armazenado no Google Drive ou Dropbox.`}
+                  question="(LINK) Commitment & Motivation statement / Declaración de Compromiso y Motivación / Declaração de Compromisso e Motivação (1-page pdf)"
+                  description={`We want to understand your motivation for applying and your awareness of the responsibility and commitment to the program & mentors. The statement can be written in English, Portuguese or Spanish.\n\nQueremos comprender su motivación para postularse y su conciencia de la responsabilidad y el compromiso con el programa y los mentores. La declaración puede estar escrita en inglés, portugués o español. \n\nQueremos entender sua motivação para se inscrever e sua consciência da responsabilidade e compromisso com o programa e mentores. A declaração pode ser redigida em inglês, português ou espanhol.`}
                   name={'commitmentStatement'}
                 />
-                <CheckboxQuestion
-                  question="What are your preferred expectations and outcomes from this program?"
-                  description="Select all that apply. We will follow-up with you upon completion of the program to learn if you've achieved your goals.  | Seleccione todas las que correspondan. Haremos un seguimiento con usted al finalizar el programa para saber si ha logrado sus objetivos. | Selecione tudo que se aplica. Entraremos em contato com você após a conclusão do programa para saber se você atingiu seus objetivos."
-                  name={'preferredExpectations'}
-                  options={[
-                    'Connect to job/research opportunities',
-                    'Establish a research partnership',
-                    'Connect to scholarships/graduate opportunities',
-                    'Improve technical and soft skills in general'
-                  ]}
-                />
                 <TextfieldQuestion
-                  question="What career goals do you want to achieve in the next three years?"
-                  description="Briefly describe your ideal position, company, or research publication goal. | Describe brevemente tu puesto ideal, empresa o objetivo de publicación de investigación. | Descreva resumidamente sua posição ideal, empresa ou objetivo de publicação de pesquisa."
-                  name={'careerGoals'}
+                  question="Briefly define your profile and your best professional/academic characteristics / Define brevemente tu perfil y tus mejores características profesionales/académicas. / Defina brevemente seu perfil e suas melhores características profissionais/acadêmicas"
+                  name={'menteeProfile'}
                 />
                 <RadioQuestion
-                  question="Are you open to discuss/enumerate the impacts of the program with organizers in the future?"
-                  description="We may ask you to provide a public testimonial if this program has helped you in achieving your goals. | Es posible que le pidamos que brinde un testimonio público si este programa lo ha ayudado a lograr sus objetivos. | Podemos pedir que você forneça um testemunho público se este programa o ajudou a alcançar seus objetivos."
+                  question="How many research papers have you written or contributed to? / ¿Cuántos artículos de investigación has escrito o en cuántos has contribuido? / Quantos artigos de pesquisa você escreveu ou contribuiu?"
+                  description={`If you haven’t written or contributed to a paper yet, that’s completely fine! This program is here to support you in developing your first research paper \n\nSi aún no has escrito ni contribuido a un artículo, ¡no hay problema! Este programa está diseñado para apoyarte en el desarrollo de tu primer trabajo de investigación \n\nSe você ainda não escreveu ou contribuiu para um artigo, não tem problema! Este programa foi criado para ajudá-lo a desenvolver seu primeiro trabalho de pesquisa`}
+                  options={[
+                    '0 – I haven’t written a paper yet, but I’m eager to learn!',
+                    '1-3 – I have some experience and want to improve.',
+                    '3-5 – I have moderate experience and want to refine my skills.',
+                    '5+ – I have extensive experience and want to enhance my writing further'
+                  ]}
+                  name={'academicPapers'}
+                />
+                <RadioQuestion
+                  question="Have you submitted a paper to a peer-reviewed AI conference or journal before?  / ¿Has enviado un artículo a una conferencia o revista de IA con revisión por pares anteriormente? / Você já enviou um artigo para uma conferência ou revista de IA com revisão por pares antes?"
+                  description={`If not, no worries! This program will help you gain the experience needed for future submissions. \n\nSi no, ¡no te preocupes! Este programa te ayudará a adquirir la experiencia necesaria para futuras postulaciones. \n\nSe não, não se preocupe! Este programa vai ajudá-lo a ganhar a experiência necessária para futuras submissões.`}
+                  options={['Yes', 'No']}
+                  name={'submittedInAiConferences'}
+                />
+                <TextfieldQuestion
+                  question="If Yes, please specify which ones  / Si es así, por favor especifica cuáles. / Se sim, por favor especifique quais"
+                  name={'submittedPapers'}
+                  required={false}
+                />
+                <CheckboxQuestion
+                  question={`Are you planning to submit your research paper to the LatinX in AI Workshop (or an upcomming workshop at a conference), or to the main track top-tier AI conference in the near future? /
+¿Planeas enviar tu artículo de investigación al Taller de LatinX en IA de NeurIPS, o a una conferencia de IA de alto nivel en un futuro cercano? / Você planeja enviar seu artigo de pesquisa para o Workshop de LatinX em IA no NeurIPS ou para uma conferência de IA de alto nível em um futuro próximo?`}
+                  options={[
+                    'LatinX in AI Workshop @ CVPR, ICML or NeurIPS 2026',
+                    'Academic Workshop @ Top-tier AI conference',
+                    'Main track - Top-tier AI conference (e.g., NeurIPS, ICML, CVPR, ACL, etc.)',
+                    'I am not planning to submit a research paper in the near future',
+                    'Other'
+                  ]}
+                  name={'planningToSubmit'}
+                  required={false}
+                />
+                <TextfieldQuestion
+                  question={`What career goals do you want to achieve in the next three years? / ¿Qué objetivos profesionales quieres alcanzar en los próximos tres años? / Quais objetivos de carreira você deseja alcançar nos próximos três anos?"`}
+                  name={'careerGoals'}
+                />
+                <Typography variant="h6">
+                  Strengthening skills / Fortalecimiento de habilidades /
+                  Fortalecimento de habilidades
+                </Typography>
+                <CheckboxQuestion
+                  question="What are the skills you are interested in being mentored? / ¿En qué habilidades te interesa recibir mentoría? / Em quais habilidades você tem interesse em receber mentoria?"
+                  description="Choose up to 2 options / Elige hasta 2 opciones / Escolha até 2 opções"
+                  name={'mentoredSkills'}
+                  options={[
+                    'Writing & Communication (e.g., research papers, technical writing, presentations)',
+                    'Coding & Software Engineering (e.g., ML frameworks, best practices, debugging)',
+                    'Experimentation & Reproducibility (e.g., designing experiments, hyperparameter tuning)',
+                    'AI Ethics & Responsible AI (e.g., bias mitigation, fairness in AI)',
+                    'Networking & Personal Branding (e.g., building an AI career, conferences, social media presence)',
+                    'Public Speaking & Teaching (e.g., giving talks, mentoring others)',
+                    'Project Management & Collaboration (e.g., working in teams, leading AI projects)'
+                  ]}
+                />
+                <Typography variant="h6">
+                  Research Guidance (AI Verticals) / Orientación en
+                  Investigación (Verticales de IA) / Orientação em Pesquisa
+                  (Verticais de IA)
+                </Typography>
+                <CheckboxQuestion
+                  question="What are the research areas you are interested in being mentored? / ¿En qué áreas de investigación te interesa recibir mentoría? / Em quais áreas de pesquisa você tem interesse em receber mentoria?"
+                  description="Choose up to 3 options / Elige hasta 3 opciones / Escolha até 3 opções"
+                  name={'researchAreas'}
+                  options={[
+                    'General Machine Learning/Artificial Intelligence',
+                    'Computer Vision',
+                    'Natural Language Processing',
+                    'Graph ML',
+                    'Generative Models',
+                    'Multimodal AI',
+                    'Representation Learning',
+                    'Reinforcement Learning',
+                    'Large Language Models',
+                    'AI Agents',
+                    'Fairness / Explainability'
+                  ]}
+                />
+                <CheckboxQuestion
+                  question="Do you work in a specific research field or application domain? / ¿Trabajas en un campo de investigación o dominio de aplicación específico? / Você trabalha em uma área de pesquisa ou domínio de aplicação específico?"
+                  options={[
+                    'General ML Theory and Research',
+                    'Finance and Investing',
+                    'Technology and Services',
+                    'Medicine and Biology',
+                    'Robotics and Automation',
+                    'Science (Physics, Chemistry, Materials Science)',
+                    'Art and Creativity',
+                    'Environmental Science'
+                  ]}
+                  name={'menteeFields'}
+                />
+                <Typography variant="h6">
+                  Beyond the Program / Más allá del programa / Além do programa
+                </Typography>
+                <TextfieldQuestion
+                  question="Do you plan to share your experience after the program? If yes, how? / ¿Planeas compartir tu experiencia después del programa? Si es así, ¿cómo? / Você planeja compartilhar sua experiência após o programa? Se sim, como?"
+                  name={'shareExperience'}
+                />
+                <RadioQuestion
+                  question={`Are you open to discuss/enumerate the impacts of the program sometime later in the future? / ¿Estás abierto/a a discutir o enumerar los impactos del programa en algún momento en el futuro? / Você está aberto(a) para discutir ou enumerar os impactos do programa em algum momento no futuro?`}
                   name={'openToDiscussImpacts'}
                   options={['Yes', 'No']}
                   required={false}
                 />
-
-                <ConditionalQuestionsMentee />
-                <ConditionalQuestions />
-
-                <Stack spacing={2}>
-                  <Typography variant="h6">Conference Preferences</Typography>
-                  <Typography>
-                    Choose the best time to start! Since we have year round
-                    applications open, choose up to three conferences you would
-                    like to use as a reference for the dates of the program.
-                    Please consider that the programs will start about 3 months
-                    prior to the date of chosen conferences.
-                  </Typography>
-                  <Typography>
-                    ¡Elige el mejor momento para empezar! Dado que tenemos
-                    solicitudes abiertas durante todo el año, elija hasta tres
-                    conferencias que le gustaría utilizar como referencia para
-                    las fechas del programa. Tenga en cuenta que los programas
-                    comenzarán aproximadamente 3 meses antes de la fecha de las
-                    conferencias elegidas.
-                  </Typography>
-                  <Typography>
-                    Escolha a melhor hora para começar! Como temos inscrições
-                    abertas para o ano todo, escolha até três conferências que
-                    gostaria de usar como referência para as datas do programa.
-                    Por favor, considere que os programas começarão cerca de 3
-                    meses antes da data das conferências escolhidas.
-                  </Typography>
-
-                  <CheckboxQuestion
-                    question="Which conferences would you like to align your mentorship with?"
-                    description="Choose up to 3 options | Elija hasta 3 opciones | Escolha até 3 opções"
-                    name={'conferences'}
-                    options={[
-                      'CVPR (IEEE Conference on Computer Vision)',
-                      'NAACL (The North American Chapter of the Association for Computational Linguistics)',
-                      'ICML (International Conference on Machine Learning)',
-                      'NeurIPS (Neural Information Processing Systems)',
-                      'Other'
-                    ]}
-                  />
-                  <TextfieldQuestion
-                    question="If you answered other to the question above, please elaborate."
-                    description=""
-                    name={'otherConferences'}
-                    required={false}
-                  />
-                </Stack>
-                <Typography variant="body2">
-                  * Notification of Acceptance: Applications are accepted on a
-                  rolling basis for our quarterly 3-month cohorts. Your
-                  application will be considered in alignment with the
-                  conferences which you selected for your preference.
-                </Typography>
                 <Stack
                   direction={'row'}
                   alignItems={'center'}

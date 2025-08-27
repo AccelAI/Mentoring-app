@@ -9,6 +9,7 @@ import {
 } from '@mui/material'
 import CheckboxField from '../inputFields/CheckboxField'
 import { FieldArray, ErrorMessage } from 'formik'
+import { formatDescription } from '../../utils/formatDescription'
 
 const CheckboxQuestion = ({
   name,
@@ -17,19 +18,21 @@ const CheckboxQuestion = ({
   options,
   required = true
 }) => {
+  const formattedDescription = description
+    ? formatDescription(description)
+    : null
   return (
     <Card sx={{ p: 2 }} variant="outlined">
       <FormControl required={required}>
         <Stack spacing={0.75}>
           <FormLabel
             component={Typography}
-            variant="h6"
-            sx={{ color: '#000', fontWeight: '500' }}
+            sx={{ color: '#000', fontWeight: '450' }}
           >
             {question}
           </FormLabel>
-          {description && (
-            <Typography variant="body2">{description}</Typography>
+          {formattedDescription && (
+            <Typography variant="body2">{formattedDescription}</Typography>
           )}
           <FieldArray name={name}>
             {({ form, push, remove }) => {

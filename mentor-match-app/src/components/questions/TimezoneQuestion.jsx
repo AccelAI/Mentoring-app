@@ -16,8 +16,7 @@ const TimezoneQuestion = ({ name, question, description, required = true }) => {
         <Stack spacing={0.75}>
           <FormLabel
             component={Typography}
-            variant="h6"
-            sx={{ color: '#000', fontWeight: '500' }}
+            sx={{ color: '#000', fontWeight: '450' }}
           >
             {question}
           </FormLabel>

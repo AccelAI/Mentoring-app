@@ -24,7 +24,7 @@ import FormCard from '../components/FormCard'
 import TextfieldQuestion from '../components/questions/TextfieldQuestion'
 import RadioQuestion from '../components/questions/RadioQuestion'
 import CheckboxQuestion from '../components/questions/CheckboxQuestion'
-import TimezoneQuestion from '../components/questions/TimezoneQuestion'
+import CommonQuestions from '../components/questions/CommonQuestions'
 
 const defaultInitialValues = {
   currentInstitution: '',
@@ -171,11 +171,9 @@ const MentorForm = () => {
           {({ isSubmitting, isValid }) => (
             <Form>
               <Stack spacing={3}>
-                <TextfieldQuestion
-                  question="Current Institution, Company or Organization Affiliation"
-                  description="Where do you study or work? | ¿Dónde estudias o trabajas? | Onde você estuda ou trabalha?"
-                  name={'currentInstitution'}
-                />
+                <Typography variant="h6">
+                  Basic Information / Información básica / Informações Básicas
+                </Typography>
                 <RadioQuestion
                   question="Current Seniority Level"
                   description="What is your highest level of education or working experience? | ¿Cuál es su nivel más alto de educación o experiencia laboral? | Qual é o seu nível mais alto de educação ou experiência de trabalho?"
@@ -187,22 +185,8 @@ const MentorForm = () => {
                   ]}
                   name={'currentPosition'}
                 />
-                <TextfieldQuestion
-                  question="Link to Google scholar (preferred), website or LinkedIn page."
-                  description="Share a link to your current research publications or industry achievements. | Comparta un enlace a sus publicaciones de investigación actuales o logros académicos / industriales. | Compartilhe um link para suas publicações de pesquisa atuais ou realizações acadêmicas / industriais."
-                  name={'linkToResearch'}
-                />
-                <CheckboxQuestion
-                  question="What language(s) do you speak?"
-                  description=""
-                  options={['English', 'Spanish', 'Portuguese', 'French']}
-                  name={'languages'}
-                />
-                <TimezoneQuestion
-                  question="What is your preferred timezone for meetings?"
-                  description="We'll do our best to match you with a mentee available in a similar timezone."
-                  name={'preferredTimezone'}
-                />
+                <CommonQuestions />
+
                 <RadioQuestion
                   question="Mentor Motivation. Have you served as a Mentor previously?"
                   description=""
