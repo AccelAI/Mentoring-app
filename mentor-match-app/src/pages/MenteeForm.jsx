@@ -72,7 +72,7 @@ const schema = yup.object().shape({
     .min(1, 'Please select at least one skill')
     .max(2, 'Please select up to 2 skills'),
   mentorshipAspirations: yup.string().required('Please select an option'),
-  preferredConnections: yup.array().min(1, 'Please select at least 1 option'),
+  preferredConnections: yup.array().min(1, 'Please select at least one option'),
   preferredTimezone: yup
     .string()
     .required('Please enter your preferred timezone'),

@@ -16,7 +16,8 @@ const CheckboxQuestion = ({
   question,
   description,
   options,
-  required = true
+  required = true,
+  spacing
 }) => {
   const formattedDescription = description
     ? formatDescription(description)
@@ -39,23 +40,25 @@ const CheckboxQuestion = ({
               const fieldValue = form.values[name] || []
               return (
                 <FormGroup>
-                  {options.map((option) => (
-                    <CheckboxField
-                      key={option}
-                      name={name}
-                      value={option}
-                      label={option}
-                      checked={fieldValue.includes(option)}
-                      onChange={() => {
-                        if (fieldValue.includes(option)) {
-                          const idx = fieldValue.indexOf(option)
-                          remove(idx)
-                        } else {
-                          push(option)
-                        }
-                      }}
-                    />
-                  ))}
+                  <Stack spacing={spacing}>
+                    {options.map((option) => (
+                      <CheckboxField
+                        key={option}
+                        name={name}
+                        value={option}
+                        label={option}
+                        checked={fieldValue.includes(option)}
+                        onChange={() => {
+                          if (fieldValue.includes(option)) {
+                            const idx = fieldValue.indexOf(option)
+                            remove(idx)
+                          } else {
+                            push(option)
+                          }
+                        }}
+                      />
+                    ))}
+                  </Stack>
                 </FormGroup>
               )
             }}
