@@ -11,7 +11,6 @@ const TimezoneSelect = ({
 }) => {
   // Extract unique GMT codes
   const uniqueGmtCodes = Array.from(new Set(timezones.map((tz) => tz.gmt)))
-  console.log(uniqueGmtCodes)
 
   return (
     <FormControl fullWidth>

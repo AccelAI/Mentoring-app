@@ -12,7 +12,10 @@ import { Field, ErrorMessage } from 'formik'
 const TimezoneQuestion = ({ name, question, description, required = true }) => {
   return (
     <Card sx={{ p: 2 }} variant="outlined">
-      <FormControl required={required}>
+      <FormControl
+        required={required}
+        sx={{ '& .MuiFormLabel-asterisk': { color: 'error.main' } }}
+      >
         <Stack spacing={0.75}>
           <FormLabel
             component={Typography}

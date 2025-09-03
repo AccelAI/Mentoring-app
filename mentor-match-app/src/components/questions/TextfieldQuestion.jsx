@@ -23,7 +23,13 @@ const TextfieldQuestion = ({
 
   return (
     <Card sx={{ p: 2 }} variant="outlined">
-      <FormControl required={required} width={'100%'}>
+      <FormControl
+        required={required}
+        sx={{
+          width: '100%',
+          '& .MuiFormLabel-asterisk': { color: 'error.main' }
+        }}
+      >
         <Stack spacing={0.75}>
           <FormLabel
             component={Typography}

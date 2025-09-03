@@ -8,18 +8,15 @@ import {
   IconButton
 } from '@mui/material'
 import logo from '../assets/logo.png'
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { ChevronLeft } from '@mui/icons-material'
 
 /* Card used for the forms */
-const FormCard = ({ children, title, type, props }) => {
+const FormCard = ({ children, title, type, props, topRef }) => {
   const [showInfo, setShowInfo] = useState(true)
-  const cardRef = useRef(null)
 
   const handleGetStartedButton = () => {
-    if (cardRef.current) {
-      cardRef.current.scrollTo({ top: 0, behavior: 'smooth' })
-    }
+    topRef?.current?.scrollTo({ top: 0, behavior: 'smooth' })
     setShowInfo(false)
   }
 
@@ -43,7 +40,7 @@ const FormCard = ({ children, title, type, props }) => {
         }}
       >
         <Card
-          ref={cardRef}
+          ref={topRef}
           sx={{ width: '90%', p: 3, height: '95%', overflow: 'auto' }}
         >
           <Stack

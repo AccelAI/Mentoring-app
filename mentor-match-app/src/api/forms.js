@@ -53,50 +53,54 @@ export const setMenteeForm = async (user, formData) => {
   }
 }
 
-export const setMentorMenteeForm = async (user, formData) => {
+export const setCombinedForm = async (user, formData) => {
   if (!user || !user.uid) {
     return { ok: false, error: 'Invalid user object' }
   }
 
-  // Separated the form data into mentee-specific and mentor-specific fields
   const commonData = {
+    // Common fields
     currentInstitution: formData.currentInstitution,
     currentPosition: formData.currentPosition,
     linkToResearch: formData.linkToResearch,
     preferredTimezone: formData.preferredTimezone,
     languages: formData.languages,
-    conferences: formData.conferences,
-    otherConferences: formData.otherConferences,
-    openToDiscussImpacts: formData.openToDiscussImpacts,
-    reviewerInWorkshop: formData.reviewerInWorkshop,
-    publicationsInWorkshop: formData.publicationsInWorkshop,
-    reviewerInAiConferences: formData.reviewerInAiConferences,
-    publicationsInAiConferences: formData.publicationsInAiConferences,
-    reviewerInAiJournals: formData.reviewerInAiJournals,
-    publicationsInAiJournals: formData.publicationsInAiJournals
+    preferredConnections: formData.preferredConnections,
+    academicPapers: formData.academicPapers,
+    openToDiscussImpacts: formData.openToDiscussImpacts
   }
 
-  const menteeData = {
-    ...commonData,
-    preferredExpectations: formData.preferredExpectationsMentee,
-    careerGoals: formData.careerGoals,
-    menteeMotivation: formData.menteeMotivation,
-    commitmentStatement: formData.commitmentStatement,
-    topResearchAreas: formData.topResearchAreas,
-    mentoredSkills: formData.mentoredSkills
-  }
-
+  // Mentor-specific fields
   const mentorData = {
     ...commonData,
-    preferredExpectations: formData.preferredExpectationsMentor,
-    otherMenteePref: formData.otherMenteePref,
-    otherExpectations: formData.otherExpectations,
-    mentorMotivation: formData.mentorMotivation,
-    mentorArea: formData.mentorArea,
+    seniority: formData.seniority,
+    offeredSupport: formData.offeredSupport,
     mentoringTime: formData.mentoringTime,
+    reviewerInAiConferences: formData.reviewerInAiConferences,
+    reviewedConferences: formData.reviewedConferences,
+    menteeCharacteristics: formData.menteeCharacteristics,
     menteePreferences: formData.menteePreferences,
     mentorSkills: formData.mentorSkills,
-    areasConsideringMentoring: formData.areasConsideringMentoring
+    areasConsideringMentoring: formData.areasConsideringMentoring,
+    mentorFields: formData.mentorFields,
+    contributeAsMentor: formData.contributeAsMentor,
+    shareExperience: formData.shareExperience
+  }
+
+  // Mentee-specific fields
+  const menteeData = {
+    ...commonData,
+    mentorshipAspirations: formData.mentorshipAspirations,
+    commitmentStatement: formData.commitmentStatement,
+    menteeProfile: formData.menteeProfile,
+    submittedInAiConferences: formData.submittedInAiConferences,
+    submittedPapers: formData.submittedPapers,
+    planningToSubmit: formData.planningToSubmit,
+    careerGoals: formData.careerGoals,
+    mentoredSkills: formData.mentoredSkills,
+    researchAreas: formData.researchAreas,
+    menteeFields: formData.menteeFields,
+    shareExperience: formData.shareExperience
   }
 
   try {
