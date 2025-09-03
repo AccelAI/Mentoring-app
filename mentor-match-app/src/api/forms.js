@@ -83,8 +83,7 @@ export const setCombinedForm = async (user, formData) => {
     mentorSkills: formData.mentorSkills,
     areasConsideringMentoring: formData.areasConsideringMentoring,
     mentorFields: formData.mentorFields,
-    contributeAsMentor: formData.contributeAsMentor,
-    shareExperience: formData.shareExperience
+    contributeAsMentor: formData.contributeAsMentor
   }
 
   // Mentee-specific fields

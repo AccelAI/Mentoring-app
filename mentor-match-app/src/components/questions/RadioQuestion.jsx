@@ -61,6 +61,9 @@ const RadioQuestion = ({
                 : field.value
                 ? 'Other'
                 : ''
+              const showOtherError =
+                radioValue === 'Other' &&
+                (!form.values[name] || form.values[name].trim() === '')
               return (
                 <RadioGroup
                   name={field.name}
@@ -101,12 +104,13 @@ const RadioQuestion = ({
                                 size="small"
                                 fullWidth
                                 required={required}
+                                error={showOtherError}
+                                helperText={
+                                  showOtherError
+                                    ? 'Please specify your answer for "Other".'
+                                    : ''
+                                }
                               />
-                              <ErrorMessage name={name}>
-                                {(msg) => (
-                                  <FormHelperText error>{msg}</FormHelperText>
-                                )}
-                              </ErrorMessage>
                             </>
                           )}
                         </Stack>

@@ -87,9 +87,9 @@ const MenteeQuestions = ({ isCombinedForm = false }) => {
           'AI Ethics & Responsible AI (e.g., bias mitigation, fairness in AI)',
           'Networking & Personal Branding (e.g., building an AI career, conferences, social media presence)',
           'Public Speaking & Teaching (e.g., giving talks, mentoring others)',
-          'Project Management & Collaboration (e.g., working in teams, leading AI projects)'
+          'Project Management & Collaboration (e.g., working in teams, leading AI projects)',
+          'Other'
         ]}
-        spacing={1}
       />
       <Typography variant="h6">
         Research Guidance (AI Verticals) / Orientación en Investigación

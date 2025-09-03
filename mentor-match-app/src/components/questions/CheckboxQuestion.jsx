@@ -57,6 +57,10 @@ const CheckboxQuestion = ({
               const otherValue =
                 uiOtherActive && !existingOther ? otherInput : existingOther
 
+              // Show error if "Other" is checked but empty
+              const showOtherError =
+                isOtherChecked && (!otherValue || otherValue.trim() === '')
+
               return (
                 <FormGroup>
                   <Stack spacing={spacing}>
@@ -115,12 +119,13 @@ const CheckboxQuestion = ({
                                 size="small"
                                 fullWidth
                                 required={required}
+                                error={showOtherError}
+                                helperText={
+                                  showOtherError
+                                    ? 'Please specify your answer for "Other".'
+                                    : ''
+                                }
                               />
-                              <ErrorMessage name={name}>
-                                {(msg) => (
-                                  <FormHelperText error>{msg}</FormHelperText>
-                                )}
-                              </ErrorMessage>
                             </>
                           )}
                         </Stack>
