@@ -9,7 +9,7 @@ import {
   CircularProgress
 } from '@mui/material'
 import logo from '../assets/logo.png'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { ChevronLeft } from '@mui/icons-material'
 
 /* Card used for the forms */
@@ -23,7 +23,6 @@ const FormCard = ({
   topRef
 }) => {
   const [showInfo, setShowInfo] = useState(enableInfo)
-  const cardRef = useRef(null)
 
   const handleGetStartedButton = () => {
     topRef?.current?.scrollTo({ top: 0, behavior: 'smooth' })
@@ -39,19 +38,6 @@ const FormCard = ({
         ...props
       }}
     >
-      <Stack
-        direction="row"
-        spacing={1}
-        sx={{
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: 1,
-          height: 1
-        }}
-      >
-        <Card
-          ref={topRef}
-          sx={{ width: '90%', p: 3, height: '95%', overflow: 'auto' }}
       {loading ? (
         <CircularProgress />
       ) : (
@@ -66,7 +52,7 @@ const FormCard = ({
           }}
         >
           <Card
-            ref={cardRef}
+            ref={topRef}
             sx={{ width: '90%', p: 3, height: '95%', overflow: 'auto' }}
             elevation={enableInfo ? 1 : 0}
           >

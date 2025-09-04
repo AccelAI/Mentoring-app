@@ -24,9 +24,6 @@ import TextfieldQuestion from '../../questions/TextfieldQuestion'
 import RadioQuestion from '../../questions/RadioQuestion'
 import CheckboxQuestion from '../../questions/CheckboxQuestion'
 import TimezoneQuestion from '../../questions/TimezoneQuestion'
-import ConditionalQuestions from '../../questions/ConditionalQuestions'
-import ConditionalQuestionsMentee from '../../questions/ConditionalQuestionsMentee'
-import ConditionalQuestionsMentor from '../../questions/ConditionalQuestionsMentor'
 
 const CombinedApplicationDialog = ({ application, open, onClose }) => {
   const { user, formData } = application || {}
@@ -120,7 +117,6 @@ const CombinedApplicationDialog = ({ application, open, onClose }) => {
                       required={false}
                       disabled={true}
                     />
-                    <ConditionalQuestions disabled={true} />
                     <Stack spacing={2}>
                       <Typography variant="h6">
                         Conference Preferences
@@ -193,8 +189,6 @@ Queremos entender sua motivação para se inscrever e sua consciência da respon
                       name={'careerGoals'}
                       disabled={true}
                     />
-
-                    <ConditionalQuestionsMentee disabled={true} />
                   </Stack>
                 )}
 
@@ -277,7 +271,6 @@ Queremos entender sua motivação para se inscrever e sua consciência da respon
                       required={false}
                       disabled={true}
                     />
-                    <ConditionalQuestionsMentor disabled={true} />
                   </Stack>
                 )}
               </Form>

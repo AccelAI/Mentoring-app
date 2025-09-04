@@ -22,6 +22,16 @@ const TextfieldQuestion = ({
 }) => {
   const { values } = useFormikContext()
   const fieldValue = values[name]
+
+  const isValidUrl = (string) => {
+    try {
+      new URL(string)
+      return true
+    } catch (_) {
+      return false
+    }
+  }
+
   const formattedDescription = description
     ? formatDescription(description)
     : null
@@ -66,7 +76,8 @@ const TextfieldQuestion = ({
         <Stack spacing={0.75}>
           <FormLabel
             component={Typography}
-            sx={{ color: '#000', fontWeight: '450' }}>
+            sx={{ color: '#000', fontWeight: '450' }}
+          >
             {question}
           </FormLabel>
           {formattedDescription && (

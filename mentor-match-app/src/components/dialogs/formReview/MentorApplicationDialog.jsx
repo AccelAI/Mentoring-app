@@ -21,8 +21,6 @@ import TextfieldQuestion from '../../questions/TextfieldQuestion'
 import RadioQuestion from '../../questions/RadioQuestion'
 import CheckboxQuestion from '../../questions/CheckboxQuestion'
 import TimezoneQuestion from '../../questions/TimezoneQuestion'
-import ConditionalQuestions from '../../questions/ConditionalQuestions'
-import ConditionalQuestionsMentor from '../../questions/ConditionalQuestionsMentor'
 
 const MentorApplicationDialog = ({ application, open, onClose }) => {
   const { user, formData } = application || {}
@@ -172,8 +170,6 @@ const MentorApplicationDialog = ({ application, open, onClose }) => {
                     required={false}
                     disabled={true}
                   />
-                  <ConditionalQuestionsMentor disabled={true} />
-                  <ConditionalQuestions disabled={true} />
 
                   <Stack spacing={2}>
                     <Typography variant="h6">Conference Preferences</Typography>

@@ -1,6 +1,4 @@
 import {
-  Container,
-  Box,
   Typography,
   Card,
   Stack,
@@ -22,7 +20,7 @@ const RadioQuestion = ({
   description,
   options,
   required = true,
-  disabled = false
+  disabled = false,
   spacing = 0
 }) => {
   const formattedDescription = description

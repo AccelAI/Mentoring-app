@@ -20,8 +20,7 @@ const CheckboxQuestion = ({
   options,
   spacing,
   required = true,
-  disabled = false,
-  spacing
+  disabled = false
 }) => {
   const formattedDescription = description
     ? formatDescription(description)

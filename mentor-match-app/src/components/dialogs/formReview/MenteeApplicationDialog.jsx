@@ -21,8 +21,6 @@ import TextfieldQuestion from '../../questions/TextfieldQuestion'
 import RadioQuestion from '../../questions/RadioQuestion'
 import CheckboxQuestion from '../../questions/CheckboxQuestion'
 import TimezoneQuestion from '../../questions/TimezoneQuestion'
-import ConditionalQuestions from '../../questions/ConditionalQuestions'
-import ConditionalQuestionsMentee from '../../questions/ConditionalQuestionsMentee'
 
 const MenteeApplicationDialog = ({ application, open, onClose }) => {
   const { user, formData } = application || {}
@@ -138,9 +136,6 @@ Queremos entender sua motivação para se inscrever e sua consciência da respon
                     required={false}
                     disabled={true}
                   />
-
-                  <ConditionalQuestionsMentee disabled={true} />
-                  <ConditionalQuestions disabled={true} />
 
                   <Stack spacing={2}>
                     <Typography variant="h6">Conference Preferences</Typography>
