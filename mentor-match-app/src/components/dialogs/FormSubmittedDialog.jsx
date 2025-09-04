@@ -4,18 +4,18 @@ import {
   Dialog,
   DialogContent,
   DialogActions,
-  Button,
   Typography,
+  Button,
   Stack,
   Box
 } from '@mui/material'
 import Lottie from 'lottie-react'
-import successAnimation from '../../assets/success_animation.json'
+import successAnimation from '../../assets/success_animation_2.json'
 
-const MatchDialog = ({ openDialog, setOpenDialog }) => {
+const FormSubmittedDialog = ({ openDialog, setOpenDialog }) => {
   const navigate = useNavigate()
 
-  const handleChatWithMentor = () => {
+  const handleNav = () => {
     setOpenDialog(false)
     navigate('/')
   }
@@ -29,26 +29,26 @@ const MatchDialog = ({ openDialog, setOpenDialog }) => {
           justifyContent={'start'}
           alignItems={'center'}
         >
-          <Box width={'40%'}>
-            <Lottie loop={false} animationData={successAnimation} />
+          <Box width={'50%'}>
+            <Lottie loop={true} animationData={successAnimation} />
           </Box>
-          <Stack>
+          <Stack spacing={1}>
             <Typography variant="h4" fontWeight={'light'}>
-              Succesful Match
+              Application Submitted Successfully!
             </Typography>
             <Typography variant="body1" fontWeight={'light'}>
-              Best of luck on your learning journey!
+              We'll inform you once your application has been reviewed.
             </Typography>
           </Stack>
         </Stack>
       </DialogContent>
       <DialogActions sx={{ justifyContent: 'flex-end', m: 1 }}>
-        <Button autoFocus onClick={handleChatWithMentor}>
-          Chat with Mentor
+        <Button autoFocus onClick={handleNav}>
+          Go to Dashboard
         </Button>
       </DialogActions>
     </Dialog>
   )
 }
 
-export default MatchDialog
+export default FormSubmittedDialog

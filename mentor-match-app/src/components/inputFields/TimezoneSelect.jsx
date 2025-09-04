@@ -7,7 +7,8 @@ const TimezoneSelect = ({
   setFieldValue,
   name,
   variant = 'standard',
-  size = 'regular'
+  size = 'regular',
+  disabled = false
 }) => {
   // Extract unique GMT codes
   const uniqueGmtCodes = Array.from(new Set(timezones.map((tz) => tz.gmt)))
@@ -24,6 +25,7 @@ const TimezoneSelect = ({
         onChange={(event) => {
           setFieldValue(name, event.target.value)
         }}
+        disabled={disabled}
       >
         {uniqueGmtCodes.map((gmt) => (
           <MenuItem key={gmt} value={gmt}>

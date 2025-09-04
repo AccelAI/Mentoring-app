@@ -1,6 +1,6 @@
 // React and hooks
-import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useCallback, useState } from 'react'
+// import { useNavigate } from 'react-router-dom' // removed
 
 // Material-UI components and icons
 import { Typography, Stack, CircularProgress } from '@mui/material'
@@ -17,6 +17,7 @@ import FormCard from '../components/FormCard'
 import CommonQuestions from '../components/questions/CommonQuestions'
 import TextfieldQuestion from '../components/questions/TextfieldQuestion'
 import RadioQuestion from '../components/questions/RadioQuestion'
+import FormSubmittedDialog from '../components/dialogs/FormSubmittedDialog'
 
 // Hooks and services
 import { setMenteeForm } from '../api/forms'
@@ -89,7 +90,7 @@ const MenteeForm = () => {
   )
   const { user, refreshUser } = useUser()
   const { enqueueSnackbar } = useSnackbar()
-  const navigate = useNavigate()
+  const [openDialog, setOpenDialog] = useState(false)
 
   const onSubmit = useCallback(
     async (values, { setSubmitting }) => {
@@ -99,11 +100,8 @@ const MenteeForm = () => {
         const res = await setMenteeForm(user, values)
         if (res.ok) {
           console.log('Form submitted successfully')
-          enqueueSnackbar('Form submitted successfully', { variant: 'success' })
           refreshUser() // Refresh the user data
-          setTimeout(() => {
-            navigate('/dashboard')
-          }, 3000)
+          setOpenDialog(true)
         }
       } catch (err) {
         console.error('Error submitting form:', err)
@@ -111,7 +109,7 @@ const MenteeForm = () => {
       }
       setSubmitting(false)
     },
-    [user, enqueueSnackbar, navigate, refreshUser]
+    [user, enqueueSnackbar, refreshUser]
   )
 
   return (
@@ -195,6 +193,10 @@ const MenteeForm = () => {
           )}
         </Formik>
       )}
+      <FormSubmittedDialog
+        openDialog={openDialog}
+        setOpenDialog={setOpenDialog}
+      />
     </FormCard>
   )
 }

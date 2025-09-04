@@ -30,7 +30,6 @@ import { LoadingButton } from '@mui/lab'
 // Component imports
 import ProfilePicture from '../ProfilePicture'
 import TextField from '../inputFields/TextField'
-import SubmittedFormsSection from './SubmittedFormsSection'
 import ProfileField from './ProfileField'
 import CountrySelect from '../inputFields/CountrySelect'
 
@@ -523,8 +522,6 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                 )}
               </Formik>
             </Stack>
-
-            <SubmittedFormsSection />
           </Stack>
         )}
       </DialogContent>

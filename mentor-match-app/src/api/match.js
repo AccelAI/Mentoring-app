@@ -27,7 +27,7 @@ export const asignMatch = async (menteeId, mentorId) => {
     )
     await setDoc(mentorHistoryDoc, {
       menteeId,
-      mentorshipStartDate: new Date().toISOString(),
+      mentorshipStartDate: new Date(),
       mentorshipStatus: 'ongoing',
       additionalInfo: '',
       termniationReason: '',
@@ -85,7 +85,7 @@ export const endMentorship = async (
       menteeId
     )
     await updateDoc(mentorHistoryDoc, {
-      mentorshipEndDate: new Date().toISOString(),
+      mentorshipEndDate: new Date(),
       mentorshipStatus: 'ended',
       termniationReason,
       additionalInfo

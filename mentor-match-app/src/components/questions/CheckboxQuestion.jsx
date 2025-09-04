@@ -18,7 +18,9 @@ const CheckboxQuestion = ({
   question,
   description,
   options,
+  spacing,
   required = true,
+  disabled = false,
   spacing
 }) => {
   const formattedDescription = description
@@ -72,6 +74,7 @@ const CheckboxQuestion = ({
                             value={option}
                             label={option}
                             checked={isOtherChecked}
+                            disabled={disabled}
                             onChange={() => {
                               if (isOtherChecked) {
                                 // Uncheck: remove any custom value and clear UI state

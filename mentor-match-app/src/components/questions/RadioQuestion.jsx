@@ -22,6 +22,7 @@ const RadioQuestion = ({
   description,
   options,
   required = true,
+  disabled = false
   spacing = 0
 }) => {
   const formattedDescription = description
@@ -42,7 +43,8 @@ const RadioQuestion = ({
         <Stack spacing={0.75}>
           <FormLabel
             component={Typography}
-            sx={{ color: '#000', fontWeight: '450' }}
+            variant="h6"
+            sx={{ color: '#000', fontWeight: '500' }}
           >
             {question}
           </FormLabel>
@@ -88,7 +90,7 @@ const RadioQuestion = ({
                         <Stack key={option} spacing={1}>
                           <FormControlLabel
                             value="Other"
-                            control={<Radio />}
+                            control={<Radio disabled={disabled} />}
                             label="Other"
                             sx={{ marginLeft: '-11px !important' }}
                           />
@@ -118,7 +120,7 @@ const RadioQuestion = ({
                         <FormControlLabel
                           key={option}
                           value={option}
-                          control={<Radio />}
+                          control={<Radio disabled={disabled} />}
                           label={option}
                         />
                       )

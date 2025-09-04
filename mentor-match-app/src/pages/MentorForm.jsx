@@ -1,6 +1,6 @@
 // React and hooks
-import { useNavigate } from 'react-router-dom'
-import { useCallback } from 'react'
+// import { useNavigate } from 'react-router-dom' // removed
+import { useCallback, useState } from 'react'
 
 // Material UI components
 import { Typography, Stack, CircularProgress } from '@mui/material'
@@ -23,6 +23,7 @@ import TextfieldQuestion from '../components/questions/TextfieldQuestion'
 import RadioQuestion from '../components/questions/RadioQuestion'
 import CommonQuestions from '../components/questions/CommonQuestions'
 import MentorQuestions from '../components/questions/MentorQuestions'
+import FormSubmittedDialog from '../components/dialogs/FormSubmittedDialog'
 
 const defaultInitialValues = {
   academicPapers: '',
@@ -86,7 +87,8 @@ const schema = yup.object().shape({
 const MentorForm = () => {
   const { user, refreshUser } = useUser()
   const { enqueueSnackbar } = useSnackbar()
-  const navigate = useNavigate()
+  // const navigate = useNavigate() // removed
+  const [openDialog, setOpenDialog] = useState(false)
   const { initialValues, loading } = useFormData(
     defaultInitialValues,
     (mentorData, menteeData) => mentorData
@@ -94,17 +96,14 @@ const MentorForm = () => {
 
   const onSubmit = useCallback(
     async (values, { setSubmitting }) => {
-      // Submit the form data to the backend
       setSubmitting(true)
       try {
         const res = await setMentorForm(user, values)
         if (res.ok) {
-          console.log('Form submitted successfully')
-          enqueueSnackbar('Form submitted successfully', { variant: 'success' })
-          refreshUser() // Refresh the user data
-          setTimeout(() => {
-            navigate('/dashboard')
-          }, 3000)
+          // enqueueSnackbar('Form submitted successfully', { variant: 'success' }) // removed
+          refreshUser()
+          setOpenDialog(true)
+          // setTimeout(() => { navigate('/dashboard') }, 3000) // removed
         }
       } catch (err) {
         console.error('Error submitting form:', err)
@@ -112,7 +111,7 @@ const MentorForm = () => {
       }
       setSubmitting(false)
     },
-    [enqueueSnackbar, navigate, user, refreshUser]
+    [enqueueSnackbar, user, refreshUser]
   )
 
   return (
@@ -212,6 +211,10 @@ const MentorForm = () => {
           )}
         </Formik>
       )}
+      <FormSubmittedDialog
+        openDialog={openDialog}
+        setOpenDialog={setOpenDialog}
+      />
     </FormCard>
   )
 }
