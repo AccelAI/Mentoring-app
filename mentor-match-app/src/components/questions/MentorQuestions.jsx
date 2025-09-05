@@ -3,7 +3,7 @@ import TextfieldQuestion from './TextfieldQuestion'
 import CheckboxQuestion from './CheckboxQuestion'
 import RadioQuestion from './RadioQuestion'
 
-const MentorQuestions = ({ isCombinedForm = false }) => {
+const MentorQuestions = ({ isCombinedForm = false, disabled = false }) => {
   return (
     <Stack spacing={2}>
       <Typography variant="h6">
@@ -20,6 +20,7 @@ const MentorQuestions = ({ isCombinedForm = false }) => {
           'Build a lasting connection with a mentee in the field / Crear una conexión duradera con un mentee en el campo / Construir uma conexão duradoura com um mentee na área'
         ]}
         spacing={1.5}
+        disabled={disabled}
       />
       <RadioQuestion
         question="How much time do you have available for mentoring? / ¿Cuánto tiempo tienes disponible para la mentoría? / Quanto tempo você tem disponível para a mentoria?"
@@ -32,6 +33,7 @@ const MentorQuestions = ({ isCombinedForm = false }) => {
           '5+ hours per week',
           'Other'
         ]}
+        disabled={disabled}
       />
       {!isCombinedForm && (
         <RadioQuestion
@@ -42,21 +44,25 @@ const MentorQuestions = ({ isCombinedForm = false }) => {
             '4-7 – I have moderate experience publishing in conferences or journals.',
             '8+ – I have extensive experience publishing research.'
           ]}
+          disabled={disabled}
         />
       )}
       <RadioQuestion
         question="Have you served as a reviewer for AI conferences or workshops?  / ¿Has sido revisor/a en conferencias o talleres de IA? / Você já atuou como revisor(a) em conferências ou workshops de IA?"
         name={'reviewerInAiConferences'}
         options={['Yes', 'No']}
+        disabled={disabled}
       />
       <TextfieldQuestion
         question="If Yes, please specify which ones / Si es así, por favor especifica cuáles. / Se sim, por favor especifique quais."
         name={'reviewedConferences'}
         required={false}
+        disabled={disabled}
       />
       <TextfieldQuestion
         question="What are the characteristics/profile of a mentee that may interest you? / ¿Cuáles son las características o el perfil de un mentee que te pueden interesar? / Quais são as características ou o perfil de um mentee que podem te interessar?"
         name={'menteeCharacteristics'}
+        disabled={disabled}
       />
       <CheckboxQuestion
         question="Do have any specific preferences for accepting a mentee? / ¿Tienes alguna preferencia específica para aceptar a un mentee? / Você tem alguma preferência específica para aceitar um mentee?"
@@ -74,6 +80,8 @@ const MentorQuestions = ({ isCombinedForm = false }) => {
           'No specific preference—open to all mentees',
           'Other'
         ]}
+        required={false}
+        disabled={disabled}
       />
       <Typography variant="h6">
         Strengthening skills / Fortalecimiento de habilidades / Fortalecimento
@@ -93,6 +101,7 @@ const MentorQuestions = ({ isCombinedForm = false }) => {
           'Other'
         ]}
         required={false}
+        disabled={disabled}
       />
       <Typography variant="h6">
         Research Guidance (AI Verticals) / Orientación en Investigación
@@ -115,6 +124,7 @@ const MentorQuestions = ({ isCombinedForm = false }) => {
           'AI Agents',
           'Fairness / Explainability'
         ]}
+        disabled={disabled}
       />
       <CheckboxQuestion
         question="Do you work in a specific research field or application domain? / ¿Trabajas en un campo de investigación o dominio de aplicación específico? / Você trabalha em uma área de pesquisa ou domínio de aplicação específico?"
@@ -129,6 +139,7 @@ const MentorQuestions = ({ isCombinedForm = false }) => {
           'Art and Creativity',
           'Environmental Science'
         ]}
+        disabled={disabled}
       />
     </Stack>
   )

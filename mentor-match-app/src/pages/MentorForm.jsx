@@ -1,6 +1,5 @@
 // React and hooks
-// import { useNavigate } from 'react-router-dom' // removed
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useRef } from 'react'
 
 // Material UI components
 import { Typography, Stack, CircularProgress } from '@mui/material'
@@ -93,6 +92,7 @@ const MentorForm = () => {
     defaultInitialValues,
     (mentorData, menteeData) => mentorData
   )
+  const topRef = useRef(null)
 
   const onSubmit = useCallback(
     async (values, { setSubmitting }) => {
@@ -100,10 +100,8 @@ const MentorForm = () => {
       try {
         const res = await setMentorForm(user, values)
         if (res.ok) {
-          // enqueueSnackbar('Form submitted successfully', { variant: 'success' }) // removed
           refreshUser()
           setOpenDialog(true)
-          // setTimeout(() => { navigate('/dashboard') }, 3000) // removed
         }
       } catch (err) {
         console.error('Error submitting form:', err)
@@ -120,6 +118,7 @@ const MentorForm = () => {
       props={{ height: '100vh' }}
       title={'Accel AI Mentor Application Form'}
       type={'mentor'}
+      topRef={topRef}
     >
       {loading ? (
         <CircularProgress />

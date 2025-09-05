@@ -3,7 +3,7 @@ import TextfieldQuestion from './TextfieldQuestion'
 import CheckboxQuestion from './CheckboxQuestion'
 import RadioQuestion from './RadioQuestion'
 
-const MenteeQuestions = ({ isCombinedForm = false }) => {
+const MenteeQuestions = ({ isCombinedForm = false, disabled = false }) => {
   return (
     <Stack spacing={2}>
       <Typography variant="h6">
@@ -21,15 +21,18 @@ const MenteeQuestions = ({ isCombinedForm = false }) => {
         ]}
         spacing={1.5}
         name={'mentorshipAspirations'}
+        disabled={disabled}
       />
       <TextfieldQuestion
         question="(LINK) Commitment & Motivation statement / Declaración de Compromiso y Motivación / Declaração de Compromisso e Motivação (1-page pdf)"
         description={`We want to understand your motivation for applying and your awareness of the responsibility and commitment to the program & mentors. The statement can be written in English, Portuguese or Spanish.\n\nQueremos comprender su motivación para postularse y su conciencia de la responsabilidad y el compromiso con el programa y los mentores. La declaración puede estar escrita en inglés, portugués o español. \n\nQueremos entender sua motivação para se inscrever e sua consciência da responsabilidade e compromisso com o programa e mentores. A declaração pode ser redigida em inglês, português ou espanhol.`}
         name={'commitmentStatement'}
+        disabled={disabled}
       />
       <TextfieldQuestion
         question="Briefly define your profile and your best professional/academic characteristics / Define brevemente tu perfil y tus mejores características profesionales/académicas. / Defina brevemente seu perfil e suas melhores características profissionais/acadêmicas"
         name={'menteeProfile'}
+        disabled={disabled}
       />
       {!isCombinedForm && (
         <RadioQuestion
@@ -42,6 +45,7 @@ const MenteeQuestions = ({ isCombinedForm = false }) => {
             '5+ – I have extensive experience and want to enhance my writing further'
           ]}
           name={'academicPapers'}
+          disabled={disabled}
         />
       )}
       <RadioQuestion
@@ -49,11 +53,13 @@ const MenteeQuestions = ({ isCombinedForm = false }) => {
         description={`If not, no worries! This program will help you gain the experience needed for future submissions. \n\nSi no, ¡no te preocupes! Este programa te ayudará a adquirir la experiencia necesaria para futuras postulaciones. \n\nSe não, não se preocupe! Este programa vai ajudá-lo a ganhar a experiência necessária para futuras submissões.`}
         options={['Yes', 'No']}
         name={'submittedInAiConferences'}
+        disabled={disabled}
       />
       <TextfieldQuestion
         question="If Yes, please specify which ones  / Si es así, por favor especifica cuáles. / Se sim, por favor especifique quais"
         name={'submittedPapers'}
         required={false}
+        disabled={disabled}
       />
       <CheckboxQuestion
         question={`Are you planning to submit your research paper to the LatinX in AI Workshop (or an upcomming workshop at a conference), or to the main track top-tier AI conference in the near future? /
@@ -67,10 +73,12 @@ const MenteeQuestions = ({ isCombinedForm = false }) => {
         ]}
         name={'planningToSubmit'}
         required={false}
+        disabled={disabled}
       />
       <TextfieldQuestion
         question={`What career goals do you want to achieve in the next three years? / ¿Qué objetivos profesionales quieres alcanzar en los próximos tres años? / Quais objetivos de carreira você deseja alcançar nos próximos três anos?"`}
         name={'careerGoals'}
+        disabled={disabled}
       />
       <Typography variant="h6">
         Strengthening skills / Fortalecimiento de habilidades / Fortalecimento
@@ -90,6 +98,7 @@ const MenteeQuestions = ({ isCombinedForm = false }) => {
           'Project Management & Collaboration (e.g., working in teams, leading AI projects)',
           'Other'
         ]}
+        disabled={disabled}
       />
       <Typography variant="h6">
         Research Guidance (AI Verticals) / Orientación en Investigación
@@ -112,6 +121,7 @@ const MenteeQuestions = ({ isCombinedForm = false }) => {
           'AI Agents',
           'Fairness / Explainability'
         ]}
+        disabled={disabled}
       />
       <CheckboxQuestion
         question="Do you work in a specific research field or application domain? / ¿Trabajas en un campo de investigación o dominio de aplicación específico? / Você trabalha em uma área de pesquisa ou domínio de aplicação específico?"
@@ -126,6 +136,7 @@ const MenteeQuestions = ({ isCombinedForm = false }) => {
           'Environmental Science'
         ]}
         name={'menteeFields'}
+        disabled={disabled}
       />
     </Stack>
   )

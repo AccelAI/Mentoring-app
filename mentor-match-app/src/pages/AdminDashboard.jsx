@@ -92,6 +92,7 @@ const AdminDashboard = () => {
             open={dialogOpen}
             onClose={handleCloseDialog}
             application={selectedApplication}
+            onStatusUpdate={handleApplicationStatusUpdate}
           />
         )
       case 'Mentor':
@@ -100,6 +101,7 @@ const AdminDashboard = () => {
             open={dialogOpen}
             onClose={handleCloseDialog}
             application={selectedApplication}
+            onStatusUpdate={handleApplicationStatusUpdate}
           />
         )
       case 'Combined':
@@ -108,6 +110,7 @@ const AdminDashboard = () => {
             open={dialogOpen}
             onClose={handleCloseDialog}
             application={selectedApplication}
+            onStatusUpdate={handleApplicationStatusUpdate}
           />
         )
       default:
@@ -116,6 +119,7 @@ const AdminDashboard = () => {
             open={dialogOpen}
             onClose={handleCloseDialog}
             application={selectedApplication}
+            onStatusUpdate={handleApplicationStatusUpdate}
           />
         )
     }

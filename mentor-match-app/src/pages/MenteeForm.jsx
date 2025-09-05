@@ -1,6 +1,5 @@
 // React and hooks
-import { useCallback, useState } from 'react'
-// import { useNavigate } from 'react-router-dom' // removed
+import { useCallback, useState, useRef } from 'react'
 
 // Material-UI components and icons
 import { Typography, Stack, CircularProgress } from '@mui/material'
@@ -91,6 +90,7 @@ const MenteeForm = () => {
   const { user, refreshUser } = useUser()
   const { enqueueSnackbar } = useSnackbar()
   const [openDialog, setOpenDialog] = useState(false)
+  const topRef = useRef(null)
 
   const onSubmit = useCallback(
     async (values, { setSubmitting }) => {
@@ -118,6 +118,7 @@ const MenteeForm = () => {
       props={{ height: '100vh' }}
       title={'Accel AI Mentee Application Form'}
       type={'mentee'}
+      topRef={topRef}
     >
       {loading ? (
         <CircularProgress />

@@ -76,7 +76,7 @@ const TextfieldQuestion = ({
         <Stack spacing={0.75}>
           <FormLabel
             component={Typography}
-            sx={{ color: '#000', fontWeight: '450' }}
+            sx={{ color: '#000', fontWeight: '500' }}
           >
             {question}
           </FormLabel>

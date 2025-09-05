@@ -41,7 +41,6 @@ const RadioQuestion = ({
         <Stack spacing={0.75}>
           <FormLabel
             component={Typography}
-            variant="h6"
             sx={{ color: '#000', fontWeight: '500' }}
           >
             {question}
@@ -105,6 +104,7 @@ const RadioQuestion = ({
                                 fullWidth
                                 required={required}
                                 error={showOtherError}
+                                disabled={disabled}
                                 helperText={
                                   showOtherError
                                     ? 'Please specify your answer for "Other".'

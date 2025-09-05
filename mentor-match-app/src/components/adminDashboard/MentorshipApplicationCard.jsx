@@ -19,7 +19,7 @@ import {
 } from '@mui/icons-material'
 import ProfilePicture from '../ProfilePicture'
 import ConfirmApplicationDialog from '../dialogs/ConfirmApplicationDialog'
-import { updateApplicationStatus } from '../../api/forms'
+import { handleStatusUpdate } from '../../utils/mentorshipApplication'
 import { formatDate } from '../../utils/date'
 import { useSnackbar } from 'notistack'
 
@@ -33,21 +33,15 @@ const MentorshipApplicationCard = ({
   const [openRejectDialog, setOpenRejectDialog] = useState(false)
   const { enqueueSnackbar } = useSnackbar()
 
-  const handleStatusUpdate = async (status, reason = '') => {
-    try {
-      await updateApplicationStatus(user.uid, type, status, reason)
-      if (onStatusUpdate) {
-        onStatusUpdate()
-      }
-      enqueueSnackbar(`Application ${status} successfully`, {
-        variant: 'success'
-      })
-    } catch (error) {
-      console.error('Error updating application status:', error)
-      enqueueSnackbar('Error updating application status: ' + error.message, {
-        variant: 'error'
-      })
-    }
+  const updateStatus = (status, reason = '') => {
+    handleStatusUpdate({
+      user,
+      type,
+      status,
+      reason,
+      onStatusUpdate,
+      enqueueSnackbar
+    })
   }
 
   return (
@@ -83,21 +77,23 @@ const MentorshipApplicationCard = ({
                   Submitted on: {formatDate(submittedAt)}
                 </Typography>
               </Stack>
-
-              <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
-                <StatementIcon fontSize="small" color="primary" />
-                <Typography variant={'body2'}>
-                  Commitment and motivation statement:
-                </Typography>
-                <Link
-                  href={formData.commitmentStatement}
-                  variant={'body2'}
-                  target="_blank"
-                  sx={{ wordBreak: 'break-all' }}
-                >
-                  {formData.commitmentStatement || 'No statement provided'}
-                </Link>
-              </Stack>
+              {/*Only mentees have commitment statements */}
+              {type === 'Mentee' && (
+                <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
+                  <StatementIcon fontSize="small" color="primary" />
+                  <Typography variant={'body2'}>
+                    Commitment and motivation statement:
+                  </Typography>
+                  <Link
+                    href={formData.commitmentStatement}
+                    variant={'body2'}
+                    target="_blank"
+                    sx={{ wordBreak: 'break-all' }}
+                  >
+                    {formData.commitmentStatement || 'No statement provided'}
+                  </Link>
+                </Stack>
+              )}
             </Stack>
           </Stack>
           <Stack spacing={1} direction={'row'} alignItems={'center'}>
@@ -132,13 +128,13 @@ const MentorshipApplicationCard = ({
       <ConfirmApplicationDialog
         open={openAcceptDialog}
         onClose={() => setOpenAcceptDialog(false)}
-        onConfirm={(reason) => handleStatusUpdate('approved', reason)}
+        onConfirm={(reason) => updateStatus('approved', reason)}
         action="accept"
       />
       <ConfirmApplicationDialog
         open={openRejectDialog}
         onClose={() => setOpenRejectDialog(false)}
-        onConfirm={(reason) => handleStatusUpdate('denied', reason)}
+        onConfirm={(reason) => updateStatus('rejected', reason)}
         action="reject"
       />
     </Card>

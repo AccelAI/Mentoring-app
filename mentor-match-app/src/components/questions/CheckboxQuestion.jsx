@@ -41,7 +41,7 @@ const CheckboxQuestion = ({
         <Stack spacing={0.75}>
           <FormLabel
             component={Typography}
-            sx={{ color: '#000', fontWeight: '450' }}
+            sx={{ color: '#000', fontWeight: '500' }}
           >
             {question}
           </FormLabel>
@@ -122,6 +122,7 @@ const CheckboxQuestion = ({
                                 fullWidth
                                 required={required}
                                 error={showOtherError}
+                                disabled={disabled}
                                 helperText={
                                   showOtherError
                                     ? 'Please specify your answer for "Other".'
@@ -137,6 +138,7 @@ const CheckboxQuestion = ({
                           name={name}
                           value={option}
                           label={option}
+                          disabled={disabled}
                           checked={fieldValue.includes(option)}
                           onChange={() => {
                             const idx = fieldValue.indexOf(option)

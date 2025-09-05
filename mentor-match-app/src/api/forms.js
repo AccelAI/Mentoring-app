@@ -40,7 +40,11 @@ export const setMentorForm = async (user, formData) => {
         { merge: true }
       )
     } else {
-      await setDoc(statusRef, { lastUpdated: new Date() }, { merge: true })
+      await setDoc(
+        statusRef,
+        { status: 'pending', lastUpdated: new Date() },
+        { merge: true }
+      )
     }
 
     const profileDoc = doc(db, 'users', user.uid)
@@ -88,7 +92,11 @@ export const setMenteeForm = async (user, formData) => {
         { merge: true }
       )
     } else {
-      await setDoc(statusRef, { lastUpdated: new Date() }, { merge: true })
+      await setDoc(
+        statusRef,
+        { status: 'pending', lastUpdated: new Date() },
+        { merge: true }
+      )
     }
 
     const profileDoc = doc(db, 'users', user.uid)
@@ -199,7 +207,7 @@ export const setCombinedForm = async (user, formData) => {
               submittedAt: new Date(),
               lastUpdated: new Date()
             }
-          : { lastUpdated: new Date() },
+          : { status: 'pending', lastUpdated: new Date() },
         { merge: true }
       ),
       setDoc(
@@ -210,7 +218,7 @@ export const setCombinedForm = async (user, formData) => {
               submittedAt: new Date(),
               lastUpdated: new Date()
             }
-          : { lastUpdated: new Date() },
+          : { status: 'pending', lastUpdated: new Date() },
         { merge: true }
       )
     ])
@@ -285,10 +293,10 @@ export const updateApplicationStatus = async (
   adminNotes = ''
 ) => {
   try {
-    const validStatuses = ['pending', 'approved', 'denied']
+    const validStatuses = ['pending', 'approved', 'rejected']
     if (!validStatuses.includes(status)) {
       throw new Error(
-        'Invalid status. Must be one of: pending, approved, denied'
+        'Invalid status. Must be one of: pending, approved, rejected'
       )
     }
 

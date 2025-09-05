@@ -29,20 +29,23 @@ const FormSubmittedDialog = ({ openDialog, setOpenDialog }) => {
           justifyContent={'start'}
           alignItems={'center'}
         >
-          <Box width={'50%'}>
+          <Box width={'60%'}>
             <Lottie loop={true} animationData={successAnimation} />
           </Box>
-          <Stack spacing={1}>
-            <Typography variant="h4" fontWeight={'light'}>
+          <Stack spacing={1} width={'fit-content'}>
+            <Typography variant="h5" fontWeight={'light'}>
               Application Submitted Successfully!
             </Typography>
-            <Typography variant="body1" fontWeight={'light'}>
-              We'll inform you once your application has been reviewed.
+            <Typography variant="body2">
+              Your participation helps strengthen our research community and
+              supports the growth of LatinX representation in AI. We deeply
+              appreciate your commitment to this program. We'll notify you once
+              your application has been reviewed.
             </Typography>
           </Stack>
         </Stack>
       </DialogContent>
-      <DialogActions sx={{ justifyContent: 'flex-end', m: 1 }}>
+      <DialogActions sx={{ justifyContent: 'flex-end' }}>
         <Button autoFocus onClick={handleNav}>
           Go to Dashboard
         </Button>

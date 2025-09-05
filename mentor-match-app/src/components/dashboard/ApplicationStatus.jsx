@@ -10,7 +10,8 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle
+  DialogTitle,
+  Divider
 } from '@mui/material'
 import {
   Today as DateIcon,
@@ -84,7 +85,7 @@ const ApplicationStatus = () => {
     } else if (formType === 'Mentor') {
       navigate('/mentor-form/' + user.uid)
     } else if (formType === 'Combined') {
-      navigate('/mentor-mentee-form/' + user.uid)
+      navigate('/combined-form/' + user.uid)
     }
   }
 
@@ -196,9 +197,12 @@ const ApplicationStatus = () => {
                   </DialogActions>
                 </Dialog>
                 {/* SubmittedFormsSection end */}
-
+                <Divider sx={{ pt: 2, width: '20%', alignSelf: 'center' }} />
                 {applicationInfo && (
-                  <Stack spacing={1}>
+                  <Stack spacing={1} sx={{ pt: 2 }}>
+                    <Typography fontWeight={'medium'}>
+                      Application Details
+                    </Typography>
                     <Stack
                       direction={'row'}
                       spacing={0.5}
@@ -217,6 +221,33 @@ const ApplicationStatus = () => {
                         Status: {capitalizeFirst(applicationInfo.status)}
                       </Typography>
                     </Stack>
+                    {applicationInfo.status === 'rejected' &&
+                      applicationInfo.adminNotes && (
+                        <Stack spacing={1.75} direction={'row'}>
+                          <Divider
+                            orientation="vertical"
+                            flexItem
+                            sx={{ pl: 1.25 }}
+                          />
+                          <Stack spacing={0.5}>
+                            <Stack direction={'row'} spacing={0.5}>
+                              <Typography
+                                fontWeight={'medium'}
+                                variant={'body2'}
+                              >
+                                Reason for rejection:
+                              </Typography>
+                              <Typography variant={'body2'}>
+                                "{applicationInfo.adminNotes}"
+                              </Typography>
+                            </Stack>
+                            <Typography variant={'caption'} color="error">
+                              Please address the issues mentioned above and
+                              resubmit your application by clicking "Edit Form".
+                            </Typography>
+                          </Stack>
+                        </Stack>
+                      )}
                     <Stack
                       direction={'row'}
                       spacing={0.5}
