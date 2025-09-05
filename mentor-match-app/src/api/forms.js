@@ -6,11 +6,19 @@ import {
   deleteDoc,
   query,
   where,
-  collection,
   getDocs,
   collectionGroup
 } from 'firebase/firestore'
 import { db } from './firebaseConfig'
+
+// Helper to set application status for mentor/mentee
+const setApplicationStatus = async (collection, uid, isNew) => {
+  const statusRef = doc(db, collection, uid, 'applicationStatus', 'current')
+  const statusData = isNew
+    ? { status: 'pending', submittedAt: new Date(), lastUpdated: new Date() }
+    : { status: 'pending', lastUpdated: new Date() }
+  await setDoc(statusRef, statusData, { merge: true })
+}
 
 export const setMentorForm = async (user, formData) => {
   if (!user || !user.uid) {
@@ -26,26 +34,7 @@ export const setMentorForm = async (user, formData) => {
     await setDoc(mentorDoc, { ...formData }, { merge: true })
 
     // Save status fields in subcollection: mentors/{uid}/applicationStatus/current
-    const statusRef = doc(
-      db,
-      'mentors',
-      user.uid,
-      'applicationStatus',
-      'current'
-    )
-    if (isNew) {
-      await setDoc(
-        statusRef,
-        { status: 'pending', submittedAt: new Date(), lastUpdated: new Date() },
-        { merge: true }
-      )
-    } else {
-      await setDoc(
-        statusRef,
-        { status: 'pending', lastUpdated: new Date() },
-        { merge: true }
-      )
-    }
+    await setApplicationStatus('mentors', user.uid, isNew)
 
     const profileDoc = doc(db, 'users', user.uid)
     // Check if mentee document exists
@@ -78,26 +67,7 @@ export const setMenteeForm = async (user, formData) => {
     await setDoc(menteeDoc, { ...formData }, { merge: true })
 
     // Save status fields in subcollection: mentees/{uid}/applicationStatus/current
-    const statusRef = doc(
-      db,
-      'mentees',
-      user.uid,
-      'applicationStatus',
-      'current'
-    )
-    if (isNew) {
-      await setDoc(
-        statusRef,
-        { status: 'pending', submittedAt: new Date(), lastUpdated: new Date() },
-        { merge: true }
-      )
-    } else {
-      await setDoc(
-        statusRef,
-        { status: 'pending', lastUpdated: new Date() },
-        { merge: true }
-      )
-    }
+    await setApplicationStatus('mentees', user.uid, isNew)
 
     const profileDoc = doc(db, 'users', user.uid)
     // Check if mentor document exists

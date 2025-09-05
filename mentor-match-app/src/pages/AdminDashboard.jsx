@@ -84,44 +84,22 @@ const AdminDashboard = () => {
     if (!selectedApplication) return null
 
     const { type } = selectedApplication
+    const dialogProps = {
+      open: dialogOpen,
+      onClose: handleCloseDialog,
+      application: selectedApplication,
+      onStatusUpdate: handleApplicationStatusUpdate
+    }
 
     switch (type) {
       case 'Mentee':
-        return (
-          <MenteeApplicationDialog
-            open={dialogOpen}
-            onClose={handleCloseDialog}
-            application={selectedApplication}
-            onStatusUpdate={handleApplicationStatusUpdate}
-          />
-        )
+        return <MenteeApplicationDialog {...dialogProps} />
       case 'Mentor':
-        return (
-          <MentorApplicationDialog
-            open={dialogOpen}
-            onClose={handleCloseDialog}
-            application={selectedApplication}
-            onStatusUpdate={handleApplicationStatusUpdate}
-          />
-        )
+        return <MentorApplicationDialog {...dialogProps} />
       case 'Combined':
-        return (
-          <CombinedApplicationDialog
-            open={dialogOpen}
-            onClose={handleCloseDialog}
-            application={selectedApplication}
-            onStatusUpdate={handleApplicationStatusUpdate}
-          />
-        )
+        return <CombinedApplicationDialog {...dialogProps} />
       default:
-        return (
-          <MenteeApplicationDialog
-            open={dialogOpen}
-            onClose={handleCloseDialog}
-            application={selectedApplication}
-            onStatusUpdate={handleApplicationStatusUpdate}
-          />
-        )
+        return <MenteeApplicationDialog {...dialogProps} />
     }
   }
 
@@ -143,7 +121,7 @@ const AdminDashboard = () => {
                   >
                     <Tab label="Users" value="0" />
                     <Tab label="Mentorship Applications" value="1" />
-                    <Tab label="Manage Matches" value="2" />
+                    {/* <Tab label="Manage Matches" value="2" /> */}
                   </TabList>
                   <Box flexGrow={1} />
                   <Button
