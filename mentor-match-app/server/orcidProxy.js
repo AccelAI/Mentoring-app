@@ -34,7 +34,7 @@ app.post('/api/orcid/token', async (req, res) => {
 
   try {
     console.log('Making request to ORCID API...')
-    const response = await fetch('https://orcid.org/oauth/token', {
+    const response = await fetch('https://sandbox.orcid.org/oauth/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
@@ -83,7 +83,7 @@ app.get('/api/orcid/record/:orcidId', async (req, res) => {
     console.log(`Using access token: ${accessToken ? 'present' : 'missing'}`)
 
     const response = await fetch(
-      `https://api.orcid.org/v3.0/${orcidId}/record`,
+      `https://api.sandbox.orcid.org/v3.0/${orcidId}/record`,
       {
         method: 'GET',
         headers: {
