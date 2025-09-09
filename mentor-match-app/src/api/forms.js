@@ -488,7 +488,8 @@ export const getFormType = async (userId) => {
 
 export const getCurrentApplicationStatus = async (userId, formType) => {
   try {
-    const fetchStatus = async (collectionName) => {
+    // Helper to fetch or set status if missing
+    const fetchOrSetStatus = async (collectionName) => {
       const statusRef = doc(
         db,
         collectionName,
@@ -497,21 +498,24 @@ export const getCurrentApplicationStatus = async (userId, formType) => {
         'current'
       )
       const snap = await getDoc(statusRef)
-      return snap.exists() ? snap.data() : null
+      if (!snap.exists()) {
+        await setApplicationStatus(collectionName, userId, true)
+        const newSnap = await getDoc(statusRef)
+        return newSnap.exists() ? newSnap.data() : null
+      }
+      return snap.data()
     }
 
-    switch (formType) {
-      case 'Mentor':
-        return await fetchStatus('mentors')
-      case 'Mentee':
-        return await fetchStatus('mentees')
-      case 'Combined': {
-        // Unified status: prefer mentor status, fallback to mentee
-        return (await fetchStatus('mentors')) ?? (await fetchStatus('mentees'))
-      }
-      default:
-        return null
+    if (formType === 'Mentor') return await fetchOrSetStatus('mentors')
+    if (formType === 'Mentee') return await fetchOrSetStatus('mentees')
+    if (formType === 'Combined') {
+      // Prefer mentor status, fallback to mentee
+      return (
+        (await fetchOrSetStatus('mentors')) ??
+        (await fetchOrSetStatus('mentees'))
+      )
     }
+    return null
   } catch (err) {
     console.error('Error fetching current application status:', err)
     return null
