@@ -66,13 +66,16 @@ const UserProfileDialog = ({
         console.log('user', res)
         setUser(res)
 
-        const ans = await getFormAnswers(userId)
-        setFormAnswers(ans)
+        if (loggedUser) {
+          const ans = await getFormAnswers(userId)
+          console.log('formAnswers', ans)
+          setFormAnswers(ans)
+        }
         setLoading(false)
       }
       fetchUser()
     }
-  }, [openDialog, userId, userList])
+  }, [openDialog, userId, userList, loggedUser])
 
   const handleMatch = async () => {
     setLoadingMatch(true)
@@ -231,14 +234,14 @@ const UserProfileDialog = ({
                       </Stack>
                     )}
 
-                    {formAnswers && (
+                    {formAnswers.ok && (
                       <Stack direction="row" spacing={0.5} alignItems="center">
                         <LanguageIcon fontSize="small" color="primary" />
                         <span>
                           Languages:{' '}
                           {formAnswers.mentorData
-                            ? formAnswers.mentorData.languages.join(', ')
-                            : formAnswers.menteeData.languages.join(', ')}
+                            ? formAnswers.mentorData.languages?.join(', ')
+                            : formAnswers.menteeData?.languages?.join(', ')}
                         </span>
                       </Stack>
                     )}
