@@ -1,7 +1,14 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth, db } from '../api/firebaseConfig'
-import { doc, getDoc } from 'firebase/firestore'
+import {
+  doc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs
+} from 'firebase/firestore'
 import { getUsers, getUserArrayByIds } from '../api/users'
 
 // Create a UserContext
@@ -28,13 +35,29 @@ const UserProvider = ({ children }) => {
       } catch (adminError) {
         console.warn('Failed to check admin membership', adminError)
       }
-
+    if (userSnap.exists()){
       const userData = {
         uid,
         ...userSnap.data(),
         isAdmin
       }
       setUser(userData)
+      return
+    }
+
+      // Fallback: look up by authUidLast mapping (for ORCID users)
+      const usersRef = collection(db, 'users')
+      const q = query(usersRef, where('authUidLast', '==', uid))
+      const qs = await getDocs(q)
+      if (!qs.empty) {
+        const mappedDoc = qs.docs[0]
+        const mappedData = mappedDoc.data()
+        setUser({ uid: mappedDoc.id, ...mappedData })
+        return
+      }
+
+      // No user found
+      setUser(null)
     } catch (error) {
       console.error('Error fetching user data: ', error)
       setUser(null)

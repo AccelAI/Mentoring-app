@@ -24,6 +24,7 @@ import ErrorPage from './components/ErrorPage'
 import AdminRoute from './components/AdminRoute'
 import AdminDashboard from './pages/AdminDashboard'
 import MentorPick from './pages/MentorPick'
+import RootHandler from './components/RootHandler'
 
 function App() {
   return (
@@ -32,7 +33,7 @@ function App() {
         <CssBaseline />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/" element={<RootHandler />} />
             <Route
               element={
                 <UnAuthPage>
