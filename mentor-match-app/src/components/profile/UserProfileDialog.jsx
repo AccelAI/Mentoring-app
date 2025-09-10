@@ -234,7 +234,7 @@ const UserProfileDialog = ({
                       </Stack>
                     )}
 
-                    {formAnswers.ok && (
+                    {formAnswers && formAnswers.ok && (
                       <Stack direction="row" spacing={0.5} alignItems="center">
                         <LanguageIcon fontSize="small" color="primary" />
                         <span>
