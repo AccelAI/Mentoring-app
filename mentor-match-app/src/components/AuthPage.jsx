@@ -10,7 +10,7 @@ const AuthPage = ({ children }) => {
     return <LinearProgress /> // Show a loading indicator while checking authentication
   }
   // Allow if either the app user is loaded OR Firebase Auth reports a signed-in user
-  if (!user && !auth.currentUser) {
+  if (!user || !auth.currentUser) {
     return <Navigate to="/login" replace state={{ from: location }} />
   }
 

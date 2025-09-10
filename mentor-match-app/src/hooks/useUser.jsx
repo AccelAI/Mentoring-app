@@ -35,24 +35,13 @@ const UserProvider = ({ children }) => {
       } catch (adminError) {
         console.warn('Failed to check admin membership', adminError)
       }
-    if (userSnap.exists()){
-      const userData = {
-        uid,
-        ...userSnap.data(),
-        isAdmin
-      }
-      setUser(userData)
-      return
-    }
-
-      // Fallback: look up by authUidLast mapping (for ORCID users)
-      const usersRef = collection(db, 'users')
-      const q = query(usersRef, where('authUidLast', '==', uid))
-      const qs = await getDocs(q)
-      if (!qs.empty) {
-        const mappedDoc = qs.docs[0]
-        const mappedData = mappedDoc.data()
-        setUser({ uid: mappedDoc.id, ...mappedData })
+      if (userSnap.exists()) {
+        const userData = {
+          uid,
+          ...userSnap.data(),
+          isAdmin
+        }
+        setUser(userData)
         return
       }
 
@@ -67,9 +56,11 @@ const UserProvider = ({ children }) => {
   }
 
   // Function to refresh the logged-in user's data
-  const refreshUser = async () => {
+  const refreshUser = async (oricidUid) => {
     if (user?.uid) {
       await fetchLoggedUser(user.uid)
+    } else if (oricidUid) {
+      await fetchLoggedUser(oricidUid)
     }
   }
 

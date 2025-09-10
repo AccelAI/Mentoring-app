@@ -4,11 +4,13 @@ import { useSnackbar } from 'notistack'
 import { fetchOrcidProfile } from '../utils/orcidUtils'
 import { signInWithOrcid } from '../api/auth'
 import { Card, CardContent, Typography, CircularProgress } from '@mui/material'
+import { useUser } from '../hooks/useUser'
 
 const OrcidHandler = () => {
   const navigate = useNavigate()
   const { enqueueSnackbar } = useSnackbar()
   const hasRun = useRef(false)
+  const { refreshUser, user } = useUser()
 
   useEffect(() => {
     if (hasRun.current) return
@@ -49,20 +51,21 @@ const OrcidHandler = () => {
           )
 
           if (authResult.ok) {
+            // Check if profile has enough information for account creation
+            if (!authResult.isNewUser) {
+              await refreshUser(profileData.orcidId.replace(/-/g, ''))
+              console.log('User refreshed, navigating to dashboard')
+              navigate('/dashboard')
+            } else {
+              // Navigate to a profile completion page if needed
+              navigate('/get-started')
+            }
             enqueueSnackbar(
               authResult.isNewUser
                 ? 'Welcome to the platform!'
                 : 'Welcome back!',
               { variant: 'success' }
             )
-
-            // Check if profile has enough information for account creation
-            if (!authResult.isNewUser) {
-              navigate('/dashboard')
-            } else {
-              // Navigate to a profile completion page if needed
-              navigate('/get-started')
-            }
           } else {
             enqueueSnackbar(authResult.error || 'Failed to create account', {
               variant: 'error'
@@ -83,7 +86,7 @@ const OrcidHandler = () => {
     }
 
     exchangeCodeForToken()
-  }, [navigate, enqueueSnackbar])
+  }, [navigate, enqueueSnackbar, refreshUser])
 
   return (
     <Card sx={{ maxWidth: 345, margin: 'auto', mt: 5, textAlign: 'center' }}>
