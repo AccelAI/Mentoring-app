@@ -27,6 +27,7 @@ import {
   Radio
 } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
+import { ErrorOutline } from '@mui/icons-material'
 
 // Component imports
 import ProfilePicture from '../components/ProfilePicture'
@@ -49,11 +50,13 @@ import { storage } from '../api/firebaseConfig'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
 const schema = yup.object().shape({
-  title: yup.string().required('Please enter your title'),
+  title: yup.string().required('Please enter your current position'),
   affiliation: yup.string().required('Please enter your affiliation'),
   //profilePicture: yup.string().url('Invalid URL'),
   websiteUrl: yup.string().url('Invalid URL'),
-  publicProfile: yup.boolean()
+  publicProfile: yup.boolean().required('Please select an option'),
+  location: yup.string().required('Please select your country'),
+  identifyAs: yup.string().required('Please select an option')
 })
 
 const steps = ['1', '2', '3', '4']
@@ -63,6 +66,8 @@ const GetStarted = () => {
   const [openDialog, setOpenDialog] = useState(false)
   const [openApplicationDialog, setOpenApplicationDialog] = useState(false)
   const [selectedValue, setSelectedValue] = useState('mentee')
+  // Track if "Other" is selected for gender
+  const [genderIsOther, setGenderIsOther] = useState(false)
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
   const { user, refreshUser } = useUser()
@@ -97,7 +102,7 @@ const GetStarted = () => {
     } else if (selectedValue === 'mentor') {
       navigate('/mentor-form')
     } else {
-      navigate('/mentor-mentee-form')
+      navigate('/combined-form')
     }
   }
 
@@ -115,9 +120,9 @@ const GetStarted = () => {
 
   const getTitle = () => {
     if (activeStep === 3) {
-      return "Congrats, you've joined the private forum of the LatinX in AI network!"
+      return "Congrats, you've joined the private forum of the Accel AI network!"
     }
-    return 'Hi, Welcome to Latinx In AI (LXAI)!'
+    return 'Welcome to the Accel AI Mentoring App!'
   }
 
   const onSubmit = useCallback(
@@ -125,6 +130,7 @@ const GetStarted = () => {
       console.log('Form submitted with values:', values)
       setSubmitting(true)
       try {
+        // send gender directly from Formik (radio or free text)
         const res = await updateUserProfile(user, values)
         if (!res.ok) {
           setSubmitting(false)
@@ -147,6 +153,7 @@ const GetStarted = () => {
 
   const initialValues = useMemo(
     () => ({
+      gender: '',
       title: '',
       affiliation: '',
       location: '',
@@ -195,7 +202,8 @@ const GetStarted = () => {
         </Stepper>
         <MainCard
           title={getTitle()}
-          titleSize={'h4'}
+          fontWeight={'light'}
+          titleSize={'h5'}
           props={{ height: '100vh' }}
           enableContainer={false}
         >
@@ -204,298 +212,358 @@ const GetStarted = () => {
             validationSchema={schema}
             onSubmit={onSubmit}
           >
-            {({ isSubmitting, values, setFieldValue }) => (
-              <Form>
-                {activeStep === 1 && (
-                  <>
-                    <Typography variant="body1" sx={{ textAlign: 'center' }}>
-                      Becoming a new member only takes a minute.
-                    </Typography>
+            {({ isSubmitting, values, setFieldValue, isValid }) => {
+              // derive which radio is selected
+              const predefined = ['female', 'male', 'nonbinary']
+              const radioGenderValue = genderIsOther
+                ? 'other'
+                : predefined.includes(values.gender)
+                ? values.gender
+                : ''
+              return (
+                <Form>
+                  {activeStep === 1 && (
+                    <>
+                      <Typography variant="body1" sx={{ textAlign: 'center' }}>
+                        Becoming a new member only takes a minute.
+                      </Typography>
+                      <Box>
+                        <Stack spacing={2} mt={3.5}>
+                          <Stack>
+                            <Typography fontWeight={'medium'}>
+                              Gender
+                            </Typography>
+                            <FormControl>
+                              <RadioGroup
+                                row
+                                name="gender"
+                                value={radioGenderValue}
+                                onChange={(e) => {
+                                  const v = e.target.value
+                                  if (v === 'other') {
+                                    setGenderIsOther(true)
+                                    // keep current custom value in 'gender' or clear it if it's a predefined value
+                                    if (predefined.includes(values.gender)) {
+                                      setFieldValue('gender', '')
+                                    }
+                                  } else {
+                                    setGenderIsOther(false)
+                                    setFieldValue('gender', v)
+                                  }
+                                }}
+                              >
+                                <FormControlLabel
+                                  value="female"
+                                  control={<Radio />}
+                                  label="Female"
+                                />
+                                <FormControlLabel
+                                  value="male"
+                                  control={<Radio />}
+                                  label="Male"
+                                />
+                                <FormControlLabel
+                                  value="nonbinary"
+                                  control={<Radio />}
+                                  label="Non-binary"
+                                />
+                                <FormControlLabel
+                                  value="other"
+                                  control={<Radio />}
+                                  label="Other"
+                                />
+                                {genderIsOther && (
+                                  <TextField
+                                    name="gender"
+                                    label="Please specify"
+                                    variant="outlined"
+                                    sx={{ width: '100%', mt: 1 }}
+                                  />
+                                )}
+                              </RadioGroup>
+                            </FormControl>
+                          </Stack>
+                          <Stack spacing={1}>
+                            <Typography fontWeight={'medium'}>
+                              What is your Current Title and Affiliation?
+                            </Typography>
+                            <Stack direction="row" spacing={3.5}>
+                              <TextField
+                                name="title"
+                                label="Current Title"
+                                variant="outlined"
+                                sx={{ width: '100%' }}
+                              />
+                              <TextField
+                                name="affiliation"
+                                label="Affiliation"
+                                variant="outlined"
+                                sx={{ width: '100%' }}
+                              />
+                            </Stack>
+                          </Stack>
+                          <Stack spacing={1}>
+                            <Typography fontWeight={'medium'}>
+                              What is your Country of Origin or Current
+                              Location?
+                            </Typography>
+                            <CountrySelect
+                              values={values}
+                              setFieldValue={setFieldValue}
+                              name="location"
+                            />
+                          </Stack>
+                          <Stack spacing={1}>
+                            <Typography fontWeight={'medium'}>
+                              Do you identify as being of LatinX origin?
+                            </Typography>
+                            <FormControl fullWidth>
+                              <InputLabel>Select an Option</InputLabel>
+                              <Select
+                                label="Select an Option"
+                                variant="outlined"
+                                sx={{ width: '100%' }}
+                                name="identifyAs"
+                                value={values.identifyAs}
+                                onChange={(event) => {
+                                  setFieldValue(
+                                    'identifyAs',
+                                    event.target.value
+                                  )
+                                }}
+                              >
+                                <MenuItem value="Yes">Yes</MenuItem>
+                                <MenuItem value="No, but Hispanic">
+                                  No, but Hispanic
+                                </MenuItem>
+                                <MenuItem value="No, but LatinX Ally">
+                                  No, but LatinX Ally
+                                </MenuItem>
+                                <MenuItem value="No">No</MenuItem>
+                              </Select>
+                            </FormControl>
+                          </Stack>
+                          <Button variant="contained" onClick={handleNext}>
+                            Continue
+                          </Button>
+                        </Stack>
+                      </Box>
+                    </>
+                  )}
+                  {activeStep === 2 && (
                     <Box>
                       <Stack spacing={2} mt={3.5}>
-                        <Stack spacing={1}>
-                          <Typography>
-                            What is your professional Title and Affiliation?
-                          </Typography>
-                          <Stack direction="row" spacing={3.5}>
-                            <TextField
-                              name="title"
-                              label="Title"
-                              variant="outlined"
-                              sx={{ width: '100%' }}
+                        <Stack spacing={3} direction="row" alignItems="center">
+                          <Stack>
+                            <ProfilePicture
+                              img={values.profilePicture}
+                              size={150}
+                              borderRadius={10}
                             />
-                            <TextField
-                              name="affiliation"
-                              label="Affiliation"
-                              variant="outlined"
-                              sx={{ width: '100%' }}
+                          </Stack>
+                          <Stack spacing={1}>
+                            <Typography fontWeight={'medium'}>
+                              Upload a profile picture
+                            </Typography>
+                            <UploadImageButton
+                              inputId="profile-picture"
+                              onChange={async (files) => {
+                                const file = files[0]
+                                if (file) {
+                                  try {
+                                    // Create a storage reference
+                                    const storageRef = ref(
+                                      storage,
+                                      `profilePictures/${file.name}`
+                                    )
+                                    // Upload the file
+                                    await uploadBytes(storageRef, file)
+                                    // Get the download URL
+                                    const downloadURL = await getDownloadURL(
+                                      storageRef
+                                    )
+                                    // Update the form field value
+                                    setFieldValue('profilePicture', downloadURL)
+                                    enqueueSnackbar(
+                                      'File uploaded successfully',
+                                      { variant: 'success' }
+                                    )
+                                  } catch (error) {
+                                    enqueueSnackbar(
+                                      'Error uploading file: ' + error.message,
+                                      { variant: 'error' }
+                                    )
+                                  }
+                                }
+                              }}
+                              disabled={false}
                             />
+                            <Typography variant="caption">
+                              If a profile picture isn't uploaded, a default one
+                              will be used
+                            </Typography>
                           </Stack>
                         </Stack>
                         <Stack spacing={1}>
-                          <Typography>
-                            What is your Country of Origin?
+                          <Typography fontWeight={'medium'}>
+                            Add a short bio or tagline
                           </Typography>
-                          {/* <TextField
-                            name="location"
-                            label="Origin Location"
+                          <TextField
+                            name="profileDescription"
+                            label="Profile Description"
                             variant="outlined"
                             sx={{ width: '100%' }}
-                          /> */}
-                          <CountrySelect
-                            values={values}
-                            setFieldValue={setFieldValue}
-                            name="location"
                           />
                         </Stack>
                         <Stack spacing={1}>
-                          <Typography>
-                            Do you identify as LatinX or as an ally?
+                          <Typography fontWeight={'medium'}>
+                            Do you have a professional website?
                           </Typography>
-                          <FormControl fullWidth>
-                            <InputLabel>Select an Option</InputLabel>
-                            <Select
-                              label="Select an Option"
-                              variant="outlined"
-                              sx={{ width: '100%' }}
-                              name="identifyAs"
-                              value={values.identifyAs}
-                              onChange={(event) => {
-                                setFieldValue('identifyAs', event.target.value)
-                              }}
-                            >
-                              <MenuItem value="LatinX (Latino/Latina/Latine)">
-                                LatinX (Latino/Latina/Latine)
-                              </MenuItem>
-                              <MenuItem value="Afro-LatinX">
-                                Afro-LatinX
-                              </MenuItem>
-                              <MenuItem value="Asian-LatinX">
-                                Asian-LatinX
-                              </MenuItem>
-                              <MenuItem value="ChicanX (Chicano/Chicana)">
-                                ChicanX (Chicano/Chicana)
-                              </MenuItem>
-                              <MenuItem value="FilipinX (Filipino/Filipina)">
-                                FilipinX (Filipino/Filipina)
-                              </MenuItem>
-                              <MenuItem value="Garifuna">Garifuna</MenuItem>
-                              <MenuItem value="Hispanic">Hispanic</MenuItem>
-                              <MenuItem value="Latin-American">
-                                Latin American
-                              </MenuItem>
-                              <MenuItem value="Martinican">Martinican</MenuItem>
-                              <MenuItem value="Mestizo">Mestizo</MenuItem>
-                              <MenuItem value="Mulattoe">Mulattoe</MenuItem>
-                              <MenuItem value="Pardo / Multi-racial (including LatinX)">
-                                Pardo / Multi-racial (including LatinX)
-                              </MenuItem>
-                              <MenuItem value="Zambos">Zambos</MenuItem>
-                              <MenuItem value="Ally (not of any Latin origin)">
-                                Ally (not of any Latin origin)
-                              </MenuItem>
-                            </Select>
-                          </FormControl>
-                        </Stack>
-                        <Button variant="contained" onClick={handleNext}>
-                          Continue
-                        </Button>
-                      </Stack>
-                    </Box>
-                  </>
-                )}
-                {activeStep === 2 && (
-                  <Box>
-                    <Stack spacing={2} mt={3.5}>
-                      <Stack spacing={3} direction="row" alignItems="center">
-                        <Stack>
-                          <ProfilePicture
-                            img={values.profilePicture}
-                            size={150}
-                            borderRadius={10}
+                          <TextField
+                            name="websiteUrl"
+                            label="Url"
+                            variant="outlined"
+                            sx={{ width: '100%' }}
                           />
                         </Stack>
                         <Stack spacing={1}>
-                          <Typography>Upload a profile picture</Typography>
-                          <UploadImageButton
-                            inputId="profile-picture"
-                            onChange={async (files) => {
-                              const file = files[0]
-                              if (file) {
-                                try {
-                                  // Create a storage reference
-                                  const storageRef = ref(
-                                    storage,
-                                    `profilePictures/${file.name}`
-                                  )
-                                  // Upload the file
-                                  await uploadBytes(storageRef, file)
-                                  // Get the download URL
-                                  const downloadURL = await getDownloadURL(
-                                    storageRef
-                                  )
-                                  // Update the form field value
-                                  setFieldValue('profilePicture', downloadURL)
-                                  enqueueSnackbar(
-                                    'File uploaded successfully',
-                                    { variant: 'success' }
-                                  )
-                                } catch (error) {
-                                  enqueueSnackbar(
-                                    'Error uploading file: ' + error.message,
-                                    { variant: 'error' }
+                          <Typography fontWeight={'medium'}>
+                            Do you want to be listed on our public directory for
+                            collaboration, mentoring, speaking, or hiring
+                            opportunities?
+                          </Typography>
+                          <FormControlLabel
+                            control={
+                              <Switch
+                                checked={values.publicProfile}
+                                onChange={(event) =>
+                                  setFieldValue(
+                                    'publicProfile',
+                                    event.target.checked
                                   )
                                 }
-                              }
-                            }}
-                            disabled={false}
+                              />
+                            }
+                            label="Public Profile"
+                            name="publicProfile"
                           />
-                          <Typography variant="caption">
-                            If a profile picture isn't uploaded, a default one
-                            will be used
-                          </Typography>
                         </Stack>
+                        {!isValid && (
+                          <Stack
+                            spacing={1}
+                            direction={'row'}
+                            alignItems={'center'}
+                          >
+                            <ErrorOutline color="error" />
+                            <Typography variant="body2" color="error">
+                              Please complete the missing required questions and
+                              try again.
+                            </Typography>
+                          </Stack>
+                        )}
+                        <LoadingButton
+                          type="submit"
+                          loading={isSubmitting}
+                          variant="contained"
+                        >
+                          Continue
+                        </LoadingButton>
                       </Stack>
-                      <Stack spacing={1}>
-                        <Typography>Add a short bio or tagline</Typography>
-                        <TextField
-                          name="profileDescription"
-                          label="Profile Description"
-                          variant="outlined"
-                          sx={{ width: '100%' }}
-                        />
-                      </Stack>
-                      <Stack spacing={1}>
-                        <Typography>
-                          Do you have a professional website?
-                        </Typography>
-                        <TextField
-                          name="websiteUrl"
-                          label="Url"
-                          variant="outlined"
-                          sx={{ width: '100%' }}
-                        />
-                      </Stack>
-                      <Stack spacing={1}>
-                        <Typography>
-                          Do you want to be listed on our public directory for
-                          collaboration, mentoring, speaking, or hiring
-                          opportunities?
-                        </Typography>
-                        <FormControlLabel
-                          control={
-                            <Switch
-                              checked={values.publicProfile}
-                              onChange={(event) =>
-                                setFieldValue(
-                                  'publicProfile',
-                                  event.target.checked
-                                )
-                              }
-                            />
-                          }
-                          label="Public Profile"
-                          name="publicProfile"
-                        />
-                      </Stack>
-                      <LoadingButton
-                        type="submit"
-                        loading={isSubmitting}
+                    </Box>
+                  )}
+                  {activeStep === 3 && (
+                    <Stack spacing={2}>
+                      <Typography variant="body1" sx={{ textAlign: 'center' }}>
+                        This space has been created for latinx identifying
+                        students, post-docs, academic researchers, industry
+                        researchers, and alies working in Artificial
+                        Intelligence and Machine Learning
+                      </Typography>
+                      <Button
+                        onClick={handleNext}
                         variant="contained"
+                        sx={{ width: '30%', alignSelf: 'end' }}
                       >
-                        Continue
-                      </LoadingButton>
+                        Finish
+                      </Button>
                     </Stack>
-                  </Box>
-                )}
-                {activeStep === 3 && (
-                  <Stack spacing={2}>
-                    <Typography variant="body1" sx={{ textAlign: 'center' }}>
-                      This space has been created for latinx identifying
-                      students, post-docs, academic researchers, industry
-                      researchers, and alies working in Artificial Intelligence
-                      and Machine Learning
-                    </Typography>
-                    <Button
-                      onClick={handleNext}
-                      variant="contained"
-                      sx={{ width: '30%', alignSelf: 'end' }}
-                    >
-                      Finish
-                    </Button>
-                  </Stack>
-                )}
+                  )}
 
-                {/* MENTORSHIP PROGRAM DIALOG */}
-                <Dialog open={openDialog} onClose={handleDialogClose}>
-                  <DialogTitle textAlign="center">
-                    {
-                      'Are you interested in participating as a mentor or mentee in our Mentorship Program?'
-                    }
-                  </DialogTitle>
-                  <DialogActions sx={{ justifyContent: 'space-around', m: 1 }}>
-                    <Button
-                      variant="contained"
-                      onClick={handleApplicationDialogOpen}
-                      sx={{ width: '120px' }}
-                      autoFocus
+                  {/* MENTORSHIP PROGRAM DIALOG */}
+                  <Dialog open={openDialog} onClose={handleDialogClose}>
+                    <DialogTitle textAlign="center">
+                      {
+                        'Are you interested in participating as a mentor or mentee in our Mentorship Program?'
+                      }
+                    </DialogTitle>
+                    <DialogActions
+                      sx={{ justifyContent: 'space-around', m: 1 }}
                     >
-                      Yes
-                    </Button>
-                    <Button onClick={handleDialogClose}>No thanks</Button>
-                  </DialogActions>
-                </Dialog>
-                {/* FILL APPLICATION FORM DIALOG */}
-                <Dialog
-                  open={openApplicationDialog}
-                  onClose={handleApplicationDialogClose}
-                >
-                  <DialogTitle textAlign="center">
-                    {
-                      'Which role best matches your interest in our Mentorship Program?'
-                    }
-                  </DialogTitle>
-                  <DialogContent sx={{ alignSelf: 'center' }}>
-                    <FormControl>
-                      <RadioGroup
-                        row
-                        name="form-radio-options"
-                        value={selectedValue}
-                        onChange={handleValueChange}
+                      <Button
+                        variant="contained"
+                        onClick={handleApplicationDialogOpen}
+                        sx={{ width: '120px' }}
+                        autoFocus
                       >
-                        <FormControlLabel
-                          value="mentee"
-                          control={<Radio />}
-                          label="Mentee"
-                        />
-                        <FormControlLabel
-                          value="mentor"
-                          control={<Radio />}
-                          label="Mentor"
-                        />
-                        <FormControlLabel
-                          value="both"
-                          control={<Radio />}
-                          label="Both"
-                        />
-                      </RadioGroup>
-                    </FormControl>
-                  </DialogContent>
-                  <DialogActions sx={{ justifyContent: 'space-between', m: 1 }}>
-                    <Button onClick={fillFormLater}>
-                      Fill Application Form Later
-                    </Button>
-                    <Button
-                      variant="contained"
-                      onClick={goToApplicationForm}
-                      autoFocus
+                        Yes
+                      </Button>
+                      <Button onClick={handleDialogClose}>No thanks</Button>
+                    </DialogActions>
+                  </Dialog>
+                  {/* FILL APPLICATION FORM DIALOG */}
+                  <Dialog
+                    open={openApplicationDialog}
+                    onClose={handleApplicationDialogClose}
+                  >
+                    <DialogTitle textAlign="center">
+                      {
+                        'Which role best matches your interest in our Mentorship Program?'
+                      }
+                    </DialogTitle>
+                    <DialogContent sx={{ alignSelf: 'center' }}>
+                      <FormControl>
+                        <RadioGroup
+                          row
+                          name="form-radio-options"
+                          value={selectedValue}
+                          onChange={handleValueChange}
+                        >
+                          <FormControlLabel
+                            value="mentee"
+                            control={<Radio />}
+                            label="Mentee"
+                          />
+                          <FormControlLabel
+                            value="mentor"
+                            control={<Radio />}
+                            label="Mentor"
+                          />
+                          <FormControlLabel
+                            value="both"
+                            control={<Radio />}
+                            label="Both"
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </DialogContent>
+                    <DialogActions
+                      sx={{ justifyContent: 'space-between', m: 1 }}
                     >
-                      Go to Application Form
-                    </Button>
-                  </DialogActions>
-                </Dialog>
-              </Form>
-            )}
+                      <Button onClick={fillFormLater}>
+                        Fill Application Form Later
+                      </Button>
+                      <Button
+                        variant="contained"
+                        onClick={goToApplicationForm}
+                        autoFocus
+                      >
+                        Go to Application Form
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
+                </Form>
+              )
+            }}
           </Formik>
         </MainCard>
       </Stack>

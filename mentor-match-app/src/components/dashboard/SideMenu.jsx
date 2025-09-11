@@ -8,7 +8,8 @@ import {
 import {
   Group as GroupIcon,
   Dashboard as DashboardIcon,
-  AccountBox as MentorIcon
+  AccountBox as MentorIcon,
+  Assignment as ApplicationIcon
 } from '@mui/icons-material'
 import { useUser } from '../../hooks/useUser'
 
@@ -25,6 +26,14 @@ const SideMenu = ({ setView }) => {
             <DashboardIcon fontSize="small" color="primary" />
           </ListItemIcon>
           <ListItemText>Dashboard</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => setView('applicationStatus')}>
+          <ListItemIcon>
+            <ListItemIcon fontSize="small" color="primary">
+              <ApplicationIcon fontSize="small" color="primary" />
+            </ListItemIcon>
+          </ListItemIcon>
+          <ListItemText>Mentorship Application</ListItemText>
         </MenuItem>
         {isMentor && (
           <MenuItem onClick={() => setView('currentMentees')}>

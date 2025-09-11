@@ -1,6 +1,5 @@
 // React and hooks
-import { useNavigate } from 'react-router-dom'
-import { useCallback } from 'react'
+import { useCallback, useState, useRef } from 'react'
 
 // Material UI components
 import { Typography, Stack, CircularProgress } from '@mui/material'
@@ -18,131 +17,91 @@ import useFormData from '../hooks/useFormData'
 import { useSnackbar } from 'notistack'
 
 // Components
-import ConditionalQuestions from '../components/questions/ConditionalQuestions'
-import ConditionalQuestionsMentor from '../components/questions/ConditionalQuestionsMentor'
 import FormCard from '../components/FormCard'
 import TextfieldQuestion from '../components/questions/TextfieldQuestion'
 import RadioQuestion from '../components/questions/RadioQuestion'
-import CheckboxQuestion from '../components/questions/CheckboxQuestion'
-import TimezoneQuestion from '../components/questions/TimezoneQuestion'
+import CommonQuestions from '../components/questions/CommonQuestions'
+import MentorQuestions from '../components/questions/MentorQuestions'
+import FormSubmittedDialog from '../components/dialogs/FormSubmittedDialog'
 
 const defaultInitialValues = {
+  academicPapers: '',
+  areasConsideringMentoring: [],
+  contributeAsMentor: '',
   currentInstitution: '',
   currentPosition: '',
-  linkToResearch: '',
-  preferredTimezone: '',
-  otherMenteePref: '',
-  otherExpectations: '',
   languages: [],
-  mentorMotivation: '',
-  mentorArea: [],
-  mentoringTime: '',
+  linkToResearch: '',
+  menteeCharacteristics: '',
   menteePreferences: [],
-  preferredExpectations: [],
-  openToDiscussImpacts: '',
+  mentorFields: [],
   mentorSkills: [],
-  areasConsideringMentoring: [],
-  reviewerInWorkshop: '',
-  publicationsInWorkshop: '',
+  mentoringTime: '',
+  offeredSupport: [],
+  openToDiscussImpacts: '',
+  preferredConnections: [],
+  //preferredExpectations: [],
+  preferredTimezone: '',
   reviewerInAiConferences: '',
-  publicationsInAiConferences: '',
-  reviewerInAiJournals: '',
-  publicationsInAiJournals: '',
-  conferences: [],
-  otherConferences: ''
-}
-
-const requiredWhenMentorAreaIncludes = (area) => {
-  // Return a yup schema that requires a field when mentorArea includes the given area
-  return yup.string().when('mentorArea', {
-    is: (mentorArea) => mentorArea && mentorArea.includes(area),
-    then: (schema) => schema.required('Please select an option'),
-    otherwise: (schema) => schema
-  })
+  reviewedConferences: '',
+  seniority: ''
 }
 
 // Form validation schema
 const schema = yup.object().shape({
+  academicPapers: yup.string().required('Please select an option'),
+  areasConsideringMentoring: yup
+    .array()
+    .min(1, 'Please select at least one area'),
   currentInstitution: yup
     .string()
     .required('Please enter your current institution'),
   currentPosition: yup.string().required('Please enter your current position'),
+  languages: yup.array().min(1, 'Please select at least one language'),
   linkToResearch: yup
     .string()
     .url('Invalid URL')
     .required('Please enter a link'),
-  preferredTimezone: yup
+  menteeCharacteristics: yup
     .string()
-    .required('Please enter your preferred timezone'),
-  languages: yup.array().min(1, 'Please select at least one language'),
-  mentorMotivation: yup.string().required('Please select an option'),
-  mentorArea: yup.array().min(1, 'Please select at least one area'),
-  mentoringTime: yup.string().required('Please select an option'),
+    .required('Please describe your ideal mentee profile'),
   menteePreferences: yup
     .array()
     .min(1, 'Please select at least one preference'),
-  preferredExpectations: yup
+  mentorFields: yup.array().min(1, 'Please select at least one field'),
+  mentoringTime: yup.string().required('Please select an option'),
+  offeredSupport: yup.array().min(1, 'Please select at least one option'),
+  openToDiscussImpacts: yup.string().required('Please select an option'),
+  preferredConnections: yup.array().min(1, 'Please select at least one option'),
+  /*   preferredExpectations: yup
     .array()
-    .min(1, 'Please select at least one option'),
-  conferences: yup.array().min(1, 'Please select at least one conference'),
-  // REQUIRED CONDITIONAL QUESTIONS
-  mentorSkills: yup.array().when('mentorArea', {
-    is: (mentorArea) =>
-      mentorArea &&
-      mentorArea.includes(
-        'Strengthening skills (Writing or Communication or Engineering)'
-      ),
-    then: (schema) => schema.min(1, 'Please select at least one skill'),
-    otherwise: (schema) => schema
-  }),
-  areasConsideringMentoring: yup.array().when('mentorArea', {
-    is: (mentorArea) =>
-      mentorArea && mentorArea.includes('Research Guidance (AI Verticals)'),
-    then: (schema) => schema.min(1, 'Please select at least one research area'),
-    otherwise: (schema) => schema
-  }),
-  reviewerInWorkshop: requiredWhenMentorAreaIncludes(
-    'Improve as a Reviewer of Research Papers'
-  ),
-  publicationsInWorkshop: requiredWhenMentorAreaIncludes(
-    'Improve as a Reviewer of Research Papers'
-  ),
-  reviewerInAiConferences: requiredWhenMentorAreaIncludes(
-    'Improve as a Reviewer of Research Papers'
-  ),
-  publicationsInAiConferences: requiredWhenMentorAreaIncludes(
-    'Improve as a Reviewer of Research Papers'
-  ),
-  reviewerInAiJournals: requiredWhenMentorAreaIncludes(
-    'Improve as a Reviewer of Research Papers'
-  ),
-  publicationsInAiJournals: requiredWhenMentorAreaIncludes(
-    'Improve as a Reviewer of Research Papers'
-  )
+    .min(1, 'Please select at least one option'), */
+  preferredTimezone: yup
+    .string()
+    .required('Please enter your preferred timezone'),
+  reviewerInAiConferences: yup.string().required('Please select an option'),
+  seniority: yup.string().required('Please select your seniority level')
 })
 
 const MentorForm = () => {
   const { user, refreshUser } = useUser()
   const { enqueueSnackbar } = useSnackbar()
-  const navigate = useNavigate()
+  // const navigate = useNavigate() // removed
+  const [openDialog, setOpenDialog] = useState(false)
   const { initialValues, loading } = useFormData(
     defaultInitialValues,
     (mentorData, menteeData) => mentorData
   )
+  const topRef = useRef(null)
 
   const onSubmit = useCallback(
     async (values, { setSubmitting }) => {
-      // Submit the form data to the backend
       setSubmitting(true)
       try {
         const res = await setMentorForm(user, values)
         if (res.ok) {
-          console.log('Form submitted successfully')
-          enqueueSnackbar('Form submitted successfully', { variant: 'success' })
-          refreshUser() // Refresh the user data
-          setTimeout(() => {
-            navigate('/dashboard')
-          }, 3000)
+          refreshUser()
+          setOpenDialog(true)
         }
       } catch (err) {
         console.error('Error submitting form:', err)
@@ -150,7 +109,7 @@ const MentorForm = () => {
       }
       setSubmitting(false)
     },
-    [enqueueSnackbar, navigate, user, refreshUser]
+    [enqueueSnackbar, user, refreshUser]
   )
 
   return (
@@ -159,6 +118,7 @@ const MentorForm = () => {
       props={{ height: '100vh' }}
       title={'Accel AI Mentor Application Form'}
       type={'mentor'}
+      topRef={topRef}
     >
       {loading ? (
         <CircularProgress />
@@ -171,91 +131,43 @@ const MentorForm = () => {
           {({ isSubmitting, isValid }) => (
             <Form>
               <Stack spacing={3}>
+                <Typography variant="h6">
+                  Basic Information / Información básica / Informações Básicas
+                </Typography>
                 <TextfieldQuestion
-                  question="Current Institution, Company or Organization Affiliation"
-                  description="Where do you study or work? | ¿Dónde estudias o trabajas? | Onde você estuda ou trabalha?"
-                  name={'currentInstitution'}
+                  question="Current Position / Posición Actual / Posição Atual"
+                  name={'currentPosition'}
                 />
                 <RadioQuestion
-                  question="Current Seniority Level"
-                  description="What is your highest level of education or working experience? | ¿Cuál es su nivel más alto de educación o experiencia laboral? | Qual é o seu nível mais alto de educação ou experiência de trabalho?"
+                  question="Seniority / Senioridad / Senioridade"
+                  name={'seniority'}
                   options={[
+                    'Senior PhD Candidate',
                     'Post Doc or Early Career PhD',
                     'Faculty Member',
                     'Senior Industry or Academic Researcher',
-                    'Management / Business Professional'
-                  ]}
-                  name={'currentPosition'}
-                />
-                <TextfieldQuestion
-                  question="Link to Google scholar (preferred), website or LinkedIn page."
-                  description="Share a link to your current research publications or industry achievements. | Comparta un enlace a sus publicaciones de investigación actuales o logros académicos / industriales. | Compartilhe um link para suas publicações de pesquisa atuais ou realizações acadêmicas / industriais."
-                  name={'linkToResearch'}
-                />
-                <CheckboxQuestion
-                  question="What language(s) do you speak?"
-                  description=""
-                  options={['English', 'Spanish', 'Portuguese', 'French']}
-                  name={'languages'}
-                />
-                <TimezoneQuestion
-                  question="What is your preferred timezone for meetings?"
-                  description="We'll do our best to match you with a mentee available in a similar timezone."
-                  name={'preferredTimezone'}
-                />
-                <RadioQuestion
-                  question="Mentor Motivation. Have you served as a Mentor previously?"
-                  description=""
-                  name={'mentorMotivation'}
-                  options={[
-                    'Yes, with LatinX in AI',
-                    'Yes, with another organization',
-                    'No'
-                  ]}
-                />
-                <CheckboxQuestion
-                  question="Which area do you prefer to mentor?"
-                  description="Where can you provide the most guidance in order for mentees to reach their short term goals?"
-                  name={'mentorArea'}
-                  options={[
-                    'Strengthening skills (Writing or Communication or Engineering)',
-                    'Research Guidance (AI Verticals)',
-                    'Improve as a Reviewer of Research Papers'
-                  ]}
-                />
-                <RadioQuestion
-                  question="How much time do you have available for mentoring?"
-                  description=""
-                  name={'mentoringTime'}
-                  options={[
-                    '1 hour per month',
-                    '2 hours per month',
-                    '3 hours per month',
-                    '4 hours per month'
-                  ]}
-                />
-                <CheckboxQuestion
-                  question="Do have any specific preferences for a mentee?"
-                  description="We will do our best to match you with mentees who meet your preferences. This is not guaranteed as we weigh the mentee's preferences over the mentor's preferences when matching candidates."
-                  name={'menteePreferences'}
-                  options={[
-                    'Similar Demographic Area (Country or Region of the World)',
-                    'At least 1 Peer-Reviewed Publication in a Journal, Conference, or Workshop',
-                    'Early Career Academic Professional',
-                    'Early Career Industry Professional',
-                    'Ph.D. or Post-Doc',
-                    'Graduate School',
-                    'Undergrad',
+                    'Management / Business Profesional',
                     'Other'
                   ]}
                 />
+                <CommonQuestions />
+
+                <MentorQuestions />
+
+                <Typography variant="h6">
+                  Beyond the Program / Más allá del programa / Além do programa
+                </Typography>
                 <TextfieldQuestion
-                  question="If you answered other to the question above, please elaborate."
-                  description=""
-                  name={'otherMenteePref'}
+                  question="What do you hope to contribute as a mentor in this program?/¿Qué esperas aportar como mentor en este programa? / O que você espera contribuir como mentor neste programa?"
+                  name={'contributeAsMentor'}
+                />
+                <RadioQuestion
+                  question="Are you open to discuss/enumerate the impacts of the program sometime later in the future? / ¿Estás abierto/a a discutir o enumerar los impactos del programa en algún momento en el futuro? / Você está aberto(a) para discutir ou enumerar os impactos do programa em algum momento no futuro?"
+                  name={'openToDiscussImpacts'}
+                  options={['Yes', 'No']}
                   required={false}
                 />
-                <CheckboxQuestion
+                {/*<CheckboxQuestion
                   question="What are your preferred expectations and outcomes from this program?"
                   description=""
                   name={'preferredExpectations'}
@@ -266,72 +178,8 @@ const MentorForm = () => {
                     'Hire entry-level candidates',
                     'Other'
                   ]}
-                />
-                <TextfieldQuestion
-                  question="If you answered other to the question above, please elaborate."
-                  description=""
-                  name={'otherExpectations'}
-                  required={false}
-                />
-                <RadioQuestion
-                  question="Are you open to discuss/enumerate the impacts of the program with organizers in the future?"
-                  description="We may ask you to provide a public testimonial if this program has helped you in achieving your goals. | Es posible que le pidamos que brinde un testimonio público si este programa lo ha ayudado a lograr sus objetivos. | Podemos pedir que você forneça um testemunho público se este programa o ajudou a alcançar seus objetivos."
-                  name={'openToDiscussImpacts'}
-                  options={['Yes', 'No']}
-                  required={false}
-                />
-                <ConditionalQuestionsMentor />
-                <ConditionalQuestions />
-                <Stack spacing={2}>
-                  <Typography variant="h6">Conference Preferences</Typography>
-                  <Typography>
-                    Choose the best time to start! Since we have year round
-                    applications open, choose up to three conferences you would
-                    like to use as a reference for the dates of the program.
-                    Please consider that the programs will start about 3 months
-                    prior to the date of chosen conferences.
-                  </Typography>
-                  <Typography>
-                    ¡Elige el mejor momento para empezar! Dado que tenemos
-                    solicitudes abiertas durante todo el año, elija hasta tres
-                    conferencias que le gustaría utilizar como referencia para
-                    las fechas del programa. Tenga en cuenta que los programas
-                    comenzarán aproximadamente 3 meses antes de la fecha de las
-                    conferencias elegidas.
-                  </Typography>
-                  <Typography>
-                    Escolha a melhor hora para começar! Como temos inscrições
-                    abertas para o ano todo, escolha até três conferências que
-                    gostaria de usar como referência para as datas do programa.
-                    Por favor, considere que os programas começarão cerca de 3
-                    meses antes da data das conferências escolhidas.
-                  </Typography>
+                /> */}
 
-                  <CheckboxQuestion
-                    question="Which conferences would you like to align your mentorship with?"
-                    description="Choose up to 3 options | Elija hasta 3 opciones | Escolha até 3 opções"
-                    name={'conferences'}
-                    options={[
-                      'CVPR (IEEE Conference on Computer Vision)',
-                      'NAACL (The North American Chapter of the Association for Computational Linguistics)',
-                      'ICML (International Conference on Machine Learning)',
-                      'NeurIPS (Neural Information Processing Systems)',
-                      'Other'
-                    ]}
-                  />
-                  <TextfieldQuestion
-                    question="If you answered other to the question above, please elaborate."
-                    description=""
-                    name={'otherConferences'}
-                    required={false}
-                  />
-                </Stack>
-                <Typography variant="body2">
-                  * Notification of Acceptance: Applications are accepted on a
-                  rolling basis for our quarterly 3-month cohorts. Your
-                  application will be considered in alignment with the
-                  conferences which you selected for your preference.
-                </Typography>
                 <Stack
                   direction={'row'}
                   alignItems={'center'}
@@ -362,6 +210,10 @@ const MentorForm = () => {
           )}
         </Formik>
       )}
+      <FormSubmittedDialog
+        openDialog={openDialog}
+        setOpenDialog={setOpenDialog}
+      />
     </FormCard>
   )
 }

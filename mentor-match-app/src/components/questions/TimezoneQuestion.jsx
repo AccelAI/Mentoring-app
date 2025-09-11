@@ -9,14 +9,22 @@ import {
 import TimezoneSelect from '../inputFields/TimezoneSelect'
 import { Field, ErrorMessage } from 'formik'
 
-const TimezoneQuestion = ({ name, question, description, required = true }) => {
+const TimezoneQuestion = ({
+  name,
+  question,
+  description,
+  required = true,
+  disabled = false
+}) => {
   return (
     <Card sx={{ p: 2 }} variant="outlined">
-      <FormControl required={required}>
+      <FormControl
+        required={required}
+        sx={{ '& .MuiFormLabel-asterisk': { color: 'error.main' } }}
+      >
         <Stack spacing={0.75}>
           <FormLabel
             component={Typography}
-            variant="h6"
             sx={{ color: '#000', fontWeight: '500' }}
           >
             {question}
@@ -32,6 +40,7 @@ const TimezoneQuestion = ({ name, question, description, required = true }) => {
                 name={name}
                 values={form.values}
                 setFieldValue={form.setFieldValue}
+                disabled={disabled}
               />
             )}
           </Field>

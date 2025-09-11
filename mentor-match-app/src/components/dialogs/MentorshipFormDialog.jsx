@@ -34,7 +34,7 @@ const MentorshipFormDialog = ({
     } else if (selectedValue === 'mentor') {
       navigate('/mentor-form')
     } else {
-      navigate('/mentor-mentee-form')
+      navigate('/combined-form')
     }
   }
 

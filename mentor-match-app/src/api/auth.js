@@ -18,22 +18,30 @@ import {
   githubProvider
 } from './firebaseConfig'
 
-const saveNotificationToken = (userId) => {
-  getToken(messaging, {
-    vapidKey: process.env.REACT_APP_VAPID_KEY
-  })
-    .then((currentToken) => {
-      if (currentToken) {
-        console.log(currentToken)
-        const userDoc = doc(db, 'users', userId)
-        return updateDoc(userDoc, {
+const saveNotificationToken = async (userId) => {
+  try {
+    const currentToken = await getToken(messaging, {
+      vapidKey: process.env.REACT_APP_VAPID_KEY
+    })
+    if (currentToken) {
+      const userDoc = doc(db, 'users', userId)
+      console.log('Saving notification token for user:', userId)
+
+      const snap = await getDoc(userDoc)
+      console.log('User document snapshot:', snap.exists(), snap.data())
+      if (snap.exists()) {
+        await updateDoc(userDoc, {
+          token: currentToken
+        })
+      } else {
+        await setDoc(userDoc, {
           token: currentToken
         })
       }
-    })
-    .catch((err) => {
-      console.log('An error occurred while retrieving token. ', err)
-    })
+    }
+  } catch (err) {
+    console.log('An error occurred while retrieving token. ', err)
+  }
 }
 
 const handleSignInWithProvider = async (user, provider) => {
@@ -170,7 +178,7 @@ export const signInWithOrcid = async (orcidData, accessToken) => {
     }
 
     // Save notification token for the current Firebase Auth user
-    saveNotificationToken(firebaseUser.uid)
+    saveNotificationToken(orcidDocId)
 
     return {
       ok: true,

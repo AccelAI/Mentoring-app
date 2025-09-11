@@ -4,9 +4,9 @@ import { Box, Stack, Typography } from '@mui/material'
 import RadioQuestion from './RadioQuestion'
 
 /* Component for the conditional questions that are part of the 3 forms (mentee, mentors and mentee-mentor) */
-const ConditionalQuestions = () => {
+const ConditionalQuestions = ({ disabled = false }) => {
   const { values, setFieldValue } = useFormikContext()
-  const { mentorArea, menteeMotivation } = values
+  const { mentorArea = [], menteeMotivation = [] } = values
 
   useEffect(() => {
     if (!mentorArea && !menteeMotivation) return
@@ -88,13 +88,16 @@ const ConditionalQuestions = () => {
         name={q.name}
         options={q.options}
         required={true}
+        disabled={disabled}
       />
     ))
   }
 
   const shouldRenderSection =
-    mentorArea?.includes('Improve as a Reviewer of Research Papers') ||
-    menteeMotivation?.includes('Improve as a Reviewer of Research Papers')
+    (Array.isArray(mentorArea) &&
+      mentorArea.includes('Improve as a Reviewer of Research Papers')) ||
+    (Array.isArray(menteeMotivation) &&
+      menteeMotivation.includes('Improve as a Reviewer of Research Papers'))
 
   return (
     <>

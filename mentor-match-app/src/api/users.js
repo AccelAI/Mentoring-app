@@ -17,13 +17,16 @@ export const updateUserProfile = async (user, values) => {
   }
 }
 
-export const getUsers = async () => {
+export const getUsers = async ({ includePrivate = false } = {}) => {
   try {
     const querySnapshot = await getDocs(collection(db, 'users'))
-    const users = querySnapshot.docs
-      .map((doc) => ({ ...doc.data(), uid: doc.id }))
-      .filter((user) => user.publicProfile === true)
-    return users
+    const users = querySnapshot.docs.map((doc) => ({
+      ...doc.data(),
+      uid: doc.id
+    }))
+    return includePrivate
+      ? users
+      : users.filter((user) => user.publicProfile === true)
   } catch (err) {
     console.error('Error fetching users:', err)
     return { ok: false, error: err.message }

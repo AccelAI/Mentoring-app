@@ -1,5 +1,6 @@
 // React hooks
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
 // MUI components
 import {
@@ -45,29 +46,31 @@ const UserListView = ({
     ? filterUsers(searchQuery, usersList)
     : []
   const { user, loading } = useUser()
-
+  const location = useLocation()
   const isDashboard = listType === 'dashboard'
-  const isMentorPick = listType === 'mentor-pick'
+  const isMentorPick = listType === 'mentorPick'
   const isCurrentMentees = listType === 'currentMentees'
+  const isAdmin = listType === 'admin'
 
-  const showMentorship = isDashboard || showMentorshipButton
-  const showSearch = isDashboard || isCurrentMentees || showSearchBar
+  const showMentorship = !isAdmin && (isDashboard || showMentorshipButton)
+  const showSearch = isDashboard || isCurrentMentees || isAdmin || showSearchBar
   const showProfile = isMentorPick || showViewProfileButton
   const showSelectMentor = isMentorPick || showSelectAsMentorButton
-  const showChat = isCurrentMentees || showChatButton
+  const showChat = isCurrentMentees || isAdmin || showChatButton
   const showEndMentorship = isCurrentMentees || showEndMentorshipButton
 
   return (
     <Card
       sx={{
         width: loading ? '-webkit-fill-available' : '100%',
-        maxWidth: isMentorPick ? 'none' : 'min-content',
-        maxHeight: '75vh',
-        minWidth: isMentorPick ? undefined : { lg: '835px' },
-        overflowY: 'auto'
+        maxWidth: isMentorPick || isAdmin ? 'none' : 'min-content',
+        maxHeight: isAdmin ? 'max-content' : '75vh',
+        minWidth: isMentorPick || isAdmin ? undefined : { lg: '835px' },
+        overflowY: isAdmin ? 'hidden' : 'auto'
       }}
+      elevation={isAdmin ? 0 : 1}
     >
-      <Box px={3} py={2}>
+      <Box px={isAdmin ? 0 : 3} py={isAdmin ? 0 : 2}>
         {loading ? (
           <Box display={'flex'} justifyContent="center" alignItems="center">
             <CircularProgress />

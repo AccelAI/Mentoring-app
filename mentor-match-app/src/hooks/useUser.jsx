@@ -24,23 +24,24 @@ const UserProvider = ({ children }) => {
   // Function to fetch the logged-in user's data
   const fetchLoggedUser = async (uid) => {
     try {
-      // First try: direct doc lookup by provided uid
-      const directRef = doc(db, 'users', uid)
-      const directSnap = await getDoc(directRef)
-      if (directSnap.exists()) {
-        const userData = { uid, ...directSnap.data() }
-        setUser(userData)
-        return
+      const userDoc = doc(db, 'users', uid)
+      const userSnap = await getDoc(userDoc)
+      // Determine admin via Firestore collection `admins/{uid}`
+      let isAdmin = false
+      try {
+        const adminDoc = doc(db, 'admins', uid)
+        const adminSnap = await getDoc(adminDoc)
+        isAdmin = adminSnap.exists()
+      } catch (adminError) {
+        console.warn('Failed to check admin membership', adminError)
       }
-
-      // Fallback: look up by authUidLast mapping (for ORCID users)
-      const usersRef = collection(db, 'users')
-      const q = query(usersRef, where('authUidLast', '==', uid))
-      const qs = await getDocs(q)
-      if (!qs.empty) {
-        const mappedDoc = qs.docs[0]
-        const mappedData = mappedDoc.data()
-        setUser({ uid: mappedDoc.id, ...mappedData })
+      if (userSnap.exists()) {
+        const userData = {
+          uid,
+          ...userSnap.data(),
+          isAdmin
+        }
+        setUser(userData)
         return
       }
 
@@ -55,9 +56,11 @@ const UserProvider = ({ children }) => {
   }
 
   // Function to refresh the logged-in user's data
-  const refreshUser = async () => {
+  const refreshUser = async (oricidUid) => {
     if (user?.uid) {
       await fetchLoggedUser(user.uid)
+    } else if (oricidUid) {
+      await fetchLoggedUser(oricidUid)
     }
   }
 
@@ -77,14 +80,12 @@ const UserProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      setLoading(true)
-      const usersList = await getUsers()
+      const usersList = await getUsers({ includePrivate: !!user?.isAdmin })
       console.log('usersList', usersList)
       setUserList(usersList)
-      setLoading(false)
     }
     fetchUsers()
-  }, [])
+  }, [user?.isAdmin])
 
   useEffect(() => {
     const fetchMenteeList = async () => {
@@ -98,7 +99,14 @@ const UserProvider = ({ children }) => {
 
   return (
     <UserContext.Provider
-      value={{ user, loading, userList, refreshUser, mentees }}
+      value={{
+        user,
+        loading,
+        userList,
+        refreshUser,
+        mentees,
+        isAdmin: user?.isAdmin
+      }}
     >
       {children}
     </UserContext.Provider>

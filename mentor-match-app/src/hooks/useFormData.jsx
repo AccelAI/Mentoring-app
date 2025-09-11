@@ -4,9 +4,10 @@ import { useSnackbar } from 'notistack'
 import { getFormAnswers } from '../api/forms'
 import { useUser } from './useUser'
 
-const useFormData = (defaultInitialValues, mergeFormAnswers) => {
-  const { id } = useParams()
-  const { user } = useUser()
+const useFormData = (defaultInitialValues, mergeFormAnswers, userId = null) => {
+  const { id: urlId } = useParams()
+  const id = userId || urlId // Use provided userId or fall back to URL param
+  const { user, isAdmin } = useUser()
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
   const [initialValues, setInitialValues] = useState(defaultInitialValues)
@@ -15,7 +16,7 @@ const useFormData = (defaultInitialValues, mergeFormAnswers) => {
   useEffect(() => {
     const fetchFormData = async () => {
       try {
-        const formAnswers = await getFormAnswers(user.uid)
+        const formAnswers = await getFormAnswers(id)
         if (formAnswers.mentorData && formAnswers.menteeData) {
           setInitialValues(
             mergeFormAnswers(formAnswers.mentorData, formAnswers.menteeData)
@@ -32,14 +33,14 @@ const useFormData = (defaultInitialValues, mergeFormAnswers) => {
       }
     }
 
-    if (id === user.uid) {
+    if (id === user.uid || isAdmin) {
       fetchFormData()
-    } else if (id && id !== user.uid) {
+    } else if (id && id !== user.uid && !isAdmin) {
       navigate('/form-not-found')
     } else {
       setLoading(false)
     }
-  }, [id, user.uid, enqueueSnackbar, navigate, mergeFormAnswers])
+  }, [id, user.uid, enqueueSnackbar, navigate, mergeFormAnswers, isAdmin])
 
   return { initialValues, loading }
 }
