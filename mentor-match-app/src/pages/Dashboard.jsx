@@ -126,7 +126,7 @@ const Dashboard = () => {
               </Stack>
               <Stack spacing={2}>
                 {/* TODO: Show match alert when theres a new mentee match or when mentor match results are ready */}
-                {false && <MatchAlert setView={setViewType} />}
+                {user.newMenteeMatch && <MatchAlert setView={setViewType} />}
 
                 {user && viewType === 'dashboard' && (
                   <UserListView

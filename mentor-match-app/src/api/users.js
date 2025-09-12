@@ -40,7 +40,7 @@ export const getUserById = async (userId) => {
     return { ...user.data(), uid: user.id }
   } catch (err) {
     console.error('Error fetching user:', err)
-    return { ok: false, error: err.message }
+    return null
   }
 }
 

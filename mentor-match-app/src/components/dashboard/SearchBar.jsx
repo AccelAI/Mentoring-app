@@ -2,7 +2,7 @@ import React from 'react'
 import { TextField, IconButton, Box, InputAdornment } from '@mui/material'
 import { Search } from '@mui/icons-material'
 
-const SearchBar = ({ setSearchQuery }) => (
+const SearchBar = ({ setSearchQuery, props }) => (
   <form>
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <TextField
@@ -14,6 +14,7 @@ const SearchBar = ({ setSearchQuery }) => (
         variant="standard"
         size="small"
         placeholder="Search..."
+        sx={{ ...props }}
         slotProps={{
           input: {
             endAdornment: (

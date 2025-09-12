@@ -20,6 +20,7 @@ import CombinedApplicationDialog from '../components/dialogs/formReview/Combined
 import { getPendingApplications } from '../api/forms'
 import { useNavigate } from 'react-router-dom'
 import { Person as UserIcon } from '@mui/icons-material'
+import ManageMatchesSection from '../components/adminDashboard/ManageMatchesSection'
 
 const AdminDashboard = () => {
   const { userList } = useUser()
@@ -121,7 +122,7 @@ const AdminDashboard = () => {
                   >
                     <Tab label="Users" value="0" />
                     <Tab label="Mentorship Applications" value="1" />
-                    {/* <Tab label="Manage Matches" value="2" /> */}
+                    <Tab label="Manage Matches" value="2" />
                   </TabList>
                   <Box flexGrow={1} />
                   <Button
@@ -167,7 +168,9 @@ const AdminDashboard = () => {
                     </Stack>
                   )}
                 </TabPanel>
-                <TabPanel value="2">Item Three</TabPanel>
+                <TabPanel value="2">
+                  <ManageMatchesSection />
+                </TabPanel>
               </TabContext>
             </Box>
           </Card>
