@@ -521,3 +521,96 @@ export const getCurrentApplicationStatus = async (userId, formType) => {
     return null
   }
 }
+
+export const getApplicationByUserId = async (userId) => {
+  try {
+    if (!userId) return null
+
+    const collections = [
+      { name: 'mentors', type: 'Mentor' },
+      { name: 'mentees', type: 'Mentee' }
+    ]
+
+    const results = await Promise.all(
+      collections.map(async ({ name, type }) => {
+        const formRef = doc(db, name, userId)
+        const statusRef = doc(db, name, userId, 'applicationStatus', 'current')
+        const [formSnap, statusSnap] = await Promise.all([
+          getDoc(formRef),
+          getDoc(statusRef)
+        ])
+        if (!formSnap.exists() || !statusSnap.exists()) return null
+        return {
+          type,
+          formData: formSnap.data(),
+          statusData: statusSnap.data()
+        }
+      })
+    )
+
+    const mentorEntry = results.find((r) => r && r.type === 'Mentor')
+    const menteeEntry = results.find((r) => r && r.type === 'Mentee')
+
+    if (!mentorEntry && !menteeEntry) return null
+
+    // Fetch user profile
+    const userDocSnap = await getDoc(doc(db, 'users', userId))
+    const userProfile = userDocSnap.exists() ? userDocSnap.data() : {}
+
+    // If both exist -> Combined
+    if (mentorEntry && menteeEntry) {
+      const mergedData = {
+        ...menteeEntry.formData,
+        ...mentorEntry.formData,
+        menteeMotivation: menteeEntry.formData.menteeMotivation,
+        commitmentStatement: menteeEntry.formData.commitmentStatement,
+        careerGoals: menteeEntry.formData.careerGoals,
+        preferredExpectationsMentee: menteeEntry.formData.preferredExpectations,
+        mentorMotivation: mentorEntry.formData.mentorMotivation,
+        mentorArea: mentorEntry.formData.mentorArea,
+        mentoringTime: mentorEntry.formData.mentoringTime,
+        menteePreferences: mentorEntry.formData.menteePreferences,
+        preferredExpectationsMentor: mentorEntry.formData.preferredExpectations,
+        otherMenteePref: mentorEntry.formData.otherMenteePref,
+        otherExpectations: mentorEntry.formData.otherExpectations,
+        mentorSkills: mentorEntry.formData.mentorSkills,
+        areasConsideringMentoring:
+          mentorEntry.formData.areasConsideringMentoring
+      }
+
+      // Choose submittedAt (prefer earliest if both have it)
+      const toMillis = (v) =>
+        v && typeof v.toDate === 'function'
+          ? v.toDate().getTime()
+          : v
+          ? new Date(v).getTime()
+          : Infinity
+      const submittedAt =
+        toMillis(mentorEntry.statusData.submittedAt) <
+        toMillis(menteeEntry.statusData.submittedAt)
+          ? mentorEntry.statusData.submittedAt
+          : menteeEntry.statusData.submittedAt
+
+      return {
+        id: userId,
+        type: 'Combined',
+        user: { uid: userId, ...userProfile },
+        formData: mergedData,
+        submittedAt
+      }
+    }
+
+    // Single form (Mentor or Mentee)
+    const single = mentorEntry || menteeEntry
+    return {
+      id: userId,
+      type: single.type,
+      user: { uid: userId, ...userProfile },
+      formData: single.formData,
+      submittedAt: single.statusData.submittedAt
+    }
+  } catch (err) {
+    console.error('Error fetching application by user id:', err)
+    return null
+  }
+}

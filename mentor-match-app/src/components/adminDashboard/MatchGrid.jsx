@@ -14,12 +14,15 @@ import ProfilePicture from '../ProfilePicture'
 import { useTheme } from '@mui/material/styles'
 import { getUserById } from '../../api/users'
 import EndMentorshipDialog from '../dialogs/EndMentorshipDialog'
+import UserProfileDialog from '../profile/UserProfileDialog'
 
 const MatchGrid = ({ menteeId, mentorId, gridSize = 4, setReloadList }) => {
   const [mentee, setMentee] = useState(null)
   const [mentor, setMentor] = useState(null)
   const [loading, setLoading] = useState(true)
   const [endMentorshipDialogOpen, setEndMentorshipDialogOpen] = useState(false)
+  const [menteeProfileOpen, setMenteeProfileOpen] = useState(false)
+  const [mentorProfileOpen, setMentorProfileOpen] = useState(false)
   const wasDialogOpen = useRef(false) // track previous state
 
   useEffect(() => {
@@ -51,12 +54,7 @@ const MatchGrid = ({ menteeId, mentorId, gridSize = 4, setReloadList }) => {
     <Grid size={gridSize}>
       <Card
         sx={{
-          height: '100%',
-          transition: 'box-shadow 0.3s',
-          '&:hover': {
-            boxShadow: 2,
-            cursor: 'pointer'
-          }
+          height: '100%'
         }}
         variant="outlined"
       >
@@ -92,12 +90,56 @@ const MatchGrid = ({ menteeId, mentorId, gridSize = 4, setReloadList }) => {
               <Stack spacing={1}>
                 <Stack spacing={0.1}>
                   <Typography variant="caption">Mentor</Typography>
-                  <Typography variant="body2">{mentor?.displayName}</Typography>
+                  <Tooltip title="View Profile">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        '&:hover': {
+                          cursor: 'pointer',
+                          color: 'primary.main',
+                          fontWeight: 'medium'
+                        }
+                      }}
+                      onClick={() => setMentorProfileOpen(true)}
+                    >
+                      {mentor?.displayName}
+                    </Typography>
+                  </Tooltip>
                 </Stack>
+                <UserProfileDialog
+                  openDialog={mentorProfileOpen}
+                  setOpenDialog={setMentorProfileOpen}
+                  userId={mentor.uid}
+                  showChatButton={false}
+                  showEndMentorshipButton={false}
+                  showSelectAsMentorButton={false}
+                />
                 <Stack spacing={0.1}>
                   <Typography variant="caption">Mentee</Typography>
-                  <Typography variant="body2">{mentee?.displayName}</Typography>
+                  <Tooltip title="View Profile">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        '&:hover': {
+                          cursor: 'pointer',
+                          color: 'primary.main',
+                          fontWeight: 'medium'
+                        }
+                      }}
+                      onClick={() => setMenteeProfileOpen(true)}
+                    >
+                      {mentee?.displayName}
+                    </Typography>
+                  </Tooltip>
                 </Stack>
+                <UserProfileDialog
+                  openDialog={menteeProfileOpen}
+                  setOpenDialog={setMenteeProfileOpen}
+                  userId={mentee.uid}
+                  showChatButton={false}
+                  showEndMentorshipButton={false}
+                  showSelectAsMentorButton={false}
+                />
               </Stack>
             </Stack>
             <Box alignSelf={'flex-end'} maxHeight={'min-content'}>

@@ -198,7 +198,9 @@ const CreateNewMatchDialog = ({ open, onClose, setReloadList }) => {
         >
           Cancel
         </Button>
-        <Button onClick={handleMatch}>Create</Button>
+        <Button onClick={handleMatch} color="success" variant="contained">
+          Create
+        </Button>
       </DialogActions>
     </Dialog>
   )

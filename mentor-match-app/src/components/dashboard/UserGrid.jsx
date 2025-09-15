@@ -1,16 +1,24 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Grid2 as Grid,
   Stack,
   Typography,
   Box,
   Card,
-  Button
+  Button,
+  IconButton,
+  Tooltip
 } from '@mui/material'
-import { LocationOnOutlined as LocationIcon } from '@mui/icons-material'
+import {
+  LocationOnOutlined as LocationIcon,
+  AssignmentOutlined as FormIcon,
+  AccountCircle as ProfileIcon
+} from '@mui/icons-material'
 import UserProfileDialog from '../profile/UserProfileDialog'
 import ProfilePicture from '../ProfilePicture'
 import MatchDialog from '../dialogs/MatchDialog'
+import MenteeApplicationDialog from '../dialogs/formReview/MenteeApplicationDialog'
+import { getApplicationByUserId } from '../../api/forms'
 
 const UserGrid = ({
   user,
@@ -19,10 +27,25 @@ const UserGrid = ({
   showChatButton,
   showViewProfileButton,
   showEndMentorshipButton,
+  showApplicationButton,
   onStartChat
 }) => {
   const [openDialog, setOpenDialog] = useState(false)
   const [openMatchDialog, setOpenMatchDialog] = useState(false)
+  const [openApplicationDialog, setOpenApplicationDialog] = useState(false)
+  const [applicationData, setApplicationData] = useState(null)
+
+  useEffect(() => {
+    const fetchApplication = async () => {
+      if (showApplicationButton && user?.uid) {
+        const data = await getApplicationByUserId(user.uid)
+        setApplicationData(data)
+      }
+    }
+    fetchApplication()
+  }, [showApplicationButton, user?.uid])
+
+  if (!user) return null
 
   return (
     <Grid size={gridSize}>
@@ -32,12 +55,14 @@ const UserGrid = ({
           transition: 'box-shadow 0.3s',
           '&:hover': {
             boxShadow: 2,
-            cursor: showSelectAsMentorButton ? '' : 'pointer'
+            cursor:
+              showSelectAsMentorButton || showApplicationButton ? '' : 'pointer'
           }
         }}
         variant="outlined"
-        onClick={() => {
-          if (!showSelectAsMentorButton) {
+        onClick={(e) => {
+          // Ignore if click originated from an element that should not open the dialog
+          if (!showSelectAsMentorButton && !showApplicationButton) {
             setOpenDialog(true)
           }
         }}
@@ -49,15 +74,59 @@ const UserGrid = ({
               size={80}
               borderRadius={10}
             />
-            <Stack sx={{ maxWidth: '58%' }}>
+            <Stack
+              sx={{
+                maxWidth: showApplicationButton ? '100%' : '58%',
+                width: '100%'
+              }}
+            >
               <Box>
-                <Typography
-                  fontSize={18}
-                  fontWeight={'regular'}
-                  lineHeight={1.2}
+                <Stack
+                  direction={'row'}
+                  alignItems={'center'}
+                  sx={{ justifyContent: 'space-between' }}
                 >
-                  {user.displayName}
-                </Typography>
+                  <Typography
+                    fontSize={18}
+                    fontWeight={'regular'}
+                    lineHeight={1.2}
+                  >
+                    {user.displayName}
+                  </Typography>
+                  {showApplicationButton && (
+                    <Stack direction={'row'} spacing={0.5}>
+                      <Tooltip title="View Profile">
+                        <IconButton
+                          size="small"
+                          color="primary"
+                          onClick={() => {
+                            setOpenDialog(true)
+                          }}
+                        >
+                          <ProfileIcon />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="View Application">
+                        <IconButton
+                          size="small"
+                          color="primary"
+                          data-ignore-card-click
+                          onClick={() => {
+                            setOpenApplicationDialog(true)
+                          }}
+                        >
+                          <FormIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
+                  )}
+                  <MenteeApplicationDialog
+                    open={openApplicationDialog}
+                    onClose={() => setOpenApplicationDialog(false)}
+                    enableReview={false}
+                    application={applicationData}
+                  />
+                </Stack>
                 {showSelectAsMentorButton && (
                   <Typography
                     variant={'body2'}

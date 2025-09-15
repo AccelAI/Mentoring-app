@@ -38,7 +38,9 @@ const Dashboard = () => {
   const [loadingMentor, setLoadingMentor] = useState(false)
   const [toggleChat, setToggleChat] = useState(false)
   const [selectedChatRoomId, setSelectedChatRoomId] = useState(null)
+  const [showAlert, setShowAlert] = useState(true)
   const navigate = useNavigate()
+
   useEffect(() => {
     if (user) {
       // Filter out the logged-in user and ensure only public profiles are shown for non-admin users
@@ -126,7 +128,12 @@ const Dashboard = () => {
               </Stack>
               <Stack spacing={2}>
                 {/* TODO: Show match alert when theres a new mentee match or when mentor match results are ready */}
-                {user.newMenteeMatch && <MatchAlert setView={setViewType} />}
+                {user.newMenteeMatch && showAlert && (
+                  <MatchAlert
+                    setView={setViewType}
+                    setShowAlert={setShowAlert}
+                  />
+                )}
 
                 {user && viewType === 'dashboard' && (
                   <UserListView
