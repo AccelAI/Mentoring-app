@@ -156,12 +156,20 @@ export const getAllMentorshipPairs = async () => {
     const usersCol = collection(db, 'users')
     const snapshot = await getDocs(usersCol)
     const pairs = []
-    snapshot.forEach((docSnap) => {
+    for (const docSnap of snapshot.docs) {
       const data = docSnap.data()
       if (data.mentorId) {
-        pairs.push({ menteeId: docSnap.id, mentorId: data.mentorId })
+        const mentorDocRef = doc(db, 'users', data.mentorId)
+        const pair = await getDoc(mentorDocRef)
+        if (
+          pair.exists() &&
+          Array.isArray(pair.data().menteesId) &&
+          pair.data().menteesId.includes(docSnap.id)
+        ) {
+          pairs.push({ menteeId: docSnap.id, mentorId: data.mentorId })
+        }
       }
-    })
+    }
     return pairs
   } catch (err) {
     console.error('Error fetching mentorship pairs:', err)

@@ -11,36 +11,64 @@ import {
   ListItemButton,
   ListItemAvatar,
   ListItemText,
-  Typography
+  Typography,
+  Stack,
+  Box
 } from '@mui/material'
 import ProfilePicture from '../ProfilePicture'
 import SearchBar from '../dashboard/SearchBar'
 import { useUser } from '../../hooks/useUser'
-import { asignMatch } from '../../api/match'
+import { asignMatch, endMentorship } from '../../api/match'
 import { filterUsers } from '../../api/users'
 import { getCurrentApplicationStatus } from '../../api/forms'
 import { useSnackbar } from 'notistack'
 
-const CreateNewMatchDialog = ({ open, onClose, setReloadList }) => {
+const CreateNewMatchDialog = ({
+  open,
+  onClose,
+  setReloadList,
+  mentor,
+  mentee
+}) => {
   const { userList } = useUser()
   const { enqueueSnackbar } = useSnackbar()
   // Users that have a role
   const usersWithRoles = userList.filter((user) => !!user.role)
   const [applicationStatuses, setApplicationStatuses] = useState({}) // uid -> status
   const [checked, setChecked] = useState([])
+  const [existingMatch, setExistingMatch] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+
+  // NEW: apply initial selection safely when dialog opens or props change
+  useEffect(() => {
+    if (open && mentor && mentee) {
+      setChecked([
+        { id: mentor.uid, role: 'Mentor' },
+        { id: mentee.uid, role: 'Mentee' }
+      ])
+      setExistingMatch(true)
+    }
+  }, [open, mentor, mentee])
 
   // Fetch current application status for each user with a role when dialog opens
   useEffect(() => {
     if (!open) return
     let cancelled = false
+    const roleToFormType = (role) =>
+      role === 'Mentor/Mentee' ? 'Combined' : role
     const loadStatuses = async () => {
       const entries = await Promise.all(
         usersWithRoles.map(async (u) => {
           try {
-            const res = await getCurrentApplicationStatus(u.uid, u.role)
-            console.log('Fetched application status for', u.uid, res.status)
-            return [u.uid, res.status]
+            const formType = roleToFormType(u.role)
+            const res = await getCurrentApplicationStatus(u.uid, formType)
+            const status = res && typeof res === 'object' ? res.status : null
+            console.log(
+              'Fetched application status for',
+              u.uid,
+              status ?? '(none)'
+            )
+            return [u.uid, status]
           } catch (e) {
             console.error('Error fetching application status for', u.uid, e)
             return [u.uid, null]
@@ -64,30 +92,52 @@ const CreateNewMatchDialog = ({ open, onClose, setReloadList }) => {
 
   const filteredUsers = filterUsers(searchQuery, eligibleUsers)
 
-  const handleToggle = (user) => () => {
-    console.log('Toggling user:', user)
-    const userKey = user.uid ?? user.displayName
-    const userRole = user.role
-    const currentIndex = checked.findIndex((item) => item.id === userKey)
-    const newChecked = [...checked]
+  // UPDATED: selection helpers
+  const hasMentorSelected = checked.some((c) => c.role === 'Mentor')
+  const hasMenteeSelected = checked.some((c) => c.role === 'Mentee')
 
-    if (currentIndex !== -1) {
-      newChecked.splice(currentIndex, 1)
-    } else {
-      // Only allow one Mentor and one Mentee
-      const hasMentor = newChecked.some((item) => item.role === 'Mentor')
-      const hasMentee = newChecked.some((item) => item.role === 'Mentee')
-      if (
-        (userRole === 'Mentor' && hasMentor) ||
-        (userRole === 'Mentee' && hasMentee) ||
-        newChecked.length >= 2
-      ) {
-        return
-      }
-      newChecked.push({ id: user.uid, role: userRole })
+  const isSelected = (userId, role) =>
+    checked.some((c) => c.id === userId && c.role === role)
+
+  const addSelection = (userId, role) => {
+    setChecked((prev) => [...prev, { id: userId, role }])
+  }
+
+  const removeSelection = (userId, role) => {
+    setChecked((prev) =>
+      prev.filter((c) => !(c.id === userId && c.role === role))
+    )
+  }
+
+  // Replaces old handleToggle (kept name for single-role users)
+  const handleToggleSingleRole = (user) => () => {
+    const userId = user.uid
+    const role = user.role // 'Mentor' or 'Mentee'
+    const already = isSelected(userId, role)
+    const newList = already
+      ? checked.filter((c) => !(c.id === userId && c.role === role))
+      : (() => {
+          if (role === 'Mentor' && hasMentorSelected) return checked
+          if (role === 'Mentee' && hasMenteeSelected) return checked
+          if (checked.length >= 2) return checked
+          return [...checked, { id: userId, role }]
+        })()
+    setChecked(newList)
+  }
+
+  const handleToggleCombined = (user, targetRole) => (e) => {
+    e.stopPropagation()
+    const userId = user.uid
+    const already = isSelected(userId, targetRole)
+    if (already) {
+      removeSelection(userId, targetRole)
+      return
     }
-    console.log(newChecked)
-    setChecked(newChecked)
+    // enforce constraints
+    if (targetRole === 'Mentor' && hasMentorSelected) return
+    if (targetRole === 'Mentee' && hasMenteeSelected) return
+    if (checked.length >= 2) return
+    addSelection(userId, targetRole)
   }
 
   const handleMatch = async () => {
@@ -108,18 +158,25 @@ const CreateNewMatchDialog = ({ open, onClose, setReloadList }) => {
 
     const menteeUser = userList.find((u) => u.uid === mentee.id)
     console.log('Selected mentee user:', menteeUser)
-    if (menteeUser?.mentorId) {
+    if (menteeUser?.mentorId && !existingMatch) {
       enqueueSnackbar('Selected mentee already has a mentor assigned.', {
         variant: 'error'
       })
       return
     }
 
+    if (existingMatch) {
+      enqueueSnackbar('Reassigning existing mentorship...', {
+        variant: 'info'
+      })
+      endMentorship(mentee.id, mentor.id, 'Reassigned', 'Reassigned by admin')
+    }
     const result = await asignMatch(mentee.id, mentor.id)
     if (result.ok) {
       enqueueSnackbar('Match created successfully!', { variant: 'success' })
       onClose()
       setChecked([])
+      setExistingMatch(false)
       setReloadList(true)
     } else {
       enqueueSnackbar(`Error creating match: ${result.error}`, {
@@ -129,14 +186,15 @@ const CreateNewMatchDialog = ({ open, onClose, setReloadList }) => {
   }
 
   const isChecked = (user) => {
-    const userKey = user.uid ?? user.displayName
-    return checked.some((item) => item.id === userKey)
+    // preserved for single-role checkbox usage
+    return isSelected(user.uid, user.role)
   }
 
   useEffect(() => {
     if (!open) {
       setChecked([])
       setSearchQuery('')
+      setExistingMatch(false) // reset flag on close
     }
   }, [open])
 
@@ -158,16 +216,56 @@ const CreateNewMatchDialog = ({ open, onClose, setReloadList }) => {
           {filteredUsers.map((user, idx) => {
             const userKey = user.uid ?? idx
             const labelId = `checkbox-list-secondary-label-${userKey}`
+            const isCombined = user.role === 'Mentor/Mentee'
             return (
               <ListItem
                 key={`user-${userKey}`}
                 secondaryAction={
-                  <Checkbox
-                    edge="end"
-                    onChange={handleToggle(user)}
-                    checked={isChecked(user)}
-                    id={labelId}
-                  />
+                  isCombined ? (
+                    <Stack direction={'row'} spacing={1}>
+                      <Box>
+                        <Checkbox
+                          size="small"
+                          edge="end"
+                          onChange={handleToggleCombined(user, 'Mentor')}
+                          checked={isSelected(user.uid, 'Mentor')}
+                          disabled={
+                            !isSelected(user.uid, 'Mentor') && hasMentorSelected
+                          }
+                        />
+                        <Typography
+                          variant="caption"
+                          sx={{ display: 'block', textAlign: 'center', mt: -1 }}
+                        >
+                          Mentor
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <Checkbox
+                          size="small"
+                          edge="end"
+                          onChange={handleToggleCombined(user, 'Mentee')}
+                          checked={isSelected(user.uid, 'Mentee')}
+                          disabled={
+                            !isSelected(user.uid, 'Mentee') && hasMenteeSelected
+                          }
+                        />
+                        <Typography
+                          variant="caption"
+                          sx={{ display: 'block', textAlign: 'center', mt: -1 }}
+                        >
+                          Mentee
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  ) : (
+                    <Checkbox
+                      edge="end"
+                      onChange={handleToggleSingleRole(user)}
+                      checked={isChecked(user)}
+                      id={labelId}
+                    />
+                  )
                 }
                 sx={{ pl: 0 }}
               >
@@ -199,7 +297,7 @@ const CreateNewMatchDialog = ({ open, onClose, setReloadList }) => {
           Cancel
         </Button>
         <Button onClick={handleMatch} color="success" variant="contained">
-          Create
+          {existingMatch ? 'Reassign' : 'Create'}
         </Button>
       </DialogActions>
     </Dialog>

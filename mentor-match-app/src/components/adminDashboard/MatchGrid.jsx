@@ -9,12 +9,16 @@ import {
   IconButton,
   Tooltip
 } from '@mui/material'
-import { DeleteForever as DeleteIcon } from '@mui/icons-material'
+import {
+  DeleteForever as DeleteIcon,
+  Edit as EditIcon
+} from '@mui/icons-material'
 import ProfilePicture from '../ProfilePicture'
 import { useTheme } from '@mui/material/styles'
 import { getUserById } from '../../api/users'
 import EndMentorshipDialog from '../dialogs/EndMentorshipDialog'
 import UserProfileDialog from '../profile/UserProfileDialog'
+import CreateNewMatchDialog from '../dialogs/CreateNewMatchDialog'
 
 const MatchGrid = ({ menteeId, mentorId, gridSize = 4, setReloadList }) => {
   const [mentee, setMentee] = useState(null)
@@ -23,6 +27,7 @@ const MatchGrid = ({ menteeId, mentorId, gridSize = 4, setReloadList }) => {
   const [endMentorshipDialogOpen, setEndMentorshipDialogOpen] = useState(false)
   const [menteeProfileOpen, setMenteeProfileOpen] = useState(false)
   const [mentorProfileOpen, setMentorProfileOpen] = useState(false)
+  const [openCreateMatchDialog, setOpenCreateMatchDialog] = useState(false)
   const wasDialogOpen = useRef(false) // track previous state
 
   useEffect(() => {
@@ -143,12 +148,24 @@ const MatchGrid = ({ menteeId, mentorId, gridSize = 4, setReloadList }) => {
               </Stack>
             </Stack>
             <Box alignSelf={'flex-end'} maxHeight={'min-content'}>
+              <Tooltip title="Reassign Mentorship">
+                <IconButton onClick={() => setOpenCreateMatchDialog(true)}>
+                  <EditIcon fontSize="small" color="primary" />
+                </IconButton>
+              </Tooltip>
               <Tooltip title="End Mentorship">
                 <IconButton onClick={() => setEndMentorshipDialogOpen(true)}>
                   <DeleteIcon fontSize="small" color="error" />
                 </IconButton>
               </Tooltip>
             </Box>
+            <CreateNewMatchDialog
+              open={openCreateMatchDialog}
+              onClose={() => setOpenCreateMatchDialog(false)}
+              setReloadList={setReloadList}
+              mentor={mentor}
+              mentee={mentee}
+            />
             <EndMentorshipDialog
               openDialog={endMentorshipDialogOpen}
               setOpenDialog={setEndMentorshipDialogOpen}
