@@ -559,8 +559,6 @@ export const getApplicationByUserId = async (userId) => {
 
     // If both exist -> Combined
     if (mentorEntry && menteeEntry) {
-      const mentoringAreas = mentorEntry.formData.areasConsideringMentoring
-
       const mergedData = {
         ...menteeEntry.formData,
         ...mentorEntry.formData,
@@ -576,7 +574,8 @@ export const getApplicationByUserId = async (userId) => {
         otherMenteePref: mentorEntry.formData.otherMenteePref,
         otherExpectations: mentorEntry.formData.otherExpectations,
         mentorSkills: mentorEntry.formData.mentorSkills,
-        areasConsideringMentoring: mentoringAreas
+        areasConsideringMentoring:
+          mentorEntry.formData.areasConsideringMentoring
       }
 
       // Choose submittedAt (prefer earliest if both have it)
@@ -584,8 +583,8 @@ export const getApplicationByUserId = async (userId) => {
         v && typeof v.toDate === 'function'
           ? v.toDate().getTime()
           : v
-          ? new Date(v).getTime()
-          : Infinity
+            ? new Date(v).getTime() // prettier-ignore
+            : Infinity // prettier-ignore
       const submittedAt =
         toMillis(mentorEntry.statusData.submittedAt) <
         toMillis(menteeEntry.statusData.submittedAt)
