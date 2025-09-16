@@ -1,6 +1,12 @@
-import { doc, updateDoc, getDoc, setDoc } from 'firebase/firestore'
+import {
+  doc,
+  updateDoc,
+  getDoc,
+  setDoc,
+  collection,
+  getDocs
+} from 'firebase/firestore'
 import { db } from './firebaseConfig'
-import { collection, getDocs } from 'firebase/firestore'
 
 export const asignMatch = async (menteeId, mentorId) => {
   try {

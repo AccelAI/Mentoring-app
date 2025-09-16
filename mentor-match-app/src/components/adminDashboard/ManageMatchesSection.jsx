@@ -22,7 +22,6 @@ const ManageMatchesSection = () => {
       const pairs = await getAllMentorshipPairs()
       setMentorshipPairs(pairs)
       setReloadList(false)
-      console.log('Fetched mentorship pairs:', pairs)
     }
     fetchPairs()
   }, [reloadList])

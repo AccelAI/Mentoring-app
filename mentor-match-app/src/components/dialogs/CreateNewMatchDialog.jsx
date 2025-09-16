@@ -36,7 +36,8 @@ const CreateNewMatchDialog = ({
   const usersWithRoles = userList.filter((user) => !!user.role)
   const [applicationStatuses, setApplicationStatuses] = useState({}) // uid -> status
   const [checked, setChecked] = useState([])
-  const [existingMatch, setExistingMatch] = useState(false)
+  const [originalMentorId, setOriginalMentorId] = useState(null)
+  const [originalMenteeId, setOriginalMenteeId] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
 
   // NEW: apply initial selection safely when dialog opens or props change
@@ -46,7 +47,8 @@ const CreateNewMatchDialog = ({
         { id: mentor.uid, role: 'Mentor' },
         { id: mentee.uid, role: 'Mentee' }
       ])
-      setExistingMatch(true)
+      setOriginalMentorId(mentor.uid)
+      setOriginalMenteeId(mentee.uid)
     }
   }, [open, mentor, mentee])
 
@@ -63,11 +65,6 @@ const CreateNewMatchDialog = ({
             const formType = roleToFormType(u.role)
             const res = await getCurrentApplicationStatus(u.uid, formType)
             const status = res && typeof res === 'object' ? res.status : null
-            console.log(
-              'Fetched application status for',
-              u.uid,
-              status ?? '(none)'
-            )
             return [u.uid, status]
           } catch (e) {
             console.error('Error fetching application status for', u.uid, e)
@@ -128,12 +125,18 @@ const CreateNewMatchDialog = ({
   const handleToggleCombined = (user, targetRole) => (e) => {
     e.stopPropagation()
     const userId = user.uid
+    // Prevent same user being both Mentor and Mentee
+    if (
+      (targetRole === 'Mentor' && isSelected(userId, 'Mentee')) ||
+      (targetRole === 'Mentee' && isSelected(userId, 'Mentor'))
+    )
+      return
+
     const already = isSelected(userId, targetRole)
     if (already) {
       removeSelection(userId, targetRole)
       return
     }
-    // enforce constraints
     if (targetRole === 'Mentor' && hasMentorSelected) return
     if (targetRole === 'Mentee' && hasMenteeSelected) return
     if (checked.length >= 2) return
@@ -147,39 +150,68 @@ const CreateNewMatchDialog = ({
       })
       return
     }
-    const mentor = checked.find((item) => item.role === 'Mentor')
-    const mentee = checked.find((item) => item.role === 'Mentee')
-    if (!mentor || !mentee) {
+    const mentorSel = checked.find((item) => item.role === 'Mentor')
+    const menteeSel = checked.find((item) => item.role === 'Mentee')
+    if (!mentorSel || !menteeSel) {
       enqueueSnackbar('Please select one Mentor and one Mentee.', {
         variant: 'warning'
       })
       return
     }
 
-    const menteeUser = userList.find((u) => u.uid === mentee.id)
-    console.log('Selected mentee user:', menteeUser)
-    if (menteeUser?.mentorId && !existingMatch) {
+    const menteeUser = userList.find((u) => u.uid === menteeSel.id)
+    const currentMenteeMentorId = menteeUser?.mentorId || null
+
+    const isReassign =
+      originalMenteeId &&
+      originalMentorId &&
+      menteeSel.id === originalMenteeId &&
+      mentorSel.id !== originalMentorId &&
+      currentMenteeMentorId === originalMentorId
+
+    // Block if mentee already has some mentor and this is not a valid reassignment
+    if (
+      currentMenteeMentorId &&
+      !isReassign &&
+      currentMenteeMentorId !== mentorSel.id
+    ) {
       enqueueSnackbar('Selected mentee already has a mentor assigned.', {
         variant: 'error'
       })
       return
     }
 
-    if (existingMatch) {
-      enqueueSnackbar('Reassigning existing mentorship...', {
-        variant: 'info'
-      })
-      endMentorship(mentee.id, mentor.id, 'Reassigned', 'Reassigned by admin')
-    }
-    const result = await asignMatch(mentee.id, mentor.id)
-    if (result.ok) {
-      enqueueSnackbar('Match created successfully!', { variant: 'success' })
-      onClose()
-      setChecked([])
-      setExistingMatch(false)
-      setReloadList(true)
-    } else {
-      enqueueSnackbar(`Error creating match: ${result.error}`, {
+    try {
+      if (isReassign) {
+        enqueueSnackbar('Reassigning mentorship...', { variant: 'info' })
+        await endMentorship(
+          menteeSel.id,
+          originalMentorId,
+          'Reassigned',
+          'Reassigned by admin'
+        )
+      }
+
+      const result = await asignMatch(menteeSel.id, mentorSel.id)
+      if (result.ok) {
+        enqueueSnackbar(
+          isReassign ? 'Mentorship reassigned!' : 'Match created successfully!',
+          {
+            variant: 'success'
+          }
+        )
+        onClose()
+        setChecked([])
+        setOriginalMentorId(null)
+        setOriginalMenteeId(null)
+        setReloadList(true)
+      } else {
+        enqueueSnackbar(`Error creating match: ${result.error}`, {
+          variant: 'error'
+        })
+      }
+    } catch (e) {
+      enqueueSnackbar(`Error processing match: ${e.message}`, {
         variant: 'error'
       })
     }
@@ -194,7 +226,8 @@ const CreateNewMatchDialog = ({
     if (!open) {
       setChecked([])
       setSearchQuery('')
-      setExistingMatch(false) // reset flag on close
+      setOriginalMentorId(null)
+      setOriginalMenteeId(null)
     }
   }, [open])
 
@@ -297,7 +330,17 @@ const CreateNewMatchDialog = ({
           Cancel
         </Button>
         <Button onClick={handleMatch} color="success" variant="contained">
-          {existingMatch ? 'Reassign' : 'Create'}
+          {(() => {
+            const selMentor = checked.find((c) => c.role === 'Mentor')?.id
+            const selMentee = checked.find((c) => c.role === 'Mentee')?.id
+            const reassign =
+              originalMentorId &&
+              originalMenteeId &&
+              selMentee === originalMenteeId &&
+              selMentor &&
+              selMentor !== originalMentorId
+            return reassign ? 'Reassign' : 'Create'
+          })()}
         </Button>
       </DialogActions>
     </Dialog>

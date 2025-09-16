@@ -574,6 +574,7 @@ export const getApplicationByUserId = async (userId) => {
         otherMenteePref: mentorEntry.formData.otherMenteePref,
         otherExpectations: mentorEntry.formData.otherExpectations,
         mentorSkills: mentorEntry.formData.mentorSkills,
+        // eslint-disable-next-line
         areasConsideringMentoring:
           mentorEntry.formData.areasConsideringMentoring
       }
