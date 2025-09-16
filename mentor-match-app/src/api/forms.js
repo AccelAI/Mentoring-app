@@ -559,6 +559,8 @@ export const getApplicationByUserId = async (userId) => {
 
     // If both exist -> Combined
     if (mentorEntry && menteeEntry) {
+      const mentoringAreas = mentorEntry.formData.areasConsideringMentoring
+
       const mergedData = {
         ...menteeEntry.formData,
         ...mentorEntry.formData,
@@ -574,9 +576,7 @@ export const getApplicationByUserId = async (userId) => {
         otherMenteePref: mentorEntry.formData.otherMenteePref,
         otherExpectations: mentorEntry.formData.otherExpectations,
         mentorSkills: mentorEntry.formData.mentorSkills,
-        // eslint-disable-next-line
-        areasConsideringMentoring:
-          mentorEntry.formData.areasConsideringMentoring
+        areasConsideringMentoring: mentoringAreas
       }
 
       // Choose submittedAt (prefer earliest if both have it)
