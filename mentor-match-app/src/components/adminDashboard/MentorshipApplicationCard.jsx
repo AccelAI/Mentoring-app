@@ -26,7 +26,8 @@ import { useSnackbar } from 'notistack'
 const MentorshipApplicationCard = ({
   application,
   onReview,
-  onStatusUpdate
+  onStatusUpdate,
+  status
 }) => {
   const { user, formData, type, submittedAt } = application
   const [openAcceptDialog, setOpenAcceptDialog] = useState(false)
@@ -78,7 +79,7 @@ const MentorshipApplicationCard = ({
                 </Typography>
               </Stack>
               {/*Only mentees have commitment statements */}
-              {type === 'Mentee' && (
+              {(type === 'Mentee' || type === 'Combined') && (
                 <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
                   <StatementIcon fontSize="small" color="primary" />
                   <Typography variant={'body2'}>
@@ -97,34 +98,49 @@ const MentorshipApplicationCard = ({
             </Stack>
           </Stack>
           <Stack spacing={1} direction={'row'} alignItems={'center'}>
-            <Tooltip title="View Full Application">
-              <IconButton
-                size="small"
-                color="primary"
+            {status === 'pending' ? (
+              <Tooltip title="View Full Application">
+                <IconButton
+                  size="small"
+                  color="primary"
+                  onClick={() => onReview(application)}
+                >
+                  <FormIcon />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <Button
                 onClick={() => onReview(application)}
+                size="small"
+                startIcon={<FormIcon />}
               >
-                <FormIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Accept Application">
-              <IconButton
-                color="success"
-                onClick={() => setOpenAcceptDialog(true)}
-              >
-                <CheckIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Reject Application">
-              <IconButton
-                color="error"
-                onClick={() => setOpenRejectDialog(true)}
-              >
-                <CancelIcon />
-              </IconButton>
-            </Tooltip>
+                View Application
+              </Button>
+            )}
+            {status === 'pending' && (
+              <>
+                <Tooltip title="Accept Application">
+                  <IconButton
+                    color="success"
+                    onClick={() => setOpenAcceptDialog(true)}
+                  >
+                    <CheckIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Reject Application">
+                  <IconButton
+                    color="error"
+                    onClick={() => setOpenRejectDialog(true)}
+                  >
+                    <CancelIcon />
+                  </IconButton>
+                </Tooltip>
+              </>
+            )}
           </Stack>
         </Stack>
       </Box>
+
       <ConfirmApplicationDialog
         open={openAcceptDialog}
         onClose={() => setOpenAcceptDialog(false)}

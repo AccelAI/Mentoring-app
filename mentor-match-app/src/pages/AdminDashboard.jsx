@@ -6,7 +6,11 @@ import {
   Typography,
   Tab,
   CircularProgress,
-  Button
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material'
 import { TabList, TabPanel, TabContext } from '@mui/lab'
 import Header from '../components/Header'
@@ -17,7 +21,7 @@ import MentorshipApplicationCard from '../components/adminDashboard/MentorshipAp
 import MenteeApplicationDialog from '../components/dialogs/formReview/MenteeApplicationDialog'
 import MentorApplicationDialog from '../components/dialogs/formReview/MentorApplicationDialog'
 import CombinedApplicationDialog from '../components/dialogs/formReview/CombinedApplicationDialog'
-import { getPendingApplications } from '../api/forms'
+import { getAllApplications } from '../api/forms'
 import { useNavigate } from 'react-router-dom'
 import { Person as UserIcon } from '@mui/icons-material'
 import ManageMatchesSection from '../components/adminDashboard/ManageMatchesSection'
@@ -33,15 +37,16 @@ const AdminDashboard = () => {
   const [loadingApplications, setLoadingApplications] = useState(true)
   const [selectedApplication, setSelectedApplication] = useState(null)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [statusFilter, setStatusFilter] = useState('all')
 
-  // Fetch pending applications
+  // Fetch all applications when Applications tab is active
   useEffect(() => {
     const fetchApplications = async () => {
-      console.log('fetching applications')
+      console.log('fetching applications (all statuses)')
       setLoadingApplications(true)
       try {
-        const apps = await getPendingApplications()
-        console.log('apps', apps)
+        const apps = await getAllApplications()
+        console.log(apps)
         setApplications(apps)
       } catch (error) {
         console.error('Error fetching applications:', error)
@@ -51,7 +56,6 @@ const AdminDashboard = () => {
     }
 
     if (value === '1') {
-      // Only fetch when on applications tab
       fetchApplications()
     }
   }, [value])
@@ -72,19 +76,25 @@ const AdminDashboard = () => {
   }, [])
 
   const handleApplicationStatusUpdate = useCallback(() => {
-    // Refresh applications after status update
+    // Refresh applications after status update (fetch all)
     const fetchApplications = async () => {
-      const apps = await getPendingApplications()
+      const apps = await getAllApplications()
       setApplications(apps)
     }
     fetchApplications()
   }, [])
 
+  // Derive filtered list based on status
+  const filteredApplications =
+    statusFilter === 'all'
+      ? applications
+      : applications.filter((a) => a.status === statusFilter)
+
   // Render the appropriate dialog based on application type
   const renderApplicationDialog = () => {
     if (!selectedApplication) return null
 
-    const { type } = selectedApplication
+    const { type, status } = selectedApplication
     const dialogProps = {
       open: dialogOpen,
       onClose: handleCloseDialog,
@@ -94,13 +104,33 @@ const AdminDashboard = () => {
 
     switch (type) {
       case 'Mentee':
-        return <MenteeApplicationDialog {...dialogProps} />
+        return (
+          <MenteeApplicationDialog
+            {...dialogProps}
+            enableReview={status === 'pending'}
+          />
+        )
       case 'Mentor':
-        return <MentorApplicationDialog {...dialogProps} />
+        return (
+          <MentorApplicationDialog
+            {...dialogProps}
+            enableReview={status === 'pending'}
+          />
+        )
       case 'Combined':
-        return <CombinedApplicationDialog {...dialogProps} />
+        return (
+          <CombinedApplicationDialog
+            {...dialogProps}
+            enableReview={status === 'pending'}
+          />
+        )
       default:
-        return <MenteeApplicationDialog {...dialogProps} />
+        return (
+          <MenteeApplicationDialog
+            {...dialogProps}
+            enableReview={status === 'pending'}
+          />
+        )
     }
   }
 
@@ -151,20 +181,43 @@ const AdminDashboard = () => {
                     <Box display="flex" justifyContent="center" p={3}>
                       <CircularProgress />
                     </Box>
-                  ) : applications.length === 0 ? (
-                    <Typography variant="body1" textAlign="center" p={3}>
-                      No pending applications found.
-                    </Typography>
                   ) : (
                     <Stack spacing={2}>
-                      {applications.map((application) => (
-                        <MentorshipApplicationCard
-                          key={application.id}
-                          application={application}
-                          onReview={handleReviewApplication}
-                          onStatusUpdate={handleApplicationStatusUpdate}
-                        />
-                      ))}
+                      <Stack direction="row" spacing={2} alignItems="center">
+                        <FormControl size="small" sx={{ minWidth: 200 }}>
+                          <InputLabel id="status-filter-label">
+                            Status
+                          </InputLabel>
+                          <Select
+                            labelId="status-filter-label"
+                            id="status-filter"
+                            label="Status"
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                          >
+                            <MenuItem value="all">All</MenuItem>
+                            <MenuItem value="pending">Pending</MenuItem>
+                            <MenuItem value="approved">Approved</MenuItem>
+                            <MenuItem value="rejected">Rejected</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Stack>
+
+                      {filteredApplications.length === 0 ? (
+                        <Typography variant="body1" textAlign="center" p={3}>
+                          No applications found.
+                        </Typography>
+                      ) : (
+                        filteredApplications.map((application) => (
+                          <MentorshipApplicationCard
+                            key={application.id + '-' + application.type}
+                            application={application}
+                            onReview={handleReviewApplication}
+                            onStatusUpdate={handleApplicationStatusUpdate}
+                            status={application.status}
+                          />
+                        ))
+                      )}
                     </Stack>
                   )}
                 </TabPanel>

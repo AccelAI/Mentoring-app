@@ -614,3 +614,108 @@ export const getApplicationByUserId = async (userId) => {
     return null
   }
 }
+
+export const getAllApplications = async () => {
+  try {
+    // Fetch all status docs across mentors and mentees
+    const statusSnap = await getDocs(collectionGroup(db, 'applicationStatus'))
+
+    const applications = []
+
+    for (const s of statusSnap.docs) {
+      const statusData = s.data()
+      const parentDocRef = s.ref.parent.parent // mentors/{uid} or mentees/{uid}
+      if (!parentDocRef) continue
+
+      const parentSnap = await getDoc(parentDocRef)
+      if (!parentSnap.exists()) continue
+      const formData = parentSnap.data()
+
+      const userId = parentDocRef.id
+      const parentCollection = parentDocRef.parent.id
+      const type = parentCollection === 'mentors' ? 'Mentor' : 'Mentee'
+
+      const userDoc = await getDoc(doc(db, 'users', userId))
+      const userData = userDoc.exists() ? userDoc.data() : {}
+
+      applications.push({
+        id: userId,
+        type,
+        user: { uid: userId, ...userData },
+        formData,
+        submittedAt: statusData.submittedAt,
+        status: statusData.status
+      })
+    }
+
+    // Identify combined (both mentor and mentee) users
+    const combinedUsers = new Set()
+    applications.forEach((app) => {
+      if (
+        applications.some(
+          (other) => other.id === app.id && other.type !== app.type
+        )
+      ) {
+        combinedUsers.add(app.id)
+      }
+    })
+
+    // Prefer the mentor entry when a user has both
+    const filteredApplications = applications.filter((app) => {
+      if (combinedUsers.has(app.id)) {
+        return app.type === 'Mentor'
+      }
+      return true
+    })
+
+    // Merge mentor + mentee data for combined users
+    filteredApplications.forEach((app) => {
+      if (combinedUsers.has(app.id)) {
+        app.type = 'Combined'
+        const menteeApp = applications.find(
+          (other) => other.id === app.id && other.type === 'Mentee'
+        )
+        if (menteeApp) {
+          const mergedData = {
+            ...menteeApp.formData,
+            ...app.formData,
+            menteeMotivation: menteeApp.formData.menteeMotivation,
+            commitmentStatement: menteeApp.formData.commitmentStatement,
+            careerGoals: menteeApp.formData.careerGoals,
+            preferredExpectationsMentee:
+              menteeApp.formData.preferredExpectations,
+            mentorMotivation: app.formData.mentorMotivation,
+            mentorArea: app.formData.mentorArea,
+            mentoringTime: app.formData.mentoringTime,
+            menteePreferences: app.formData.menteePreferences,
+            preferredExpectationsMentor: app.formData.preferredExpectations,
+            otherMenteePref: app.formData.otherMenteePref,
+            otherExpectations: app.formData.otherExpectations,
+            mentorSkills: app.formData.mentorSkills,
+            areasConsideringMentoring: app.formData.areasConsideringMentoring
+          }
+          app.formData = mergedData
+          // Keep mentor’s status for the combined entry
+          app.status = app.status || 'pending'
+        }
+      }
+    })
+
+    // Helper to normalize dates for sorting
+    const toMillis = (v) =>
+      v && typeof v.toDate === 'function'
+        ? v.toDate().getTime()
+        : v
+          ? new Date(v).getTime() //prettier-ignore
+          : 0 //prettier-ignore
+
+    filteredApplications.sort(
+      (a, b) => toMillis(b.submittedAt) - toMillis(a.submittedAt)
+    )
+
+    return filteredApplications
+  } catch (err) {
+    console.error('Error fetching all applications:', err)
+    return []
+  }
+}
