@@ -603,8 +603,8 @@ export const getAllApplications = async () => {
       v && typeof v.toDate === 'function'
         ? v.toDate().getTime()
         : v
-          ? new Date(v).getTime() //prettier-ignore
-          : 0 //prettier-ignore
+          ? new Date(v).getTime() // prettier-ignore
+          : 0 // prettier-ignore
 
     filteredApplications.sort(
       (a, b) => toMillis(b.submittedAt) - toMillis(a.submittedAt)
