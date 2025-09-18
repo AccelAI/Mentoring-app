@@ -90,22 +90,29 @@ const ProfileWidget = () => {
           >
             {user.displayName}
           </Typography>
-          <Typography fontSize={14} color="secondary">
-            @{user.username}
-          </Typography>
-          <Stack
-            direction={'row'}
-            spacing={1}
-            alignItems={'center'}
-            divider={<Divider orientation="vertical" flexItem />}
-          >
-            <Typography variant="body2" color="text.secondary">
-              {user.affiliation}
+          {user.username && (
+            <Typography fontSize={14} color="secondary">
+              @{user.username}
             </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {user.title}
-            </Typography>
-          </Stack>
+          )}
+          {user.affiliation || user.title ? (
+            <Stack
+              direction={'row'}
+              spacing={1}
+              alignItems={'center'}
+              divider={
+                user.affiliation &&
+                user.title && <Divider orientation="vertical" flexItem />
+              }
+            >
+              <Typography variant="body2" color="text.secondary">
+                {user.affiliation}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {user.title}
+              </Typography>
+            </Stack>
+          ) : null}
 
           <Typography
             variant="subtitle2"

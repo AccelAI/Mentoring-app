@@ -21,6 +21,7 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "firebase": "^10.13.1",
+    "firebase-admin": "^13.5.0",
     "formik": "^2.4.6",
     "lottie-react": "^2.4.1",
     "node-fetch": "^2.6.7",

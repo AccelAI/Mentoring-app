@@ -39,8 +39,16 @@ const Dashboard = () => {
   const [toggleChat, setToggleChat] = useState(false)
   const [selectedChatRoomId, setSelectedChatRoomId] = useState(null)
   const navigate = useNavigate()
+
+  const [profileLoading, setProfileLoading] = useState(true)
+
   useEffect(() => {
     if (user) {
+      if (!user.profileCompleted && user.authMigrated) {
+        navigate('/get-started')
+        return
+      }
+      setProfileLoading(false)
       // Filter out the logged-in user and ensure only public profiles are shown for non-admin users
       const filteredList = userList.filter((u) => {
         // Always remove the logged-in user
@@ -96,7 +104,7 @@ const Dashboard = () => {
   return (
     <>
       <Header />
-      {loading ? (
+      {loading || profileLoading ? (
         <LinearProgress />
       ) : (
         <>

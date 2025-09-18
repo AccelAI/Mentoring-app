@@ -9,7 +9,7 @@ export const updateUserProfile = async (user, values) => {
   const userDoc = doc(db, 'users', user.uid)
 
   try {
-    await updateDoc(userDoc, values)
+    await updateDoc(userDoc, { ...values, profileCompleted: true })
     return { ok: true }
   } catch (err) {
     console.error('Error updating profile:', err)

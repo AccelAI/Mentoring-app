@@ -139,6 +139,10 @@ const GetStarted = () => {
         enqueueSnackbar('Profile created successfully', { variant: 'success' })
         refreshUser()
         setSubmitting(false)
+        if (user.authMigrated) {
+          setActiveStep(3)
+          return
+        }
         setOpenDialog(true)
       } catch (error) {
         console.error('Error during profile setup:', error)
@@ -473,11 +477,12 @@ const GetStarted = () => {
                   )}
                   {activeStep === 3 && (
                     <Stack spacing={2}>
-                      <Typography variant="body1" sx={{ textAlign: 'center' }}>
+                      <Typography variant="body1" sx={{ textAlign: 'start' }}>
                         This space has been created for latinx identifying
                         students, post-docs, academic researchers, industry
                         researchers, and alies working in Artificial
-                        Intelligence and Machine Learning
+                        Intelligence and Machine Learning to connect, share
+                        resources, and foster mentorship opportunities.
                       </Typography>
                       <Button
                         onClick={handleNext}
