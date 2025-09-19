@@ -12,6 +12,7 @@ import {
   Select,
   MenuItem
 } from '@mui/material'
+import { Cached as ReloadIcon } from '@mui/icons-material'
 import { TabList, TabPanel, TabContext } from '@mui/lab'
 import Header from '../components/Header'
 import { useUser } from '../hooks/useUser'
@@ -38,27 +39,26 @@ const AdminDashboard = () => {
   const [selectedApplication, setSelectedApplication] = useState(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [statusFilter, setStatusFilter] = useState('all')
+  const [typeFilter, setTypeFilter] = useState('all') // new state
 
-  // Fetch all applications when Applications tab is active
+  const fetchApplications = async () => {
+    console.log('fetching applications (all statuses)')
+    setLoadingApplications(true)
+    try {
+      const apps = await getAllApplications()
+      console.log(apps)
+      setApplications(apps)
+    } catch (error) {
+      console.error('Error fetching applications:', error)
+    } finally {
+      setLoadingApplications(false)
+    }
+  }
+
+  // Fetch all applications when the component mounts
   useEffect(() => {
-    const fetchApplications = async () => {
-      console.log('fetching applications (all statuses)')
-      setLoadingApplications(true)
-      try {
-        const apps = await getAllApplications()
-        console.log(apps)
-        setApplications(apps)
-      } catch (error) {
-        console.error('Error fetching applications:', error)
-      } finally {
-        setLoadingApplications(false)
-      }
-    }
-
-    if (value === '1') {
-      fetchApplications()
-    }
-  }, [value])
+    fetchApplications()
+  }, [])
 
   const handleStartChat = useCallback((chatRoomId) => {
     setSelectedChatRoomId(chatRoomId)
@@ -84,11 +84,12 @@ const AdminDashboard = () => {
     fetchApplications()
   }, [])
 
-  // Derive filtered list based on status
-  const filteredApplications =
-    statusFilter === 'all'
-      ? applications
-      : applications.filter((a) => a.status === statusFilter)
+  // Derive filtered list based on status and type
+  const filteredApplications = applications.filter(
+    (a) =>
+      (statusFilter === 'all' || a.status === statusFilter) &&
+      (typeFilter === 'all' || a.type === typeFilter)
+  )
 
   // Render the appropriate dialog based on application type
   const renderApplicationDialog = () => {
@@ -177,32 +178,62 @@ const AdminDashboard = () => {
                   />
                 </TabPanel>
                 <TabPanel value="1">
+                  <Stack
+                    direction="row"
+                    spacing={2}
+                    alignItems="center"
+                    justifyContent="space-between"
+                    pb={2}
+                  >
+                    <Stack direction={'row'} spacing={0.75}>
+                      <FormControl size="small" sx={{ minWidth: 160 }}>
+                        <InputLabel id="status-filter-label">Status</InputLabel>
+                        <Select
+                          labelId="status-filter-label"
+                          id="status-filter"
+                          label="Status"
+                          value={statusFilter}
+                          onChange={(e) => setStatusFilter(e.target.value)}
+                        >
+                          <MenuItem value="all">All</MenuItem>
+                          <MenuItem value="pending">Pending</MenuItem>
+                          <MenuItem value="approved">Approved</MenuItem>
+                          <MenuItem value="rejected">Rejected</MenuItem>
+                        </Select>
+                      </FormControl>
+                      <FormControl size="small" sx={{ minWidth: 160 }}>
+                        <InputLabel id="type-filter-label">Type</InputLabel>
+                        <Select
+                          labelId="type-filter-label"
+                          id="type-filter"
+                          label="Type"
+                          value={typeFilter}
+                          onChange={(e) => setTypeFilter(e.target.value)}
+                        >
+                          <MenuItem value="all">All</MenuItem>
+                          <MenuItem value="Mentor">Mentor</MenuItem>
+                          <MenuItem value="Mentee">Mentee</MenuItem>
+                          <MenuItem value="Combined">Combined</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Stack>
+                    <Button
+                      onClick={fetchApplications}
+                      variant="contained"
+                      startIcon={<ReloadIcon />}
+                    >
+                      Reload Applications
+                    </Button>
+                  </Stack>
+
                   {loadingApplications ? (
-                    <Box display="flex" justifyContent="center" p={3}>
-                      <CircularProgress />
-                    </Box>
+                    <Stack spacing={2} alignItems="center">
+                      <Box display="flex" justifyContent="center" p={3}>
+                        <CircularProgress />
+                      </Box>
+                    </Stack>
                   ) : (
                     <Stack spacing={2}>
-                      <Stack direction="row" spacing={2} alignItems="center">
-                        <FormControl size="small" sx={{ minWidth: 200 }}>
-                          <InputLabel id="status-filter-label">
-                            Status
-                          </InputLabel>
-                          <Select
-                            labelId="status-filter-label"
-                            id="status-filter"
-                            label="Status"
-                            value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                          >
-                            <MenuItem value="all">All</MenuItem>
-                            <MenuItem value="pending">Pending</MenuItem>
-                            <MenuItem value="approved">Approved</MenuItem>
-                            <MenuItem value="rejected">Rejected</MenuItem>
-                          </Select>
-                        </FormControl>
-                      </Stack>
-
                       {filteredApplications.length === 0 ? (
                         <Typography variant="body1" textAlign="center" p={3}>
                           No applications found.
