@@ -121,7 +121,8 @@ const AdminDashboard = () => {
                   >
                     <Tab label="Users" value="0" />
                     <Tab label="Mentorship Applications" value="1" />
-                    {/* <Tab label="Manage Matches" value="2" /> */}
+                    <Tab label="Manage Matches" value="2" />
+                    <Tab label="Manage Administrators" value="3" />
                   </TabList>
                   <Box flexGrow={1} />
                   <Button
@@ -167,7 +168,17 @@ const AdminDashboard = () => {
                     </Stack>
                   )}
                 </TabPanel>
-                <TabPanel value="2">Item Three</TabPanel>
+                <TabPanel value="2">
+                  <ManageMatchesSection />
+                </TabPanel>
+                <TabPanel value="3">
+                  <Typography variant="h6" gutterBottom>
+                    Manage Administrators
+                  </Typography>
+                  <Typography variant="body1">
+                    This section is under construction.
+                  </Typography>
+                </TabPanel>
               </TabContext>
             </Box>
           </Card>
