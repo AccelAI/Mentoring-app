@@ -1,4 +1,8 @@
+// React hooks
 import { useState, useCallback, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+// MUI components
 import {
   Box,
   Card,
@@ -12,20 +16,23 @@ import {
   Select,
   MenuItem
 } from '@mui/material'
-import { Cached as ReloadIcon } from '@mui/icons-material'
+import { Cached as ReloadIcon, Person as UserIcon } from '@mui/icons-material'
 import { TabList, TabPanel, TabContext } from '@mui/lab'
-import Header from '../components/Header'
+
+// Hooks and services
 import { useUser } from '../hooks/useUser'
+import { getAllApplications } from '../api/forms'
+
+// Components
+import Header from '../components/Header'
 import UserListView from '../components/dashboard/UserListView'
 import ChatDrawer from '../components/chat/ChatDrawer'
 import MentorshipApplicationCard from '../components/adminDashboard/MentorshipApplicationCard'
 import MenteeApplicationDialog from '../components/dialogs/formReview/MenteeApplicationDialog'
 import MentorApplicationDialog from '../components/dialogs/formReview/MentorApplicationDialog'
 import CombinedApplicationDialog from '../components/dialogs/formReview/CombinedApplicationDialog'
-import { getAllApplications } from '../api/forms'
-import { useNavigate } from 'react-router-dom'
-import { Person as UserIcon } from '@mui/icons-material'
 import ManageMatchesSection from '../components/adminDashboard/ManageMatchesSection'
+import ManageAdminsSection from '../components/adminDashboard/ManageAdminsSection'
 
 const AdminDashboard = () => {
   const { userList } = useUser()
@@ -154,6 +161,7 @@ const AdminDashboard = () => {
                     <Tab label="Users" value="0" />
                     <Tab label="Mentorship Applications" value="1" />
                     <Tab label="Manage Matches" value="2" />
+                    <Tab label="Manage Administrators" value="3" />
                   </TabList>
                   <Box flexGrow={1} />
                   <Button
@@ -254,6 +262,9 @@ const AdminDashboard = () => {
                 </TabPanel>
                 <TabPanel value="2">
                   <ManageMatchesSection />
+                </TabPanel>
+                <TabPanel value="3">
+                  <ManageAdminsSection userList={userList}/>
                 </TabPanel>
               </TabContext>
             </Box>

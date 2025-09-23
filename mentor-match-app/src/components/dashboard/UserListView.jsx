@@ -17,7 +17,7 @@ import {
 } from '@mui/icons-material'
 
 // Components
-import SearchBar from './SearchBar'
+import SearchBar from '../SearchBar'
 import MentorshipFormDialog from '../dialogs/MentorshipFormDialog'
 import UserGrid from './UserGrid'
 

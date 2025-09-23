@@ -16,7 +16,7 @@ import {
   Box
 } from '@mui/material'
 import ProfilePicture from '../ProfilePicture'
-import SearchBar from '../dashboard/SearchBar'
+import SearchBar from '../SearchBar'
 import { useUser } from '../../hooks/useUser'
 import { asignMatch, endMentorship } from '../../api/match'
 import { filterUsers } from '../../api/users'
