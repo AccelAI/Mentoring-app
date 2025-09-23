@@ -22,6 +22,7 @@ import { TabList, TabPanel, TabContext } from '@mui/lab'
 // Hooks and services
 import { useUser } from '../hooks/useUser'
 import { getAllApplications } from '../api/forms'
+import { getAllMentorshipPairs } from '../api/match'
 
 // Components
 import Header from '../components/Header'
@@ -48,12 +49,22 @@ const AdminDashboard = () => {
   const [statusFilter, setStatusFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all') // new state
 
+  // Mentorship pairs (lifted to page scope)
+  const [mentorshipPairs, setMentorshipPairs] = useState([])
+  const fetchPairs = useCallback(async () => {
+    const pairs = await getAllMentorshipPairs()
+    setMentorshipPairs(pairs)
+  }, [])
+
+  // Fetch pairs once when the page mounts
+  useEffect(() => {
+    fetchPairs()
+  }, [fetchPairs])
+
   const fetchApplications = async () => {
-    console.log('fetching applications (all statuses)')
     setLoadingApplications(true)
     try {
       const apps = await getAllApplications()
-      console.log(apps)
       setApplications(apps)
     } catch (error) {
       console.error('Error fetching applications:', error)
@@ -260,11 +271,20 @@ const AdminDashboard = () => {
                     </Stack>
                   )}
                 </TabPanel>
-                <TabPanel value="2">
-                  <ManageMatchesSection />
-                </TabPanel>
+                {/* Keep Manage Matches mounted and just hide/show it */}
+                <Box
+                  role="tabpanel"
+                  hidden={value !== '2'}
+                  id="tabpanel-2"
+                  aria-labelledby="tab-2"
+                >
+                  <ManageMatchesSection
+                    mentorshipPairs={mentorshipPairs}
+                    fetchPairs={fetchPairs}
+                  />
+                </Box>
                 <TabPanel value="3">
-                  <ManageAdminsSection userList={userList}/>
+                  <ManageAdminsSection userList={userList} />
                 </TabPanel>
               </TabContext>
             </Box>

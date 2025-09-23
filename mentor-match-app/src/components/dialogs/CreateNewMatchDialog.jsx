@@ -26,7 +26,7 @@ import { useSnackbar } from 'notistack'
 const CreateNewMatchDialog = ({
   open,
   onClose,
-  setReloadList,
+  fetchPairs,
   mentor,
   mentee
 }) => {
@@ -75,7 +75,6 @@ const CreateNewMatchDialog = ({
     }
     console.log('Loading application statuses for users with roles...')
     loadStatuses()
-    setReloadList(true)
 
     return () => {
       cancelled = true
@@ -239,7 +238,7 @@ const CreateNewMatchDialog = ({
         )
         onClose()
         setChecked([])
-        setReloadList(true)
+        fetchPairs()
       } else {
         enqueueSnackbar(`Error creating match: ${result.error}`, {
           variant: 'error'

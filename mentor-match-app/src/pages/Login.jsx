@@ -99,7 +99,7 @@ const Login = () => {
                 >
                   Continue with Google
                 </Button>
-                <Button
+                {/* <Button
                   variant="outlined"
                   color="primary"
                   startIcon={<GitHubIcon />}
@@ -129,7 +129,7 @@ const Login = () => {
                   onClick={orcidLogin}
                 >
                   Continue with ORCID
-                </Button>
+                </Button> */}
               </Stack>
 
               <Stack

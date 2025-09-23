@@ -21,7 +21,8 @@ const EndMentorshipDialog = ({
   userId,
   setOpenProfileDialog,
   menteeId,
-  mentorId
+  mentorId,
+  fetchPairs
 }) => {
   const [selectedValue, setSelectedValue] = useState('')
   const [additionalInfo, setAdditionalInfo] = useState('')
@@ -82,6 +83,9 @@ const EndMentorshipDialog = ({
         enqueueSnackbar('Mentorship ended successfully', { variant: 'success' })
       }
       await refreshUser()
+      if (res?.ok && typeof fetchPairs === 'function') {
+        await fetchPairs()
+      }
     } catch (err) {
       console.error('Error ending mentorship:', err)
       enqueueSnackbar('Error ending mentorship: ' + err.message, {

@@ -44,6 +44,12 @@ const UserListView = ({
   const [searchQuery, setSearchQuery] = useState('')
   const filteredUsers = Array.isArray(usersList)
     ? filterUsers(searchQuery, usersList)
+        .slice()
+        .sort((a, b) => {
+          const nameA = a.displayName.toLowerCase()
+          const nameB = b.displayName.toLowerCase()
+          return nameA.localeCompare(nameB)
+        })
     : []
   const { user, loading } = useUser()
   const isDashboard = listType === 'dashboard'

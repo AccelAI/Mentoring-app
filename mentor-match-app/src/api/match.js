@@ -161,21 +161,39 @@ export const getAllMentorshipPairs = async () => {
   try {
     const usersCol = collection(db, 'users')
     const snapshot = await getDocs(usersCol)
+
     const pairs = []
-    for (const docSnap of snapshot.docs) {
+    const seen = new Set()
+
+    // Pass 1: derive from mentee.mentorId
+    snapshot.docs.forEach((docSnap) => {
       const data = docSnap.data()
-      if (data.mentorId) {
-        const mentorDocRef = doc(db, 'users', data.mentorId)
-        const pair = await getDoc(mentorDocRef)
-        if (
-          pair.exists() &&
-          Array.isArray(pair.data().menteesId) &&
-          pair.data().menteesId.includes(docSnap.id)
-        ) {
-          pairs.push({ menteeId: docSnap.id, mentorId: data.mentorId })
+      const menteeId = docSnap.id
+      const mentorId = data?.mentorId
+      if (mentorId) {
+        const key = `${menteeId}|${mentorId}`
+        if (!seen.has(key)) {
+          seen.add(key)
+          pairs.push({ menteeId, mentorId })
         }
       }
-    }
+    })
+
+    // Pass 2: derive from mentor.menteesId
+    snapshot.docs.forEach((docSnap) => {
+      const data = docSnap.data()
+      const mentorId = docSnap.id
+      const menteesId = Array.isArray(data?.menteesId) ? data.menteesId : []
+      menteesId.forEach((menteeId) => {
+        const key = `${menteeId}|${mentorId}`
+        if (!seen.has(key)) {
+          seen.add(key)
+          pairs.push({ menteeId, mentorId })
+        }
+      })
+    })
+
+    console.log('Fetched mentorship pairs:', pairs)
     return pairs
   } catch (err) {
     console.error('Error fetching mentorship pairs:', err)

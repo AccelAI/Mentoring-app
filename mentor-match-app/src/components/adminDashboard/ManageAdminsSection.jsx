@@ -15,7 +15,8 @@ import {
   ListItemText,
   ListItemButton,
   Box,
-  Tooltip
+  Tooltip,
+  CircularProgress
 } from '@mui/material'
 import {
   Add as AddIcon,
@@ -39,6 +40,7 @@ const ManageAdminsSection = () => {
   const [reloadList, setReloadList] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const { enqueueSnackbar } = useSnackbar()
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchAdmins = async () => {
@@ -46,6 +48,7 @@ const ManageAdminsSection = () => {
       console.log('Admins:', admins)
       setAdmins(admins)
       setReloadList(false)
+      setLoading(false)
     }
     fetchAdmins()
   }, [reloadList])
@@ -126,45 +129,52 @@ const ManageAdminsSection = () => {
             </Stack>
           </Card>
         </Grid>
-        {admins.map((admin) => (
-          <Grid size={1.7} key={admin.uid}>
-            <Card
-              sx={{
-                height: '100%',
-                transition: 'box-shadow 0.3s',
-                '&:hover': {
-                  boxShadow: 2
-                }
-              }}
-              variant="outlined"
-            >
-              <Stack
-                height={'100%'}
-                justifyContent={'center'}
-                alignItems="center"
-                spacing={1}
-                p={2}
-              >
-                <ProfilePicture
-                  img={admin.profilePicture}
-                  borderRadius={100}
-                  size={50}
-                />
-                <Typography variant="body2" textAlign={'center'}>
-                  {admin.displayName}
-                </Typography>
-                <Box sx={{ flexGrow: 1 }} />
-                <Box alignSelf={'flex-end'} maxHeight={'min-content'}>
-                  <Tooltip title="Remove Admin">
-                    <IconButton onClick={() => handleRemoveAdmin(admin.uid)}>
-                      <DeleteIcon fontSize="small" color="error" />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              </Stack>
-            </Card>
+        {loading && (
+          <Grid size={1.7} alignContent={'center'} textAlign={'center'}>
+            <CircularProgress />
           </Grid>
-        ))}
+        )}
+        {!loading &&
+          admins.map((admin) => (
+            <Grid size={1.7} key={admin.uid}>
+              <Card
+                sx={{
+                  height: '100%',
+                  transition: 'box-shadow 0.3s',
+                  '&:hover': {
+                    boxShadow: 2
+                  },
+                  p: 1
+                }}
+                variant="outlined"
+              >
+                <Stack
+                  height={'100%'}
+                  justifyContent={'center'}
+                  alignItems="center"
+                  spacing={1}
+                  p={2}
+                >
+                  <ProfilePicture
+                    img={admin.profilePicture}
+                    borderRadius={100}
+                    size={50}
+                  />
+                  <Typography variant="body2" textAlign={'center'}>
+                    {admin.displayName}
+                  </Typography>
+                  <Box sx={{ flexGrow: 1 }} />
+                  <Box alignSelf={'flex-end'} maxHeight={'min-content'}>
+                    <Tooltip title="Remove Admin">
+                      <IconButton onClick={() => handleRemoveAdmin(admin.uid)}>
+                        <DeleteIcon fontSize="small" color="error" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </Stack>
+              </Card>
+            </Grid>
+          ))}
         <Dialog
           open={dialogOpen}
           onClose={() => setDialogOpen(false)}
