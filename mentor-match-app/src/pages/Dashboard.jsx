@@ -32,6 +32,7 @@ import ChatDrawer from '../components/chat/ChatDrawer'
 
 const Dashboard = () => {
   const { userList, user, loading, mentees, isAdmin } = useUser()
+  const importedUser = !!user?.authMigrated
   const [listWithoutLoggedUser, setListWithoutLoggedUser] = useState([])
   const [viewType, setViewType] = useState('dashboard')
   const [mentorData, setMentorData] = useState(null)
@@ -40,6 +41,8 @@ const Dashboard = () => {
   const [selectedChatRoomId, setSelectedChatRoomId] = useState(null)
   const [showAlert, setShowAlert] = useState(true)
   const navigate = useNavigate()
+
+  const [profileLoading, setProfileLoading] = useState(true)
 
   useEffect(() => {
     if (user) {
@@ -145,6 +148,7 @@ const Dashboard = () => {
                     listType={viewType}
                     usersList={listWithoutLoggedUser}
                     onStartChat={handleStartChat}
+                    showMentorshipButton={!importedUser}
                   />
                 )}
                 {!user && viewType === 'dashboard' && (
