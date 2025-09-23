@@ -1,6 +1,5 @@
 // React hooks
 import { useState } from 'react'
-import { useLocation } from 'react-router-dom'
 
 // MUI components
 import {
@@ -38,6 +37,7 @@ const UserListView = ({
   showChatButton,
   showViewProfileButton,
   showEndMentorshipButton,
+  showApplicationButton,
   onStartChat
 }) => {
   const [openDialog, setOpenDialog] = useState(false)
@@ -46,7 +46,6 @@ const UserListView = ({
     ? filterUsers(searchQuery, usersList)
     : []
   const { user, loading } = useUser()
-  const location = useLocation()
   const isDashboard = listType === 'dashboard'
   const isMentorPick = listType === 'mentorPick'
   const isCurrentMentees = listType === 'currentMentees'
@@ -58,6 +57,7 @@ const UserListView = ({
   const showSelectMentor = isMentorPick || showSelectAsMentorButton
   const showChat = isCurrentMentees || isAdmin || showChatButton
   const showEndMentorship = isCurrentMentees || showEndMentorshipButton
+  const showApplication = isCurrentMentees || showApplicationButton
 
   return (
     <Card
@@ -99,17 +99,6 @@ const UserListView = ({
                   Mentorship Program
                 </Button>
               )}
-              {/*               {showManageMenteesButton && (
-                <Tooltip title="Manage Mentees">
-                  <IconButton
-                    color="secondary"
-                    sx={{ height: 'min-content' }}
-                    onClick={() => setOpenDialog(true)}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                </Tooltip>
-              )} */}
               <MentorshipFormDialog
                 openDialog={openDialog}
                 setOpenDialog={setOpenDialog}
@@ -137,6 +126,7 @@ const UserListView = ({
                       showChatButton={showChat}
                       showViewProfileButton={showProfile}
                       showEndMentorshipButton={showEndMentorship}
+                      showApplicationButton={showApplication}
                       onStartChat={onStartChat}
                     />
                   ))}

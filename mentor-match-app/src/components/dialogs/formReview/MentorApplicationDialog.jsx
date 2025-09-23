@@ -30,7 +30,8 @@ const MentorApplicationDialog = ({
   application,
   open,
   onClose,
-  onStatusUpdate
+  onStatusUpdate,
+  enableReview = true
 }) => {
   const { user, formData } = application || {}
   const [openAcceptDialog, setOpenAcceptDialog] = useState(false)
@@ -118,20 +119,32 @@ const MentorApplicationDialog = ({
         </Container>
       </DialogContent>
       <DialogActions>
-        <Button
-          variant="contained"
-          color="error"
-          onClick={() => setOpenRejectDialog(true)}
-        >
-          Reject Application
-        </Button>
-        <Button
-          variant="contained"
-          color="success"
-          onClick={() => setOpenAcceptDialog(true)}
-        >
-          Accept Application
-        </Button>
+        {!enableReview ? (
+          <Button
+            onClick={() => {
+              onClose()
+            }}
+          >
+            Close
+          </Button>
+        ) : (
+          <>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => setOpenRejectDialog(true)}
+            >
+              Reject Application
+            </Button>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() => setOpenAcceptDialog(true)}
+            >
+              Accept Application
+            </Button>
+          </>
+        )}
       </DialogActions>
       <ConfirmApplicationDialog
         open={openAcceptDialog}

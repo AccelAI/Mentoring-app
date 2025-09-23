@@ -19,12 +19,14 @@ const EndMentorshipDialog = ({
   openDialog,
   setOpenDialog,
   userId,
-  setOpenProfileDialog
+  setOpenProfileDialog,
+  menteeId,
+  mentorId
 }) => {
   const [selectedValue, setSelectedValue] = useState('')
   const [additionalInfo, setAdditionalInfo] = useState('')
   const { enqueueSnackbar } = useSnackbar()
-  const { user: loggedUser, refreshUser } = useUser()
+  const { user: loggedUser, refreshUser, isAdmin } = useUser()
 
   const handleValueChange = (event) => {
     setSelectedValue(event.target.value)
@@ -36,16 +38,24 @@ const EndMentorshipDialog = ({
 
   const handleSubmit = async () => {
     try {
-      console.log(
-        'logged user role:' +
-          loggedUser.role +
-          ', userId: ' +
-          userId +
-          ', loggedUser uid: ' +
-          loggedUser.uid
-      )
       let res
-      if (
+      if (isAdmin) {
+        if (!menteeId || !mentorId) {
+          enqueueSnackbar('Missing menteeId or mentorId.', { variant: 'error' })
+          return
+        }
+        console.log(
+          'Admin ending mentorship (menteeId->mentorId):',
+          menteeId,
+          mentorId
+        )
+        res = await endMentorship(
+          menteeId,
+          mentorId,
+          selectedValue,
+          additionalInfo
+        )
+      } else if (
         (loggedUser.role === 'Mentor' || loggedUser.role === 'Mentor/Mentee') &&
         loggedUser.mentees.includes(userId)
       ) {
