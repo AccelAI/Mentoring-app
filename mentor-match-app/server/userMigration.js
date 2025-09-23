@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename)
 
 dotenv.config({ path: path.join(__dirname, '.env') })
 
-function getCredential() {
+function getCredential () {
   const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS
   if (saPath) {
     try {
@@ -49,7 +49,7 @@ if (!admin.apps.length) {
 const db = admin.firestore()
 
 // Helper: generic copy loop with optional perDoc batch ops
-async function copyCollectionDocs({
+async function copyCollectionDocs ({
   source,
   target,
   merge = true,
@@ -87,7 +87,7 @@ async function copyCollectionDocs({
 }
 
 // Copy all top-level docs from 'users-test' to 'users'. Does not copy subcollections.
-export async function copyUsersTestToUsers({
+export async function copyUsersTestToUsers ({
   source = 'users-test',
   target = 'users',
   merge = true,
@@ -115,7 +115,7 @@ export async function copyUsersTestToUsers({
   await copyCollectionDocs({ source, target, merge })
 }
 
-export async function copyFormsTestToForms({
+export async function copyFormsTestToForms ({
   source,
   target,
   merge = true
@@ -141,7 +141,7 @@ export async function copyFormsTestToForms({
 const randomPassword = () => crypto.randomBytes(12).toString('base64')
 
 // Helper: write reset links CSV once (DRY)
-async function writeResetLinksToCsv(resetLinks) {
+async function writeResetLinksToCsv (resetLinks) {
   if (!resetLinks || !resetLinks.length) return
   const out = resetLinks.map((r) => `${r.uid},${r.email},${r.link}`).join('\n')
   const file = path.join(__dirname, 'password_reset_links.csv')
@@ -149,7 +149,7 @@ async function writeResetLinksToCsv(resetLinks) {
   console.log(`Password reset links saved to ${file}`)
 }
 
-export async function migrate() {
+export async function migrate () {
   const snap = await db.collection('users-test').get()
   console.log(`Found ${snap.size} user docs`)
 
@@ -237,7 +237,7 @@ export async function migrate() {
   process.exit(0)
 }
 
-export async function generateResetLinks() {
+export async function generateResetLinks () {
   const snap = await db.collection('users').get()
   console.log(`Found ${snap.size} user docs`)
   const resetLinks = []
@@ -261,18 +261,15 @@ export async function generateResetLinks() {
 /* migrate().catch((e) => {
   console.error(e)
   process.exit(1)
-}) 
-
+})
 await copyUsersTestToUsers()
-
 await copyFormsTestToForms({
   source: 'mentors-test',
   target: 'mentors'
 })
-
 await copyFormsTestToForms({
   source: 'mentees-test',
   target: 'mentees'
 })
-
 await generateResetLinks() */
+
