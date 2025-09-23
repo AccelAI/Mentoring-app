@@ -1,12 +1,3 @@
-/**
- * One-off migration: Firestore users -> Firebase Auth users.
- * DO NOT commit your service account key. Supply GOOGLE_APPLICATION_CREDENTIALS or FIREBASE_SERVICE_ACCOUNT_JSON.
- *
- * Usage:
- *  GOOGLE_APPLICATION_CREDENTIALS=./serviceAccountKey.json \
- *  FIREBASE_PROJECT_ID=your-project-id \
- *  node server/userMigration.js
- */
 import admin from 'firebase-admin'
 import { readFileSync } from 'fs'
 import crypto from 'crypto'
@@ -17,12 +8,9 @@ import dotenv from 'dotenv'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// Ensure we load env from server/.env even if running from project root
 dotenv.config({ path: path.join(__dirname, '.env') })
 
-// Prefer explicit Service Account via env, then fall back to Application Default Credentials.
 function getCredential() {
-  // Option B: path to JSON file (standard GOOGLE_APPLICATION_CREDENTIALS)
   const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS
   if (saPath) {
     try {
@@ -43,8 +31,6 @@ function getCredential() {
       throw e
     }
   }
-
-  // Fallback: ADC (GCE, Cloud Run, gcloud auth application-default login, etc.)
   return admin.credential.applicationDefault()
 }
 
@@ -62,12 +48,49 @@ if (!admin.apps.length) {
 
 const db = admin.firestore()
 
+// Helper: generic copy loop with optional perDoc batch ops
+async function copyCollectionDocs({
+  source,
+  target,
+  merge = true,
+  perDoc // (batch, destRef, data) => numberOfExtraOpsAdded
+}) {
+  const snap = await db.collection(source).get()
+  console.log(`Copying ${snap.size} docs from ${source} -> ${target}`)
+
+  let processed = 0
+  const batch = db.batch()
+  let ops = 0
+
+  for (const doc of snap.docs) {
+    const destRef = db.collection(target).doc(doc.id)
+    const data = doc.data()
+
+    if (merge) {
+      batch.set(destRef, data, { merge: true })
+    } else {
+      batch.set(destRef, data)
+    }
+    ops++
+
+    if (typeof perDoc === 'function') {
+      ops += perDoc(batch, destRef, data) || 0
+    }
+
+    processed++
+  }
+
+  if (ops > 0) {
+    await batch.commit()
+  }
+  console.log(`Copied ${processed} doc from ${source} to ${target}`)
+}
+
 // Copy all top-level docs from 'users-test' to 'users'. Does not copy subcollections.
-async function copyUsersTestToUsers({
+export async function copyUsersTestToUsers({
   source = 'users-test',
   target = 'users',
   merge = true,
-  chunkSize = 450,
   userId
 } = {}) {
   if (userId) {
@@ -88,84 +111,51 @@ async function copyUsersTestToUsers({
     return
   }
 
-  const snap = await db.collection(source).get()
-  console.log(
-    `Copying ${snap.size} docs from ${source} -> ${target} (test: limited to 1)`
-  )
-  let processed = 0
-  let batch = db.batch()
-  let ops = 0
-
-  for (const doc of snap.docs) {
-    const destRef = db.collection(target).doc(doc.id)
-    const data = doc.data()
-    if (merge) {
-      batch.set(destRef, data, { merge: true })
-    } else {
-      batch.set(destRef, data)
-    }
-    ops++
-    processed++
-  }
-
-  if (ops > 0) {
-    await batch.commit()
-  }
-  console.log(`Copied ${processed} doc from ${source} to ${target}`)
+  // Use shared helper for bulk copy
+  await copyCollectionDocs({ source, target, merge })
 }
 
-async function copyFormsTestToForms({
+export async function copyFormsTestToForms({
   source,
   target,
-  merge = true,
-  chunkSize = 450
+  merge = true
 } = {}) {
-  const snap = await db.collection(source).get()
-  console.log(
-    `Copying ${snap.size} docs from ${source} -> ${target} (test: limited to 1)`
-  )
-
-  let processed = 0
-  let batch = db.batch()
-  let ops = 0
-
-  for (const doc of snap.docs) {
-    const destRef = db.collection(target).doc(doc.id)
-    const data = doc.data()
-
-    if (merge) {
-      batch.set(destRef, data, { merge: true })
-    } else {
-      batch.set(destRef, data)
+  // Use shared helper and add status subdoc per document
+  await copyCollectionDocs({
+    source,
+    target,
+    merge,
+    perDoc: (batch, destRef) => {
+      const statusRef = destRef.collection('applicationStatus').doc('current')
+      const statusData = {
+        status: 'approved',
+        submittedAt: new Date(),
+        lastUpdated: new Date()
+      }
+      batch.set(statusRef, statusData, { merge: true })
+      return 1 // one extra op added
     }
-
-    const statusRef = destRef.collection('applicationStatus').doc('current')
-    const statusData = {
-      status: 'approved',
-      submittedAt: new Date(),
-      lastUpdated: new Date()
-    }
-    batch.set(statusRef, statusData, { merge: true })
-
-    ops += 2
-    processed++
-  }
-
-  if (ops > 0) {
-    await batch.commit()
-  }
-  console.log(`Copied ${processed} doc from ${source} to ${target}`)
+  })
 }
 
 const randomPassword = () => crypto.randomBytes(12).toString('base64')
 
-async function migrate() {
+// Helper: write reset links CSV once (DRY)
+async function writeResetLinksToCsv(resetLinks) {
+  if (!resetLinks || !resetLinks.length) return
+  const out = resetLinks.map((r) => `${r.uid},${r.email},${r.link}`).join('\n')
+  const file = path.join(__dirname, 'password_reset_links.csv')
+  await import('fs').then((fs) => fs.writeFileSync(file, out))
+  console.log(`Password reset links saved to ${file}`)
+}
+
+export async function migrate() {
   const snap = await db.collection('users-test').get()
   console.log(`Found ${snap.size} user docs`)
 
   let created = 0
   let skipped = 0
-  let updated = 0
+  const updated = 0
   const resetLinks = []
 
   for (const doc of snap.docs) {
@@ -195,14 +185,12 @@ async function migrate() {
 
     if (!exists) {
       try {
-        let pass = randomPassword()
+        const pass = randomPassword()
         console.log(`Creating auth user ${uid} / ${email}  (password: ${pass})`)
         await admin.auth().createUser({
           uid,
-          // If no email, omit (you can later let user add one)
           ...(email && { email }),
           displayName,
-          // Only needed if you want password login. For SSO/custom-token only, you can omit.
           password: pass
         })
         created++
@@ -210,7 +198,8 @@ async function migrate() {
         console.error('Failed to create auth user for', uid, err.message)
         continue
       }
-    } /* else {
+    }
+    /* else {
       // Optionally update display name / email if missing in Auth
       try {
         const update = {}
@@ -225,23 +214,13 @@ async function migrate() {
       }
     } */
 
-    // Custom claims: admin?
-    try {
-      const adminDoc = await db.collection('admins').doc(uid).get()
-      if (adminDoc.exists) {
-        await admin.auth().setCustomUserClaims(uid, { admin: true })
-      }
-    } catch (err) {
-      console.error('Setting claims failed for', uid, err.message)
-    }
-
     // Mark migrated
     await doc.ref.set(
       { authMigrated: true, authMigratedAt: new Date() },
       { merge: true }
     )
 
-    // (Optional) collect password reset link (only if email present & you intend email/password login)
+    // Collect password reset link (if email present)
     if (email) {
       try {
         const link = await admin.auth().generatePasswordResetLink(email)
@@ -253,20 +232,12 @@ async function migrate() {
   }
 
   console.log({ created, updated, skipped })
-  // Write reset links to disk (optional)
-  if (resetLinks.length) {
-    const out = resetLinks
-      .map((r) => `${r.uid},${r.email},${r.link}`)
-      .join('\n')
-    const file = path.join(__dirname, 'password_reset_links.csv')
-    await import('fs').then((fs) => fs.writeFileSync(file, out))
-    console.log(`Password reset links saved to ${file}`)
-  }
+  await writeResetLinksToCsv(resetLinks)
 
   process.exit(0)
 }
 
-async function generateResetLinks() {
+export async function generateResetLinks() {
   const snap = await db.collection('users').get()
   console.log(`Found ${snap.size} user docs`)
   const resetLinks = []
@@ -282,15 +253,8 @@ async function generateResetLinks() {
       }
     }
   }
-  // Write reset links to disk
-  if (resetLinks.length) {
-    const out = resetLinks
-      .map((r) => `${r.uid},${r.email},${r.link}`)
-      .join('\n')
-    const file = path.join(__dirname, 'password_reset_links.csv')
-    await import('fs').then((fs) => fs.writeFileSync(file, out))
-    console.log(`Password reset links saved to ${file}`)
-  }
+
+  await writeResetLinksToCsv(resetLinks)
   return resetLinks
 }
 

@@ -10,7 +10,7 @@ import { useUser } from '../hooks/useUser'
 import * as yup from 'yup'
 
 export const useAuthHandlers = () => {
-  const { refreshUser, user } = useUser()
+  const { refreshUser } = useUser()
   const initialValues = {
     email: '',
     password: '',
