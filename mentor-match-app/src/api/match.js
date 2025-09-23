@@ -1,20 +1,44 @@
-import { doc, updateDoc, getDoc, setDoc } from 'firebase/firestore'
+import {
+  doc,
+  updateDoc,
+  getDoc,
+  setDoc,
+  collection,
+  getDocs
+} from 'firebase/firestore'
 import { db } from './firebaseConfig'
 
 export const asignMatch = async (menteeId, mentorId) => {
   try {
+    // Assign mentorId to mentee
     const userDoc = doc(db, 'users', menteeId)
     await updateDoc(userDoc, { mentorId })
 
+    // Add menteeId to mentor's list of mentees
     const mentorDoc = doc(db, 'users', mentorId)
     const mentorSnap = await getDoc(mentorDoc)
     const currentMentees =
-      mentorSnap.exists() && Array.isArray(mentorSnap.data().mentees)
-        ? mentorSnap.data().mentees
+      mentorSnap.exists() && Array.isArray(mentorSnap.data().menteesId)
+        ? mentorSnap.data().menteesId
         : []
 
+    // Limit to max 2 mentees
+    if (currentMentees.length >= 2) {
+      return {
+        ok: false,
+        error: 'Mentor already has maximum number of mentees.'
+      }
+    }
+
+    if (currentMentees.includes(menteeId)) {
+      return {
+        ok: false,
+        error: 'This mentee is already assigned to this mentor.'
+      }
+    }
+
     await updateDoc(mentorDoc, {
-      mentees: [...currentMentees, menteeId],
+      menteesId: [...currentMentees, menteeId],
       newMenteeMatch: true
     })
 
@@ -68,13 +92,13 @@ export const endMentorship = async (
 
     const mentorDoc = doc(db, 'users', mentorId)
     const mentorSnap = await getDoc(mentorDoc)
-    const mentees = Array.isArray(mentorSnap.data().mentees)
-      ? mentorSnap.data().mentees
+    const mentees = Array.isArray(mentorSnap.data().menteesId)
+      ? mentorSnap.data().menteesId
       : []
     const updatedMentees = mentees.filter((uid) => uid !== menteeId)
     console.log('Updated mentees:', updatedMentees)
     await updateDoc(mentorDoc, {
-      mentees: updatedMentees
+      menteesId: updatedMentees
     })
 
     const mentorHistoryDoc = doc(
@@ -130,5 +154,31 @@ export const getMentorshipStartDate = async (menteeId, mentorId) => {
   } catch (err) {
     console.error('Error fetching mentorship start date:', err)
     return null
+  }
+}
+
+export const getAllMentorshipPairs = async () => {
+  try {
+    const usersCol = collection(db, 'users')
+    const snapshot = await getDocs(usersCol)
+    const pairs = []
+    for (const docSnap of snapshot.docs) {
+      const data = docSnap.data()
+      if (data.mentorId) {
+        const mentorDocRef = doc(db, 'users', data.mentorId)
+        const pair = await getDoc(mentorDocRef)
+        if (
+          pair.exists() &&
+          Array.isArray(pair.data().menteesId) &&
+          pair.data().menteesId.includes(docSnap.id)
+        ) {
+          pairs.push({ menteeId: docSnap.id, mentorId: data.mentorId })
+        }
+      }
+    }
+    return pairs
+  } catch (err) {
+    console.error('Error fetching mentorship pairs:', err)
+    return []
   }
 }

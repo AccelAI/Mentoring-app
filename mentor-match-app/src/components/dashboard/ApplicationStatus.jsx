@@ -197,78 +197,86 @@ const ApplicationStatus = () => {
                   </DialogActions>
                 </Dialog>
                 {/* SubmittedFormsSection end */}
-                <Divider sx={{ pt: 2, width: '20%', alignSelf: 'center' }} />
+
                 {applicationInfo && (
-                  <Stack spacing={1} sx={{ pt: 2 }}>
-                    <Typography fontWeight={'medium'}>
-                      Application Details
-                    </Typography>
-                    <Stack
-                      direction={'row'}
-                      spacing={0.5}
-                      alignItems={'center'}
-                    >
-                      {applicationInfo.status === 'pending' && (
-                        <PendingIcon fontSize="small" color="warning" />
-                      )}
-                      {applicationInfo.status === 'approved' && (
-                        <ApprovedIcon fontSize="small" color="success" />
-                      )}
-                      {applicationInfo.status === 'rejected' && (
-                        <RejectedIcon fontSize="small" color="error" />
-                      )}
-                      <Typography variant={'body2'}>
-                        Status: {capitalizeFirst(applicationInfo.status)}
+                  <>
+                    <Divider
+                      sx={{ pt: 2, width: '20%', alignSelf: 'center' }}
+                    />
+                    <Stack spacing={1} sx={{ pt: 2 }}>
+                      <Typography fontWeight={'medium'}>
+                        Application Details
                       </Typography>
-                    </Stack>
-                    {applicationInfo.status === 'rejected' &&
-                      applicationInfo.adminNotes && (
-                        <Stack spacing={1.75} direction={'row'}>
-                          <Divider
-                            orientation="vertical"
-                            flexItem
-                            sx={{ pl: 1.25 }}
-                          />
-                          <Stack spacing={0.5}>
-                            <Stack direction={'row'} spacing={0.5}>
-                              <Typography
-                                fontWeight={'medium'}
-                                variant={'body2'}
-                              >
-                                Reason for rejection:
-                              </Typography>
-                              <Typography variant={'body2'}>
-                                "{applicationInfo.adminNotes}"
+                      <Stack
+                        direction={'row'}
+                        spacing={0.5}
+                        alignItems={'center'}
+                      >
+                        {applicationInfo.status === 'pending' && (
+                          <PendingIcon fontSize="small" color="warning" />
+                        )}
+                        {applicationInfo.status === 'approved' && (
+                          <ApprovedIcon fontSize="small" color="success" />
+                        )}
+                        {applicationInfo.status === 'rejected' && (
+                          <RejectedIcon fontSize="small" color="error" />
+                        )}
+                        <Typography variant={'body2'}>
+                          Status: {capitalizeFirst(applicationInfo.status)}
+                        </Typography>
+                      </Stack>
+                      {applicationInfo.status === 'rejected' &&
+                        applicationInfo.adminNotes && (
+                          <Stack spacing={1.75} direction={'row'}>
+                            <Divider
+                              orientation="vertical"
+                              flexItem
+                              sx={{ pl: 1.25 }}
+                            />
+                            <Stack spacing={0.5}>
+                              <Stack direction={'row'} spacing={0.5}>
+                                <Typography
+                                  fontWeight={'medium'}
+                                  variant={'body2'}
+                                >
+                                  Reason for rejection:
+                                </Typography>
+                                <Typography variant={'body2'}>
+                                  "{applicationInfo.adminNotes}"
+                                </Typography>
+                              </Stack>
+                              <Typography variant={'caption'} color="error">
+                                Please address the issues mentioned above and
+                                resubmit your application by clicking "Edit
+                                Form".
                               </Typography>
                             </Stack>
-                            <Typography variant={'caption'} color="error">
-                              Please address the issues mentioned above and
-                              resubmit your application by clicking "Edit Form".
-                            </Typography>
                           </Stack>
-                        </Stack>
-                      )}
-                    <Stack
-                      direction={'row'}
-                      spacing={0.5}
-                      alignItems={'center'}
-                    >
-                      <DateIcon fontSize="small" color="primary" />
-                      <Typography variant={'body2'}>
-                        Submitted on: {formatDate(applicationInfo.submittedAt)}
-                      </Typography>
+                        )}
+                      <Stack
+                        direction={'row'}
+                        spacing={0.5}
+                        alignItems={'center'}
+                      >
+                        <DateIcon fontSize="small" color="primary" />
+                        <Typography variant={'body2'}>
+                          Submitted on:{' '}
+                          {formatDate(applicationInfo.submittedAt)}
+                        </Typography>
+                      </Stack>
+                      <Stack
+                        direction={'row'}
+                        spacing={0.5}
+                        alignItems={'center'}
+                      >
+                        <UpdateIcon fontSize="small" color="primary" />
+                        <Typography variant={'body2'}>
+                          Last updated:{' '}
+                          {formatDate(applicationInfo.lastUpdated)}
+                        </Typography>
+                      </Stack>
                     </Stack>
-                    <Stack
-                      direction={'row'}
-                      spacing={0.5}
-                      alignItems={'center'}
-                    >
-                      <UpdateIcon fontSize="small" color="primary" />
-                      <Typography variant={'body2'}>
-                        Last updated: {formatDate(applicationInfo.lastUpdated)}
-                      </Typography>
-                    </Stack>
-                  </Stack>
+                  </>
                 )}
               </Stack>
             )}

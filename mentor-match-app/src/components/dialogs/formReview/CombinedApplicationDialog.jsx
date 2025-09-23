@@ -34,7 +34,8 @@ const CombinedApplicationDialog = ({
   application,
   open,
   onClose,
-  onStatusUpdate
+  onStatusUpdate,
+  enableReview = true
 }) => {
   const { user, formData } = application || {}
   const [activeTab, setActiveTab] = useState(0)
@@ -110,8 +111,9 @@ const CombinedApplicationDialog = ({
                         'Other'
                       ]}
                       name={'currentPosition'}
+                      disabled={true}
                     />
-                    <CommonQuestions />
+                    <CommonQuestions disabled={true} />
                     <RadioQuestion
                       question="How many academic research papers have you written or contributed to?  / ¿Cuántos artículos de investigación académica has escrito o en cuántos has contribuido? / Quantos artigos de pesquisa acadêmica você escreveu ou contribuiu?"
                       name={'academicPapers'}
@@ -122,19 +124,21 @@ const CombinedApplicationDialog = ({
                         '4-7 – I have moderate experience publishing in conferences or journals.',
                         '8+ – I have extensive experience publishing research.'
                       ]}
+                      disabled={true}
                     />
                     <RadioQuestion
                       question={`Are you open to discuss/enumerate the impacts of the program sometime later in the future? / ¿Estás abierto/a a discutir o enumerar los impactos del programa en algún momento en el futuro? / Você está aberto(a) para discutir ou enumerar os impactos do programa em algum momento no futuro?`}
                       name={'openToDiscussImpacts'}
                       options={['Yes', 'No']}
                       required={false}
+                      disabled={true}
                     />
                   </Stack>
                 )}
 
                 {activeTab === 1 && (
                   <Stack spacing={3}>
-                    <MenteeQuestions isCombinedForm={true} />
+                    <MenteeQuestions isCombinedForm={true} disabled={true} />
                     <Typography variant="h6">
                       Beyond the Program / Más allá del programa / Além do
                       programa
@@ -142,13 +146,14 @@ const CombinedApplicationDialog = ({
                     <TextfieldQuestion
                       question="Do you plan to share your experience after the program? If yes, how? / ¿Planeas compartir tu experiencia después del programa? Si es así, ¿cómo? / Você planeja compartilhar sua experiência após o programa? Se sim, como?"
                       name={'shareExperience'}
+                      disabled={true}
                     />
                   </Stack>
                 )}
 
                 {activeTab === 2 && (
                   <Stack spacing={3}>
-                    <MentorQuestions isCombinedForm={true} />
+                    <MentorQuestions isCombinedForm={true} disabled={true} />
                     <Typography variant="h6">
                       Beyond the Program / Más allá del programa / Além do
                       programa
@@ -156,6 +161,7 @@ const CombinedApplicationDialog = ({
                     <TextfieldQuestion
                       question="What do you hope to contribute as a mentor in this program?/¿Qué esperas aportar como mentor en este programa? / O que você espera contribuir como mentor neste programa?"
                       name={'contributeAsMentor'}
+                      disabled={true}
                     />
                   </Stack>
                 )}
@@ -165,20 +171,32 @@ const CombinedApplicationDialog = ({
         </Container>
       </DialogContent>
       <DialogActions>
-        <Button
-          variant="contained"
-          color="error"
-          onClick={() => setOpenRejectDialog(true)}
-        >
-          Reject Application
-        </Button>
-        <Button
-          variant="contained"
-          color="success"
-          onClick={() => setOpenAcceptDialog(true)}
-        >
-          Accept Application
-        </Button>
+        {!enableReview ? (
+          <Button
+            onClick={() => {
+              onClose()
+            }}
+          >
+            Close
+          </Button>
+        ) : (
+          <>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => setOpenRejectDialog(true)}
+            >
+              Reject Application
+            </Button>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() => setOpenAcceptDialog(true)}
+            >
+              Accept Application
+            </Button>
+          </>
+        )}
       </DialogActions>
       <ConfirmApplicationDialog
         open={openAcceptDialog}

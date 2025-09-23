@@ -26,9 +26,15 @@ import { useSnackbar } from 'notistack'
 const MentorshipApplicationCard = ({
   application,
   onReview,
-  onStatusUpdate
+  onStatusUpdate,
+  status
 }) => {
   const { user, formData, type, submittedAt } = application
+  // Determine how to render the commitment statement
+  const statementRaw = formData?.commitmentStatement
+  const statement = typeof statementRaw === 'string' ? statementRaw.trim() : ''
+  const isHttpsUrl = statement.startsWith('https://')
+
   const [openAcceptDialog, setOpenAcceptDialog] = useState(false)
   const [openRejectDialog, setOpenRejectDialog] = useState(false)
   const { enqueueSnackbar } = useSnackbar()
@@ -78,53 +84,83 @@ const MentorshipApplicationCard = ({
                 </Typography>
               </Stack>
               {/*Only mentees have commitment statements */}
-              {type === 'Mentee' && (
-                <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
-                  <StatementIcon fontSize="small" color="primary" />
-                  <Typography variant={'body2'}>
-                    Commitment and motivation statement:
-                  </Typography>
-                  <Link
-                    href={formData.commitmentStatement}
-                    variant={'body2'}
-                    target="_blank"
-                    sx={{ wordBreak: 'break-all' }}
-                  >
-                    {formData.commitmentStatement || 'No statement provided'}
-                  </Link>
+              {(type === 'Mentee' || type === 'Combined') && (
+                <Stack
+                  direction={isHttpsUrl ? 'row' : 'column'}
+                  spacing={0.5}
+                  alignItems={isHttpsUrl ? 'center' : 'flex-start'}
+                >
+                  <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
+                    <StatementIcon fontSize="small" color="primary" />
+                    <Typography variant={'body2'}>
+                      Commitment and motivation statement:
+                    </Typography>
+                  </Stack>
+                  {isHttpsUrl ? (
+                    <Link
+                      href={statement}
+                      variant="body2"
+                      target="_blank"
+                      rel="noopener"
+                      sx={{ wordBreak: 'break-all' }}
+                    >
+                      {statement}
+                    </Link>
+                  ) : (
+                    <Box pr={2} pb={1}>
+                      <Typography variant="body2" color="text.secondary">
+                        {statement || 'No statement provided'}
+                      </Typography>
+                    </Box>
+                  )}
                 </Stack>
               )}
             </Stack>
           </Stack>
           <Stack spacing={1} direction={'row'} alignItems={'center'}>
-            <Tooltip title="View Full Application">
-              <IconButton
-                size="small"
-                color="primary"
+            {status === 'pending' ? (
+              <Tooltip title="View Full Application">
+                <IconButton
+                  size="small"
+                  color="primary"
+                  onClick={() => onReview(application)}
+                >
+                  <FormIcon />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <Button
                 onClick={() => onReview(application)}
+                size="small"
+                startIcon={<FormIcon />}
               >
-                <FormIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Accept Application">
-              <IconButton
-                color="success"
-                onClick={() => setOpenAcceptDialog(true)}
-              >
-                <CheckIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Reject Application">
-              <IconButton
-                color="error"
-                onClick={() => setOpenRejectDialog(true)}
-              >
-                <CancelIcon />
-              </IconButton>
-            </Tooltip>
+                View Application
+              </Button>
+            )}
+            {status === 'pending' && (
+              <>
+                <Tooltip title="Accept Application">
+                  <IconButton
+                    color="success"
+                    onClick={() => setOpenAcceptDialog(true)}
+                  >
+                    <CheckIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Reject Application">
+                  <IconButton
+                    color="error"
+                    onClick={() => setOpenRejectDialog(true)}
+                  >
+                    <CancelIcon />
+                  </IconButton>
+                </Tooltip>
+              </>
+            )}
           </Stack>
         </Stack>
       </Box>
+
       <ConfirmApplicationDialog
         open={openAcceptDialog}
         onClose={() => setOpenAcceptDialog(false)}

@@ -53,16 +53,20 @@ const RadioQuestion = ({
           <Field name={name}>
             {({ field, form }) => {
               const nonOtherOptions = options.filter((o) => o !== 'Other')
+              const fieldValue = form.values[name]
               const radioValue = isOtherSelected
                 ? 'Other'
-                : nonOtherOptions.includes(field.value)
-                ? field.value
-                : field.value
+                : typeof fieldValue === 'string' &&
+                  nonOtherOptions.includes(fieldValue)
+                ? fieldValue
+                : typeof fieldValue === 'string' && fieldValue
                 ? 'Other'
                 : ''
               const showOtherError =
                 radioValue === 'Other' &&
-                (!form.values[name] || form.values[name].trim() === '')
+                (fieldValue === undefined ||
+                  fieldValue === null ||
+                  (typeof fieldValue === 'string' && fieldValue.trim() === ''))
               return (
                 <RadioGroup
                   name={field.name}
@@ -71,8 +75,10 @@ const RadioQuestion = ({
                     const v = e.target.value
                     if (v === 'Other') {
                       setIsOtherSelected(true)
-                      // If switching from a predefined option, start empty
-                      if (nonOtherOptions.includes(form.values[name])) {
+                      if (
+                        typeof form.values[name] === 'string' &&
+                        nonOtherOptions.includes(form.values[name])
+                      ) {
                         form.setFieldValue(name, '')
                       }
                     } else {

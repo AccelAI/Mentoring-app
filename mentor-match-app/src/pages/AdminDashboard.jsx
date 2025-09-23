@@ -6,8 +6,13 @@ import {
   Typography,
   Tab,
   CircularProgress,
-  Button
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material'
+import { Cached as ReloadIcon } from '@mui/icons-material'
 import { TabList, TabPanel, TabContext } from '@mui/lab'
 import Header from '../components/Header'
 import { useUser } from '../hooks/useUser'
@@ -17,9 +22,10 @@ import MentorshipApplicationCard from '../components/adminDashboard/MentorshipAp
 import MenteeApplicationDialog from '../components/dialogs/formReview/MenteeApplicationDialog'
 import MentorApplicationDialog from '../components/dialogs/formReview/MentorApplicationDialog'
 import CombinedApplicationDialog from '../components/dialogs/formReview/CombinedApplicationDialog'
-import { getPendingApplications } from '../api/forms'
+import { getAllApplications } from '../api/forms'
 import { useNavigate } from 'react-router-dom'
 import { Person as UserIcon } from '@mui/icons-material'
+import ManageMatchesSection from '../components/adminDashboard/ManageMatchesSection'
 
 const AdminDashboard = () => {
   const { userList } = useUser()
@@ -32,28 +38,27 @@ const AdminDashboard = () => {
   const [loadingApplications, setLoadingApplications] = useState(true)
   const [selectedApplication, setSelectedApplication] = useState(null)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [typeFilter, setTypeFilter] = useState('all') // new state
 
-  // Fetch pending applications
+  const fetchApplications = async () => {
+    console.log('fetching applications (all statuses)')
+    setLoadingApplications(true)
+    try {
+      const apps = await getAllApplications()
+      console.log(apps)
+      setApplications(apps)
+    } catch (error) {
+      console.error('Error fetching applications:', error)
+    } finally {
+      setLoadingApplications(false)
+    }
+  }
+
+  // Fetch all applications when the component mounts
   useEffect(() => {
-    const fetchApplications = async () => {
-      console.log('fetching applications')
-      setLoadingApplications(true)
-      try {
-        const apps = await getPendingApplications()
-        console.log('apps', apps)
-        setApplications(apps)
-      } catch (error) {
-        console.error('Error fetching applications:', error)
-      } finally {
-        setLoadingApplications(false)
-      }
-    }
-
-    if (value === '1') {
-      // Only fetch when on applications tab
-      fetchApplications()
-    }
-  }, [value])
+    fetchApplications()
+  }, [])
 
   const handleStartChat = useCallback((chatRoomId) => {
     setSelectedChatRoomId(chatRoomId)
@@ -71,19 +76,26 @@ const AdminDashboard = () => {
   }, [])
 
   const handleApplicationStatusUpdate = useCallback(() => {
-    // Refresh applications after status update
+    // Refresh applications after status update (fetch all)
     const fetchApplications = async () => {
-      const apps = await getPendingApplications()
+      const apps = await getAllApplications()
       setApplications(apps)
     }
     fetchApplications()
   }, [])
 
+  // Derive filtered list based on status and type
+  const filteredApplications = applications.filter(
+    (a) =>
+      (statusFilter === 'all' || a.status === statusFilter) &&
+      (typeFilter === 'all' || a.type === typeFilter)
+  )
+
   // Render the appropriate dialog based on application type
   const renderApplicationDialog = () => {
     if (!selectedApplication) return null
 
-    const { type } = selectedApplication
+    const { type, status } = selectedApplication
     const dialogProps = {
       open: dialogOpen,
       onClose: handleCloseDialog,
@@ -93,13 +105,33 @@ const AdminDashboard = () => {
 
     switch (type) {
       case 'Mentee':
-        return <MenteeApplicationDialog {...dialogProps} />
+        return (
+          <MenteeApplicationDialog
+            {...dialogProps}
+            enableReview={status === 'pending'}
+          />
+        )
       case 'Mentor':
-        return <MentorApplicationDialog {...dialogProps} />
+        return (
+          <MentorApplicationDialog
+            {...dialogProps}
+            enableReview={status === 'pending'}
+          />
+        )
       case 'Combined':
-        return <CombinedApplicationDialog {...dialogProps} />
+        return (
+          <CombinedApplicationDialog
+            {...dialogProps}
+            enableReview={status === 'pending'}
+          />
+        )
       default:
-        return <MenteeApplicationDialog {...dialogProps} />
+        return (
+          <MenteeApplicationDialog
+            {...dialogProps}
+            enableReview={status === 'pending'}
+          />
+        )
     }
   }
 
@@ -121,7 +153,7 @@ const AdminDashboard = () => {
                   >
                     <Tab label="Users" value="0" />
                     <Tab label="Mentorship Applications" value="1" />
-                    {/* <Tab label="Manage Matches" value="2" /> */}
+                    <Tab label="Manage Matches" value="2" />
                   </TabList>
                   <Box flexGrow={1} />
                   <Button
@@ -146,28 +178,83 @@ const AdminDashboard = () => {
                   />
                 </TabPanel>
                 <TabPanel value="1">
+                  <Stack
+                    direction="row"
+                    spacing={2}
+                    alignItems="center"
+                    justifyContent="space-between"
+                    pb={2}
+                  >
+                    <Stack direction={'row'} spacing={0.75}>
+                      <FormControl size="small" sx={{ minWidth: 160 }}>
+                        <InputLabel id="status-filter-label">Status</InputLabel>
+                        <Select
+                          labelId="status-filter-label"
+                          id="status-filter"
+                          label="Status"
+                          value={statusFilter}
+                          onChange={(e) => setStatusFilter(e.target.value)}
+                        >
+                          <MenuItem value="all">All</MenuItem>
+                          <MenuItem value="pending">Pending</MenuItem>
+                          <MenuItem value="approved">Approved</MenuItem>
+                          <MenuItem value="rejected">Rejected</MenuItem>
+                        </Select>
+                      </FormControl>
+                      <FormControl size="small" sx={{ minWidth: 160 }}>
+                        <InputLabel id="type-filter-label">Type</InputLabel>
+                        <Select
+                          labelId="type-filter-label"
+                          id="type-filter"
+                          label="Type"
+                          value={typeFilter}
+                          onChange={(e) => setTypeFilter(e.target.value)}
+                        >
+                          <MenuItem value="all">All</MenuItem>
+                          <MenuItem value="Mentor">Mentor</MenuItem>
+                          <MenuItem value="Mentee">Mentee</MenuItem>
+                          <MenuItem value="Combined">Combined</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Stack>
+                    <Button
+                      onClick={fetchApplications}
+                      variant="contained"
+                      startIcon={<ReloadIcon />}
+                    >
+                      Reload Applications
+                    </Button>
+                  </Stack>
+
                   {loadingApplications ? (
-                    <Box display="flex" justifyContent="center" p={3}>
-                      <CircularProgress />
-                    </Box>
-                  ) : applications.length === 0 ? (
-                    <Typography variant="body1" textAlign="center" p={3}>
-                      No pending applications found.
-                    </Typography>
+                    <Stack spacing={2} alignItems="center">
+                      <Box display="flex" justifyContent="center" p={3}>
+                        <CircularProgress />
+                      </Box>
+                    </Stack>
                   ) : (
                     <Stack spacing={2}>
-                      {applications.map((application) => (
-                        <MentorshipApplicationCard
-                          key={application.id}
-                          application={application}
-                          onReview={handleReviewApplication}
-                          onStatusUpdate={handleApplicationStatusUpdate}
-                        />
-                      ))}
+                      {filteredApplications.length === 0 ? (
+                        <Typography variant="body1" textAlign="center" p={3}>
+                          No applications found.
+                        </Typography>
+                      ) : (
+                        filteredApplications.map((application) => (
+                          <MentorshipApplicationCard
+                            key={application.id + '-' + application.type}
+                            application={application}
+                            onReview={handleReviewApplication}
+                            onStatusUpdate={handleApplicationStatusUpdate}
+                            status={application.status}
+                          />
+                        ))
+                      )}
                     </Stack>
                   )}
                 </TabPanel>
-                <TabPanel value="2">Item Three</TabPanel>
+                <TabPanel value="2">
+                  <ManageMatchesSection />
+                </TabPanel>
               </TabContext>
             </Box>
           </Card>

@@ -371,109 +371,6 @@ export const getFormAnswersByStatus = async (status) => {
   }
 }
 
-export const getPendingApplications = async () => {
-  try {
-    // Query pending status docs across both mentors and mentees
-    const statusQ = query(
-      collectionGroup(db, 'applicationStatus'),
-      where('status', '==', 'pending')
-    )
-    const statusSnap = await getDocs(statusQ)
-
-    const applications = []
-
-    for (const s of statusSnap.docs) {
-      const statusData = s.data()
-      const parentDocRef = s.ref.parent.parent // mentors/{uid} or mentees/{uid}
-      if (!parentDocRef) continue
-
-      const parentSnap = await getDoc(parentDocRef)
-      if (!parentSnap.exists()) continue
-      const formData = parentSnap.data()
-
-      const userId = parentDocRef.id
-      const parentCollection = parentDocRef.parent.id
-      const type = parentCollection === 'mentors' ? 'Mentor' : 'Mentee'
-
-      const userDoc = await getDoc(doc(db, 'users', userId))
-      const userData = userDoc.exists() ? userDoc.data() : {}
-
-      applications.push({
-        id: userId,
-        type,
-        user: { uid: userId, ...userData },
-        formData,
-        submittedAt: statusData.submittedAt
-      })
-    }
-
-    // Identify combined (both mentor and mentee) users
-    const combinedUsers = new Set()
-    applications.forEach((app) => {
-      if (
-        applications.some(
-          (other) => other.id === app.id && other.type !== app.type
-        )
-      ) {
-        combinedUsers.add(app.id)
-      }
-    })
-
-    const filteredApplications = applications.filter((app) => {
-      if (combinedUsers.has(app.id)) {
-        return app.type === 'Mentor'
-      }
-      return true
-    })
-
-    // Merge mentor + mentee data for combined users
-    filteredApplications.forEach((app) => {
-      if (combinedUsers.has(app.id)) {
-        app.type = 'Combined'
-        const menteeApp = applications.find(
-          (other) => other.id === app.id && other.type === 'Mentee'
-        )
-        if (menteeApp) {
-          const mergedData = {
-            ...menteeApp.formData,
-            ...app.formData,
-            menteeMotivation: menteeApp.formData.menteeMotivation,
-            commitmentStatement: menteeApp.formData.commitmentStatement,
-            careerGoals: menteeApp.formData.careerGoals,
-            preferredExpectationsMentee:
-              menteeApp.formData.preferredExpectations,
-            mentorMotivation: app.formData.mentorMotivation,
-            mentorArea: app.formData.mentorArea,
-            mentoringTime: app.formData.mentoringTime,
-            menteePreferences: app.formData.menteePreferences,
-            preferredExpectationsMentor: app.formData.preferredExpectations,
-            otherMenteePref: app.formData.otherMenteePref,
-            otherExpectations: app.formData.otherExpectations,
-            mentorSkills: app.formData.mentorSkills,
-            areasConsideringMentoring: app.formData.areasConsideringMentoring
-          }
-          app.formData = mergedData
-        }
-      }
-    })
-
-    // Helper to normalize dates for sorting
-    const toMillis = (v) =>
-      v && typeof v.toDate === 'function'
-        ? v.toDate().getTime()
-        : new Date(v).getTime()
-
-    filteredApplications.sort(
-      (a, b) => toMillis(b.submittedAt) - toMillis(a.submittedAt)
-    )
-
-    return filteredApplications
-  } catch (err) {
-    console.error('Error fetching pending applications:', err)
-    return []
-  }
-}
-
 export const getFormType = async (userId) => {
   const formAnswers = await getFormAnswers(userId)
   if (!formAnswers || formAnswers.ok === false) return null
@@ -519,5 +416,203 @@ export const getCurrentApplicationStatus = async (userId, formType) => {
   } catch (err) {
     console.error('Error fetching current application status:', err)
     return null
+  }
+}
+
+export const getApplicationByUserId = async (userId) => {
+  try {
+    if (!userId) return null
+
+    const collections = [
+      { name: 'mentors', type: 'Mentor' },
+      { name: 'mentees', type: 'Mentee' }
+    ]
+
+    const results = await Promise.all(
+      collections.map(async ({ name, type }) => {
+        const formRef = doc(db, name, userId)
+        const statusRef = doc(db, name, userId, 'applicationStatus', 'current')
+        const [formSnap, statusSnap] = await Promise.all([
+          getDoc(formRef),
+          getDoc(statusRef)
+        ])
+        if (!formSnap.exists() || !statusSnap.exists()) return null
+        return {
+          type,
+          formData: formSnap.data(),
+          statusData: statusSnap.data()
+        }
+      })
+    )
+
+    const mentorEntry = results.find((r) => r && r.type === 'Mentor')
+    const menteeEntry = results.find((r) => r && r.type === 'Mentee')
+
+    if (!mentorEntry && !menteeEntry) return null
+
+    // Fetch user profile
+    const userDocSnap = await getDoc(doc(db, 'users', userId))
+    const userProfile = userDocSnap.exists() ? userDocSnap.data() : {}
+
+    // If both exist -> Combined
+    if (mentorEntry && menteeEntry) {
+      const mergedData = {
+        ...menteeEntry.formData,
+        ...mentorEntry.formData,
+        menteeMotivation: menteeEntry.formData.menteeMotivation,
+        commitmentStatement: menteeEntry.formData.commitmentStatement,
+        careerGoals: menteeEntry.formData.careerGoals,
+        preferredExpectationsMentee: menteeEntry.formData.preferredExpectations,
+        mentorMotivation: mentorEntry.formData.mentorMotivation,
+        mentorArea: mentorEntry.formData.mentorArea,
+        mentoringTime: mentorEntry.formData.mentoringTime,
+        menteePreferences: mentorEntry.formData.menteePreferences,
+        preferredExpectationsMentor: mentorEntry.formData.preferredExpectations,
+        otherMenteePref: mentorEntry.formData.otherMenteePref,
+        otherExpectations: mentorEntry.formData.otherExpectations,
+        mentorSkills: mentorEntry.formData.mentorSkills,
+        areasConsideringMentoring:
+          mentorEntry.formData.areasConsideringMentoring
+      }
+
+      // Choose submittedAt (prefer earliest if both have it)
+      const toMillis = (v) =>
+        v && typeof v.toDate === 'function'
+          ? v.toDate().getTime()
+          : v
+            ? new Date(v).getTime() // prettier-ignore
+            : Infinity // prettier-ignore
+      const submittedAt =
+        toMillis(mentorEntry.statusData.submittedAt) <
+        toMillis(menteeEntry.statusData.submittedAt)
+          ? mentorEntry.statusData.submittedAt
+          : menteeEntry.statusData.submittedAt
+
+      return {
+        id: userId,
+        type: 'Combined',
+        user: { uid: userId, ...userProfile },
+        formData: mergedData,
+        submittedAt
+      }
+    }
+
+    // Single form (Mentor or Mentee)
+    const single = mentorEntry || menteeEntry
+    return {
+      id: userId,
+      type: single.type,
+      user: { uid: userId, ...userProfile },
+      formData: single.formData,
+      submittedAt: single.statusData.submittedAt
+    }
+  } catch (err) {
+    console.error('Error fetching application by user id:', err)
+    return null
+  }
+}
+
+export const getAllApplications = async () => {
+  try {
+    // Fetch all status docs across mentors and mentees
+    const statusSnap = await getDocs(collectionGroup(db, 'applicationStatus'))
+
+    const applications = []
+
+    for (const s of statusSnap.docs) {
+      const statusData = s.data()
+      const parentDocRef = s.ref.parent.parent // mentors/{uid} or mentees/{uid}
+      if (!parentDocRef) continue
+
+      const parentSnap = await getDoc(parentDocRef)
+      if (!parentSnap.exists()) continue
+      const formData = parentSnap.data()
+
+      const userId = parentDocRef.id
+      const parentCollection = parentDocRef.parent.id
+      const type = parentCollection === 'mentors' ? 'Mentor' : 'Mentee'
+
+      const userDoc = await getDoc(doc(db, 'users', userId))
+      const userData = userDoc.exists() ? userDoc.data() : {}
+
+      applications.push({
+        id: userId,
+        type,
+        user: { uid: userId, ...userData },
+        formData,
+        submittedAt: statusData.submittedAt,
+        status: statusData.status
+      })
+    }
+
+    // Identify combined (both mentor and mentee) users
+    const combinedUsers = new Set()
+    applications.forEach((app) => {
+      if (
+        applications.some(
+          (other) => other.id === app.id && other.type !== app.type
+        )
+      ) {
+        combinedUsers.add(app.id)
+      }
+    })
+
+    // Prefer the mentor entry when a user has both
+    const filteredApplications = applications.filter((app) => {
+      if (combinedUsers.has(app.id)) {
+        return app.type === 'Mentor'
+      }
+      return true
+    })
+
+    // Merge mentor + mentee data for combined users
+    filteredApplications.forEach((app) => {
+      if (combinedUsers.has(app.id)) {
+        app.type = 'Combined'
+        const menteeApp = applications.find(
+          (other) => other.id === app.id && other.type === 'Mentee'
+        )
+        if (menteeApp) {
+          const mergedData = {
+            ...menteeApp.formData,
+            ...app.formData,
+            menteeMotivation: menteeApp.formData.menteeMotivation,
+            commitmentStatement: menteeApp.formData.commitmentStatement,
+            careerGoals: menteeApp.formData.careerGoals,
+            preferredExpectationsMentee:
+              menteeApp.formData.preferredExpectations,
+            mentorMotivation: app.formData.mentorMotivation,
+            mentorArea: app.formData.mentorArea,
+            mentoringTime: app.formData.mentoringTime,
+            menteePreferences: app.formData.menteePreferences,
+            preferredExpectationsMentor: app.formData.preferredExpectations,
+            otherMenteePref: app.formData.otherMenteePref,
+            otherExpectations: app.formData.otherExpectations,
+            mentorSkills: app.formData.mentorSkills,
+            areasConsideringMentoring: app.formData.areasConsideringMentoring
+          }
+          app.formData = mergedData
+          // Keep mentor’s status for the combined entry
+          app.status = app.status || 'pending'
+        }
+      }
+    })
+
+    // Helper to normalize dates for sorting
+    const toMillis = (v) =>
+      v && typeof v.toDate === 'function'
+        ? v.toDate().getTime()
+        : v
+          ? new Date(v).getTime() // prettier-ignore
+          : 0 // prettier-ignore
+
+    filteredApplications.sort(
+      (a, b) => toMillis(b.submittedAt) - toMillis(a.submittedAt)
+    )
+
+    return filteredApplications
+  } catch (err) {
+    console.error('Error fetching all applications:', err)
+    return []
   }
 }

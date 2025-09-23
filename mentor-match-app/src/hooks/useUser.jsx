@@ -89,8 +89,8 @@ const UserProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchMenteeList = async () => {
-      if (user && user.mentees) {
-        const menteeArr = await getUserArrayByIds(user.mentees)
+      if (user && user.menteesId) {
+        const menteeArr = await getUserArrayByIds(user.menteesId)
         setMentees(menteeArr)
       }
     }
