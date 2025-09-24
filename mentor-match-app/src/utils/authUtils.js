@@ -29,23 +29,25 @@ export const useAuthHandlers = () => {
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
 
-  const handleRedirect = () => {
-    refreshUser()
+  const handleRedirect = async () => {
+    try {
+      await Promise.resolve(refreshUser())
+    } catch (e) {
+      console.warn('refreshUser failed (continuing):', e)
+    }
     navigate('/dashboard')
   }
 
-  const onSubmit = async (user, { setSubmitting }) => {
+  // Regular email/password login
+  const onSubmit = async (formValues, { setSubmitting }) => {
     setSubmitting(true)
-
-    const res = await logIn(user)
-
+    const res = await logIn(formValues)
     if (!res.ok) {
       setSubmitting(false)
       return enqueueSnackbar(res.error, { variant: 'error' })
     }
-
     enqueueSnackbar('Welcome Back', { variant: 'success' })
-    handleRedirect()
+    await handleRedirect()
   }
 
   const googleLogin = async () => {
@@ -57,7 +59,7 @@ export const useAuthHandlers = () => {
       )
     }
     enqueueSnackbar('Welcome Back', { variant: 'success' })
-    handleRedirect()
+    await handleRedirect()
   }
 
   const githubLogin = async () => {
@@ -69,7 +71,7 @@ export const useAuthHandlers = () => {
       )
     }
     enqueueSnackbar('Welcome Back', { variant: 'success' })
-    handleRedirect()
+    await handleRedirect()
   }
 
   const orcidLogin = () => {

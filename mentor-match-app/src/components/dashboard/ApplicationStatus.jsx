@@ -117,6 +117,7 @@ const ApplicationStatus = () => {
         size="small"
         endIcon={<EditIcon />}
         onClick={editForm}
+        disabled={user.authMigrated || applicationInfo?.status === 'approved'}
       >
         Edit Form
       </Button>
@@ -126,6 +127,7 @@ const ApplicationStatus = () => {
         color="error"
         endIcon={<DeleteIcon />}
         onClick={() => setWarningDialogOpen(true)}
+        disabled={user.authMigrated || applicationInfo?.status === 'approved'}
       >
         Delete Form
       </Button>

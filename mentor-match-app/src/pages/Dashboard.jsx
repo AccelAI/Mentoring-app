@@ -32,6 +32,7 @@ import ChatDrawer from '../components/chat/ChatDrawer'
 
 const Dashboard = () => {
   const { userList, user, loading, mentees, isAdmin } = useUser()
+  const importedUser = !!user?.authMigrated
   const [listWithoutLoggedUser, setListWithoutLoggedUser] = useState([])
   const [viewType, setViewType] = useState('dashboard')
   const [mentorData, setMentorData] = useState(null)
@@ -41,8 +42,15 @@ const Dashboard = () => {
   const [showAlert, setShowAlert] = useState(true)
   const navigate = useNavigate()
 
+  const [profileLoading, setProfileLoading] = useState(true)
+
   useEffect(() => {
     if (user) {
+      if (!user.profileCompleted && user.authMigrated) {
+        navigate('/get-started')
+        return
+      }
+      setProfileLoading(false)
       // Filter out the logged-in user and ensure only public profiles are shown for non-admin users
       const filteredList = userList.filter((u) => {
         // Always remove the logged-in user
@@ -98,7 +106,7 @@ const Dashboard = () => {
   return (
     <>
       <Header />
-      {loading ? (
+      {loading || profileLoading ? (
         <LinearProgress />
       ) : (
         <>
@@ -140,6 +148,7 @@ const Dashboard = () => {
                     listType={viewType}
                     usersList={listWithoutLoggedUser}
                     onStartChat={handleStartChat}
+                    showMentorshipButton={!importedUser}
                   />
                 )}
                 {!user && viewType === 'dashboard' && (

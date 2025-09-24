@@ -57,7 +57,6 @@ const UserListView = ({
   const isCurrentMentees = listType === 'currentMentees'
   const isAdmin = listType === 'admin'
 
-  const showMentorship = !isAdmin && (isDashboard || showMentorshipButton)
   const showSearch = isDashboard || isCurrentMentees || isAdmin || showSearchBar
   const showProfile = isMentorPick || showViewProfileButton
   const showSelectMentor = isMentorPick || showSelectAsMentorButton
@@ -95,7 +94,7 @@ const UserListView = ({
               </Typography>
               <Box flexGrow={1} />
               {showSearch && <SearchBar setSearchQuery={setSearchQuery} />}
-              {user && showMentorship && (
+              {user && showMentorshipButton && (
                 <Button
                   variant={'contained'}
                   onClick={() => setOpenDialog(true)}
