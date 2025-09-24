@@ -159,7 +159,7 @@ const Signup = () => {
                 >
                   Sign Up with Google
                 </Button>
-                <Button
+                {/* <Button
                   variant="outlined"
                   color="primary"
                   startIcon={<GitHubIcon />}
@@ -167,7 +167,7 @@ const Signup = () => {
                   onClick={githubSignUp}
                 >
                   Sign Up with Github
-                </Button>
+                </Button> */}
               </Stack>
               <Stack
                 direction="row"

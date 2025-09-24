@@ -1,4 +1,4 @@
-import { doc, updateDoc, getDocs, getDoc, collection } from 'firebase/firestore'
+import { doc, updateDoc, getDocs, getDoc, collection, setDoc, deleteDoc } from 'firebase/firestore'
 import { db } from './firebaseConfig'
 
 export const updateUserProfile = async (user, values) => {
@@ -64,16 +64,66 @@ export const getUserArrayByIds = async (userIds) => {
     return []
   }
   try {
-    const users = await Promise.all(
-      userIds.map(async (id) => {
-        const user = await getUserById(id)
-        return user
-      })
-    )
+    const users = await Promise.all(userIds.map((id) => getUserById(id)))
     console.log('Fetched users:', users)
     return users
   } catch (err) {
     console.error('Error fetching user list by IDs:', err)
     return []
+  }
+}
+
+export const getAdmins = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'admins'))
+    const adminIds = querySnapshot.docs.map((d) => (d.id))
+    const admins = await getUserArrayByIds(adminIds)
+    console.log('Fetched admins:', admins)
+    return admins
+  } catch (err) {
+    console.error('Error fetching admins:', err)
+    return { ok: false, error: err.message }
+  }
+}
+
+export const setAsAdmin = async (userId, adminId) => {
+  if (!userId) {
+    return { ok: false, error: 'Invalid user ID' }
+  }
+  try {
+    const adminRef = doc(db, 'admins', userId)
+    const snap = await getDoc(adminRef)
+    if (snap.exists()) {
+      return { ok: true, alreadyAdmin: true, msg: 'User is already an admin' }
+    }
+
+    await setDoc(
+      adminRef,
+      { createdAt: new Date(), setBy: adminId },
+      { merge: true }
+    )
+
+    return { ok: true }
+  } catch (err) {
+    console.error('Error setting user as admin:', err)
+    return { ok: false, error: err.message }
+  }
+}
+
+export const removeAdmin = async (userId) => {
+  if (!userId) {
+    return { ok: false, error: 'Invalid user ID' }
+  }
+  try {
+    const adminRef = doc(db, 'admins', userId)
+    const snap = await getDoc(adminRef)
+    if (!snap.exists()) {
+      return { ok: false, error: 'User is not an admin' }
+    }
+    await deleteDoc(adminRef)
+    return { ok: true }
+  } catch (err) {
+    console.error('Error removing admin:', err)
+    return { ok: false, error: err.message }
   }
 }

@@ -1,4 +1,8 @@
+// React hooks
 import { useState, useCallback, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+// MUI components
 import {
   Box,
   Card,
@@ -12,20 +16,24 @@ import {
   Select,
   MenuItem
 } from '@mui/material'
-import { Cached as ReloadIcon } from '@mui/icons-material'
+import { Cached as ReloadIcon, Person as UserIcon } from '@mui/icons-material'
 import { TabList, TabPanel, TabContext } from '@mui/lab'
-import Header from '../components/Header'
+
+// Hooks and services
 import { useUser } from '../hooks/useUser'
+import { getAllApplications } from '../api/forms'
+import { getAllMentorshipPairs } from '../api/match'
+
+// Components
+import Header from '../components/Header'
 import UserListView from '../components/dashboard/UserListView'
 import ChatDrawer from '../components/chat/ChatDrawer'
 import MentorshipApplicationCard from '../components/adminDashboard/MentorshipApplicationCard'
 import MenteeApplicationDialog from '../components/dialogs/formReview/MenteeApplicationDialog'
 import MentorApplicationDialog from '../components/dialogs/formReview/MentorApplicationDialog'
 import CombinedApplicationDialog from '../components/dialogs/formReview/CombinedApplicationDialog'
-import { getAllApplications } from '../api/forms'
-import { useNavigate } from 'react-router-dom'
-import { Person as UserIcon } from '@mui/icons-material'
 import ManageMatchesSection from '../components/adminDashboard/ManageMatchesSection'
+import ManageAdminsSection from '../components/adminDashboard/ManageAdminsSection'
 
 const AdminDashboard = () => {
   const { userList } = useUser()
@@ -41,12 +49,22 @@ const AdminDashboard = () => {
   const [statusFilter, setStatusFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all') // new state
 
+  // Mentorship pairs (lifted to page scope)
+  const [mentorshipPairs, setMentorshipPairs] = useState([])
+  const fetchPairs = useCallback(async () => {
+    const pairs = await getAllMentorshipPairs()
+    setMentorshipPairs(pairs)
+  }, [])
+
+  // Fetch pairs once when the page mounts
+  useEffect(() => {
+    fetchPairs()
+  }, [fetchPairs])
+
   const fetchApplications = async () => {
-    console.log('fetching applications (all statuses)')
     setLoadingApplications(true)
     try {
       const apps = await getAllApplications()
-      console.log(apps)
       setApplications(apps)
     } catch (error) {
       console.error('Error fetching applications:', error)
@@ -154,6 +172,7 @@ const AdminDashboard = () => {
                     <Tab label="Users" value="0" />
                     <Tab label="Mentorship Applications" value="1" />
                     <Tab label="Manage Matches" value="2" />
+                    <Tab label="Manage Administrators" value="3" />
                   </TabList>
                   <Box flexGrow={1} />
                   <Button
@@ -252,8 +271,20 @@ const AdminDashboard = () => {
                     </Stack>
                   )}
                 </TabPanel>
-                <TabPanel value="2">
-                  <ManageMatchesSection />
+                {/* Keep Manage Matches mounted and just hide/show it */}
+                <Box
+                  role="tabpanel"
+                  hidden={value !== '2'}
+                  id="tabpanel-2"
+                  aria-labelledby="tab-2"
+                >
+                  <ManageMatchesSection
+                    mentorshipPairs={mentorshipPairs}
+                    fetchPairs={fetchPairs}
+                  />
+                </Box>
+                <TabPanel value="3">
+                  <ManageAdminsSection userList={userList} />
                 </TabPanel>
               </TabContext>
             </Box>

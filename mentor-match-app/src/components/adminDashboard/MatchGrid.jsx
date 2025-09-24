@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Grid2 as Grid,
   Stack,
@@ -20,7 +20,7 @@ import EndMentorshipDialog from '../dialogs/EndMentorshipDialog'
 import UserProfileDialog from '../profile/UserProfileDialog'
 import CreateNewMatchDialog from '../dialogs/CreateNewMatchDialog'
 
-const MatchGrid = ({ menteeId, mentorId, gridSize = 4, setReloadList }) => {
+const MatchGrid = ({ menteeId, mentorId, gridSize = 4, fetchPairs }) => {
   const [mentee, setMentee] = useState(null)
   const [mentor, setMentor] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -28,7 +28,6 @@ const MatchGrid = ({ menteeId, mentorId, gridSize = 4, setReloadList }) => {
   const [menteeProfileOpen, setMenteeProfileOpen] = useState(false)
   const [mentorProfileOpen, setMentorProfileOpen] = useState(false)
   const [openCreateMatchDialog, setOpenCreateMatchDialog] = useState(false)
-  const wasDialogOpen = useRef(false) // track previous state
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -44,14 +43,6 @@ const MatchGrid = ({ menteeId, mentorId, gridSize = 4, setReloadList }) => {
     }
     fetchUserData()
   }, [menteeId, mentorId])
-
-  useEffect(() => {
-    if (wasDialogOpen.current && !endMentorshipDialogOpen) {
-      console.log('EndMentorshipDialog closed, refreshing list')
-      setReloadList(true)
-    }
-    wasDialogOpen.current = endMentorshipDialogOpen
-  }, [endMentorshipDialogOpen, setReloadList])
 
   const theme = useTheme()
   const borderColor = theme.palette.background.paper
@@ -162,7 +153,7 @@ const MatchGrid = ({ menteeId, mentorId, gridSize = 4, setReloadList }) => {
             <CreateNewMatchDialog
               open={openCreateMatchDialog}
               onClose={() => setOpenCreateMatchDialog(false)}
-              setReloadList={setReloadList}
+              fetchPairs={fetchPairs}
               mentor={mentor}
               mentee={mentee}
             />
@@ -171,6 +162,7 @@ const MatchGrid = ({ menteeId, mentorId, gridSize = 4, setReloadList }) => {
               setOpenDialog={setEndMentorshipDialogOpen}
               menteeId={menteeId}
               mentorId={mentorId}
+              fetchPairs={fetchPairs}
             />
           </Stack>
         )}

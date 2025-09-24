@@ -16,7 +16,7 @@ import {
   Box
 } from '@mui/material'
 import ProfilePicture from '../ProfilePicture'
-import SearchBar from '../dashboard/SearchBar'
+import SearchBar from '../SearchBar'
 import { useUser } from '../../hooks/useUser'
 import { asignMatch, endMentorship } from '../../api/match'
 import { filterUsers } from '../../api/users'
@@ -26,7 +26,7 @@ import { useSnackbar } from 'notistack'
 const CreateNewMatchDialog = ({
   open,
   onClose,
-  setReloadList,
+  fetchPairs,
   mentor,
   mentee
 }) => {
@@ -75,7 +75,6 @@ const CreateNewMatchDialog = ({
     }
     console.log('Loading application statuses for users with roles...')
     loadStatuses()
-    setReloadList(true)
 
     return () => {
       cancelled = true
@@ -239,7 +238,7 @@ const CreateNewMatchDialog = ({
         )
         onClose()
         setChecked([])
-        setReloadList(true)
+        fetchPairs()
       } else {
         enqueueSnackbar(`Error creating match: ${result.error}`, {
           variant: 'error'

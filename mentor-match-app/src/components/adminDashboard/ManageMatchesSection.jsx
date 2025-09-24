@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Stack,
   Typography,
@@ -9,25 +9,12 @@ import {
 import { Add as AddIcon } from '@mui/icons-material'
 import MatchGrid from './MatchGrid'
 import CreateNewMatchDialog from '../dialogs/CreateNewMatchDialog'
-import { getAllMentorshipPairs } from '../../api/match'
 
-const ManageMatchesSection = () => {
-  const [mentorshipPairs, setMentorshipPairs] = useState([])
+const ManageMatchesSection = ({ mentorshipPairs, fetchPairs }) => {
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [reloadList, setReloadList] = useState(true) // start true to load initially
-
-  useEffect(() => {
-    if (!reloadList) return
-    const fetchPairs = async () => {
-      const pairs = await getAllMentorshipPairs()
-      setMentorshipPairs(pairs)
-      setReloadList(false)
-    }
-    fetchPairs()
-  }, [reloadList])
 
   return (
-    <Stack spacing={2} width="100%">
+    <Stack spacing={2} width="100%" p={3}>
       <Grid container spacing={1}>
         <Grid size={1.7}>
           <Card
@@ -65,14 +52,14 @@ const ManageMatchesSection = () => {
             menteeId={pair.menteeId}
             mentorId={pair.mentorId}
             gridSize={1.7}
-            setReloadList={setReloadList}
+            fetchPairs={fetchPairs}
           />
         ))}
       </Grid>
       <CreateNewMatchDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
-        setReloadList={setReloadList}
+        fetchPairs={fetchPairs}
       />
     </Stack>
   )
