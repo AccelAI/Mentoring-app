@@ -1,5 +1,5 @@
-import React from 'react'
-import { Fab, Box, SwipeableDrawer } from '@mui/material'
+import { useState } from 'react'
+import { Fab, Box, SwipeableDrawer, Badge } from '@mui/material'
 import { Chat as ChatIcon } from '@mui/icons-material'
 import Chat from './Chat'
 
@@ -10,13 +10,11 @@ const ChatDrawer = ({
   selectedChatRoomId,
   setSelectedChatRoomId
 }) => {
+  const [hasUnread, setHasUnread] = useState(false)
   return (
     <>
       {!open && (
-        <Fab
-          color="primary"
-          aria-label="chat"
-          onClick={onOpen}
+        <Box
           sx={{
             position: 'fixed',
             bottom: 16,
@@ -25,8 +23,24 @@ const ChatDrawer = ({
             pointerEvents: 'auto'
           }}
         >
-          <ChatIcon />
-        </Fab>
+          <Fab
+            color="primary"
+            aria-label="chat"
+            onClick={onOpen}
+            sx={{ overflow: 'visible' }}
+          >
+            <Badge
+              key={hasUnread ? 'unread' : 'read'}
+              color="error"
+              variant="dot"
+              overlap="circular"
+              invisible={!hasUnread}
+              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+              <ChatIcon />
+            </Badge>
+          </Fab>
+        </Box>
       )}
 
       <SwipeableDrawer
@@ -59,6 +73,8 @@ const ChatDrawer = ({
           <Chat
             selectedChatRoomId={selectedChatRoomId}
             setSelectedChatRoomId={setSelectedChatRoomId}
+            setHasUnread={setHasUnread}
+            drawerOpen={open}
           />
         </Box>
       </SwipeableDrawer>

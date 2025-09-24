@@ -286,14 +286,6 @@ const AdminDashboard = () => {
                 <TabPanel value="3">
                   <ManageAdminsSection userList={userList} />
                 </TabPanel>
-                <TabPanel value="3">
-                  <Typography variant="h6" gutterBottom>
-                    Manage Administrators
-                  </Typography>
-                  <Typography variant="body1">
-                    This section is under construction.
-                  </Typography>
-                </TabPanel>
               </TabContext>
             </Box>
           </Card>
