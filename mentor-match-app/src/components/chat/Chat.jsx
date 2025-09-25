@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useMemo, useCallback, useEffect, useState, useRef } from 'react'
 import {
   MainContainer,
@@ -99,6 +100,7 @@ const Chat = ({
     }
     const resume = () => {
       if (audioCtxRef.current?.state === 'suspended') {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         audioCtxRef.current.resume().catch(() => {})
       }
     }
@@ -107,7 +109,9 @@ const Chat = ({
       window.removeEventListener('click', resume)
       try {
         audioCtxRef.current?.close()
-      } catch {}
+      } catch {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+      }
     }
   }, [])
 
