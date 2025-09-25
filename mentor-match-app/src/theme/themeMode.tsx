@@ -1,5 +1,5 @@
 import type { PaletteMode } from '@mui/material'
-import { getTheme } from './index'
+import { getTheme } from './index.tsx'
 import { useMemo, useState } from 'react'
 import { createTheme } from '@mui/material'
 import { responsiveFontSizes } from '@mui/material/styles'
