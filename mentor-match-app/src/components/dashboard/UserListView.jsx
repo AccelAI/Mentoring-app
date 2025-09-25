@@ -68,7 +68,8 @@ const UserListView = ({
     <Card
       sx={{
         width: loading ? '-webkit-fill-available' : '100%',
-        maxWidth: isMentorPick || isAdmin ? 'none' : 'min-content',
+        maxWidth:
+          isMentorPick || isAdmin ? 'none' : { lg: 'min-content', sm: '100%' },
         maxHeight: isAdmin ? 'max-content' : '75vh',
         minWidth: isMentorPick || isAdmin ? undefined : { lg: '835px' },
         overflowY: isAdmin ? 'hidden' : 'auto'

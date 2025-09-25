@@ -28,7 +28,8 @@ const UserGrid = ({
   showViewProfileButton,
   showEndMentorshipButton,
   showApplicationButton,
-  onStartChat
+  onStartChat,
+  cardProps
 }) => {
   const [openDialog, setOpenDialog] = useState(false)
   const [openMatchDialog, setOpenMatchDialog] = useState(false)
@@ -48,10 +49,16 @@ const UserGrid = ({
   if (!user) return null
 
   return (
-    <Grid size={gridSize}>
+    <Grid
+      size={gridSize}
+      sx={{
+        ...cardProps
+      }}
+    >
       <Card
         sx={{
           height: '100%',
+
           transition: 'box-shadow 0.3s',
           '&:hover': {
             boxShadow: 2,

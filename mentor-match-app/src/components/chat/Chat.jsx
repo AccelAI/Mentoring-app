@@ -53,7 +53,8 @@ const Chat = ({
   selectedChatRoomId,
   setSelectedChatRoomId,
   setHasUnread,
-  drawerOpen
+  drawerOpen,
+  drawerClose
 }) => {
   const { user } = useUser()
   const { theme, mode } = useThemeContext()
@@ -514,7 +515,7 @@ const Chat = ({
               borderBottom: `1px solid ${theme.palette.divider}`
             }}
           >
-            <ConversationHeader.Back />
+            <ConversationHeader.Back onClick={drawerClose} />
             <Avatar
               src={
                 otherUser?.profilePicture ||

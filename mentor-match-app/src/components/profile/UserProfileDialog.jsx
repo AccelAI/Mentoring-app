@@ -154,11 +154,17 @@ const UserProfileDialog = ({
               >
                 <CloseIcon />
               </IconButton>
-              <Stack direction="row" spacing={2} width={'100%'} pr={6} pl={2}>
+              <Stack
+                direction={{ md: 'row', sx: 'column' }}
+                spacing={2}
+                width={'100%'}
+                pr={6}
+                pl={2}
+              >
                 <Stack
-                  width={'35%'}
+                  width={{ lg: '35%', xs: '100%' }}
                   alignItems={'center'}
-                  justifyContent={'space-between'}
+                  justifyContent={{ lg: 'space-between', xs: 'center' }}
                   pl={1}
                 >
                   <ProfilePicture
@@ -176,14 +182,18 @@ const UserProfileDialog = ({
                       onClick={() => {
                         setOpenEndMentorshipDialog(true)
                       }}
-                      sx={{ width: 'fit-content', alignSelf: 'start' }}
+                      sx={{
+                        width: 'fit-content',
+                        alignSelf: 'start',
+                        display: { xs: 'none', lg: 'inline-flex' }
+                      }}
                     >
                       End Mentorship
                     </Button>
                   )}
                 </Stack>
 
-                <Stack spacing={1} width={'65%'}>
+                <Stack spacing={1} width={{ lg: '65%', xs: '100%' }}>
                   <Stack
                     direction="row"
                     justifyContent={'space-between'}
@@ -274,19 +284,43 @@ const UserProfileDialog = ({
                       </Stack>
                     )}
                   </Typography>
-
-                  {showChatButton && (
-                    <Button
-                      variant="contained"
-                      size="small"
-                      sx={{ width: 'fit-content', alignSelf: 'end' }}
-                      startIcon={<ChatIcon />}
-                      onClick={handleStartChat}
-                      disabled={loadingChat}
-                    >
-                      {loadingChat ? 'Starting...' : 'Start Chat'}
-                    </Button>
-                  )}
+                  <Stack
+                    direction={{ md: 'row', xs: 'column-reverse' }}
+                    justifyContent={{ xs: 'space-between', lg: 'flex-end' }}
+                    alignItems={{ lg: 'center', xs: 'flex-start' }}
+                    spacing={1}
+                    pt={1}
+                  >
+                    {showEndMentorshipButton && (
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                        startIcon={<CancelIcon />}
+                        onClick={() => {
+                          setOpenEndMentorshipDialog(true)
+                        }}
+                        sx={{
+                          width: 'fit-content',
+                          display: { lg: 'none', sx: 'display-flex' }
+                        }}
+                      >
+                        End Mentorship
+                      </Button>
+                    )}
+                    {showChatButton && (
+                      <Button
+                        variant="contained"
+                        size="small"
+                        sx={{ width: 'fit-content' }}
+                        startIcon={<ChatIcon />}
+                        onClick={handleStartChat}
+                        disabled={loadingChat}
+                      >
+                        {loadingChat ? 'Starting...' : 'Start Chat'}
+                      </Button>
+                    )}
+                  </Stack>
                   {showSelectAsMentorButton && (
                     <LoadingButton
                       variant="contained"

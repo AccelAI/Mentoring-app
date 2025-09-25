@@ -3,17 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 // MUI components
-import {
-  Container,
-  Stack,
-  LinearProgress,
-  Card,
-  MenuList,
-  MenuItem,
-  ListItemIcon,
-  ListItemText
-} from '@mui/material'
-import { ManageAccounts as AdminIcon } from '@mui/icons-material'
+import { Container, Stack, LinearProgress } from '@mui/material'
 
 // Components
 import ProfileWidget from '../components/dashboard/ProfileWidget'
@@ -112,29 +102,23 @@ const Dashboard = () => {
         <>
           <Container sx={{ mt: 8 }}>
             <Stack
-              direction={{ md: 'row', xs: 'column' }}
+              direction={{ lg: 'row', xs: 'column' }}
               spacing={6}
               sx={{
                 alignItems: 'flex-start'
               }}
             >
-              <Stack spacing={2} width={user ? '30%' : '45%'}>
-                {isAdmin && (
-                  <Card>
-                    <MenuList>
-                      <MenuItem onClick={() => navigate('/admin')}>
-                        <ListItemIcon>
-                          <AdminIcon fontSize="small" color="primary" />
-                        </ListItemIcon>
-                        <ListItemText>Admin Dashboard</ListItemText>
-                      </MenuItem>
-                    </MenuList>
-                  </Card>
-                )}
+              <Stack
+                spacing={2}
+                width={
+                  '-webkit-fill-available' /* Ensures the stack takes full width */
+                }
+                direction={{ xs: 'row-reverse', lg: 'column' }}
+              >
                 <ProfileWidget />
                 {user && <SideMenu setView={setViewType} />}
               </Stack>
-              <Stack spacing={2}>
+              <Stack spacing={2} width={'100%'}>
                 {/* TODO: Show match alert when theres a new mentee match or when mentor match results are ready */}
                 {user.newMenteeMatch && showAlert && (
                   <MatchAlert
@@ -149,6 +133,7 @@ const Dashboard = () => {
                     usersList={listWithoutLoggedUser}
                     onStartChat={handleStartChat}
                     showMentorshipButton={!importedUser}
+                    gridSize={{ sm: 12, md: 6, lg: 4 }}
                   />
                 )}
                 {!user && viewType === 'dashboard' && (
@@ -156,13 +141,14 @@ const Dashboard = () => {
                     listType={'dashboard'}
                     usersList={listWithoutLoggedUser}
                     onStartChat={handleStartChat}
+                    gridSize={{ sm: 12, md: 6, lg: 4 }}
                   />
                 )}
                 {user && viewType === 'currentMentees' && (
                   <UserListView
                     usersList={mentees}
                     title={'Matched Mentees'}
-                    gridSize={6}
+                    gridSize={{ sm: 12, md: 6 }}
                     listType={viewType}
                     subtitle="Here are your current mentee matches. Select a mentee to view their profile and start a conversation."
                     onStartChat={handleStartChat}

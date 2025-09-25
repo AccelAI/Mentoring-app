@@ -53,7 +53,7 @@ const ChatDrawer = ({
         slotProps={{
           paper: {
             sx: {
-              width: { xs: '100%', sm: '400px', md: '40%' },
+              width: { sm: '90%', md: '50%', lg: '40%' },
               height: '100vh',
               borderTopLeftRadius: 8,
               borderBottomLeftRadius: 8,
@@ -75,6 +75,7 @@ const ChatDrawer = ({
             setSelectedChatRoomId={setSelectedChatRoomId}
             setHasUnread={setHasUnread}
             drawerOpen={open}
+            drawerClose={onClose}
           />
         </Box>
       </SwipeableDrawer>

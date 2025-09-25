@@ -55,7 +55,8 @@ const ProfileWidget = () => {
   return (
     <Card
       sx={{
-        height: 'max-content'
+        height: 'max-content',
+        width: '-webkit-fill-available'
       }}
     >
       {user ? (

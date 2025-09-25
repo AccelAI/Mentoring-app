@@ -8,21 +8,36 @@ const MainCard = ({
   titleSize,
   fontWeight,
   props,
-  enableContainer
+  enableContainer,
+  hideLogo
 }) => {
   const content = (
-    <Card sx={{ width: { xl: '50%', md: '60%', sm: '80%' }, p: 3 }}>
-      <Stack mb={1} spacing={0.5} sx={{ alignItems: 'center', width: '100%' }}>
-        <Box
-          component="img"
-          src={logo}
-          alt="logo"
-          sx={{ height: '80px', width: '80px' }}
-        />
-        <Typography variant={titleSize} fontWeight={fontWeight}>
-          {title}
-        </Typography>
-      </Stack>
+    <Card
+      sx={{
+        width: { xl: '50%', md: '70%', sm: '100%' },
+        maxHeight: { lg: '87vh', md: '90vh', sm: '100vh' },
+        p: 3,
+        overflowY: 'auto'
+      }}
+    >
+      {!hideLogo && (
+        <Stack
+          mb={1}
+          spacing={0.5}
+          sx={{ alignItems: 'center', width: '100%' }}
+        >
+          <Box
+            component="img"
+            src={logo}
+            alt="logo"
+            sx={{ height: '80px', width: '80px' }}
+          />
+
+          <Typography variant={titleSize} fontWeight={fontWeight}>
+            {title}
+          </Typography>
+        </Stack>
+      )}
       {children}
     </Card>
   )

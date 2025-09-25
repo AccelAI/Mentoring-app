@@ -73,11 +73,26 @@ const CurrentMentor = ({ mentorData, loadingMentor, onStartChat }) => {
             </Typography>
           </Stack>
           {!loadingMentor ? (
-            <Grid container spacing={4}>
+            <Grid
+              container
+              sx={{ justifyContent: 'space-between' }}
+              spacing={1}
+            >
               {mentorData && (
                 <>
-                  <Grid size={6}>
-                    <Stack justifyContent={'space-around'} height="100%">
+                  <Grid
+                    sx={{ width: { md: '-webkit-fill-available', lg: '60%' } }}
+                  >
+                    <Stack
+                      justifyContent={{
+                        lg: 'space-around',
+                        md: 'space-between',
+                        sx: 'space-around'
+                      }}
+                      height="100%"
+                      spacing={2}
+                      direction={{ md: 'row', sx: 'column', lg: 'column' }}
+                    >
                       <Typography
                         variant={'body2'}
                         fontWeight={'regular'}
@@ -113,9 +128,11 @@ const CurrentMentor = ({ mentorData, loadingMentor, onStartChat }) => {
                         </Stack>
                       </Typography>
                       <Stack
-                        direction={'row'}
-                        alignItems="center"
+                        direction={{ lg: 'row', xs: 'column' }}
+                        alignItems={{ lg: 'center', xs: 'flex-start' }}
                         justifyContent="space-between"
+                        spacing={{ lg: 2, xs: 0.5 }}
+                        pt={{ lg: 0, xs: 1 }}
                       >
                         <Button
                           variant="contained"
@@ -145,8 +162,11 @@ const CurrentMentor = ({ mentorData, loadingMentor, onStartChat }) => {
                   </Grid>
                   <UserGrid
                     user={mentorData}
-                    gridSize={6}
+                    gridSize={4}
                     showViewProfileButton={true}
+                    cardProps={{
+                      width: { lg: 'auto', xs: '-webkit-fill-available' }
+                    }}
                   />
                 </>
               )}
