@@ -1,13 +1,5 @@
-import React from 'react'
 import './App.css'
-import {
-  BrowserRouter,
-  Navigate,
-  Route,
-  Router,
-  Routes,
-  Outlet
-} from 'react-router-dom'
+import { BrowserRouter, Route, Routes, Outlet } from 'react-router-dom'
 import { ThemeContextProvider } from './hooks/useTheme'
 import Dashboard from './pages/Dashboard'
 import MenteeForm from './pages/MenteeForm'

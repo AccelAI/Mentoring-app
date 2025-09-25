@@ -66,7 +66,9 @@ const Chat = ({
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(true)
   const [otherUser, setOtherUser] = useState(null)
+  // eslint-disable-next-line
   const [unsubscribeChatRooms, setUnsubscribeChatRooms] = useState(null)
+  // eslint-disable-next-line
   const [unsubscribeMessages, setUnsubscribeMessages] = useState(null)
   // Keep latest unsubs in refs so we can clean up on unmount only
   const unsubChatRoomsRef = useRef(null)
@@ -344,6 +346,7 @@ const Chat = ({
       })
       lastMsgUnsubsRef.current[room.id] = unsub
     })
+    // eslint-disable-next-line
   }, [chatRooms, user?.uid, playPing]) // uses refs for drawerOpen/selectedChatRoomId inside
 
   useEffect(() => {

@@ -9,7 +9,7 @@ import {
   CircularProgress
 } from '@mui/material'
 import logo from '../assets/logo.png'
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { ChevronLeft } from '@mui/icons-material'
 
 /* Card used for the forms */

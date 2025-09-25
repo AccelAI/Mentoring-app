@@ -3,6 +3,7 @@ import { useCallback } from 'react'
 
 import { Stack, Button, Typography, Link } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
+// eslint-disable-next-line
 import { Google as GoogleIcon, GitHub as GitHubIcon } from '@mui/icons-material'
 
 import MainCard from '../components/MainCard'
@@ -74,6 +75,7 @@ const Signup = () => {
     navigate('/get-started')
   }, [enqueueSnackbar, navigate])
 
+  // eslint-disable-next-line
   const githubSignUp = useCallback(async () => {
     const res = await signInWithGithub()
     console.log(res)

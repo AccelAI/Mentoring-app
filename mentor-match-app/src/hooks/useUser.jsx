@@ -1,14 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth, db } from '../api/firebaseConfig'
-import {
-  doc,
-  getDoc,
-  collection,
-  query,
-  where,
-  getDocs
-} from 'firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore'
 import { getUsers, getUserArrayByIds } from '../api/users'
 
 // Create a UserContext
