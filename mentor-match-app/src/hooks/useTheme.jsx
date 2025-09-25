@@ -5,6 +5,7 @@ import { ThemeProvider } from '@mui/material'
 
 const ThemeContext = createContext({
   mode: 'light',
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   toggleColorMode: () => {},
   theme: createTheme()
 })
