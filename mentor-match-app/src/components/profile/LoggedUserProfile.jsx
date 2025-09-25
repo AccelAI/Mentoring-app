@@ -184,7 +184,8 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
               <CloseIcon />
             </IconButton>
             <Stack
-              direction="row"
+              direction={{ md: 'row', xs: 'column' }}
+              alignItems={{ lg: 'normal', xs: 'center' }}
               spacing={2}
               width={'100%'}
               pr={6}
@@ -215,9 +216,9 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                           size={200}
                           borderRadius={100}
                           props={{
-                            position: 'absolute',
-                            left: '8rem',
-                            top: '8rem'
+                            position: { lg: 'absolute', xs: 'relative' },
+                            left: { lg: '8rem', xs: '0' },
+                            top: { lg: '8rem', xs: '0' }
                           }}
                         />
                         {enableEdit && (
@@ -237,8 +238,9 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                               aria-label="edit"
                               sx={{
                                 position: 'relative',
-                                top: '5.5rem',
-                                left: '4.5rem'
+                                top: { lg: '5.5rem', md: '1rem', xs: '0' },
+                                left: { lg: '4.5rem', md: '-3rem', xs: '0' },
+                                marginTop: { lg: 0, xs: -8 }
                               }}
                               onClick={() =>
                                 document
@@ -264,11 +266,14 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                                 Edit Profile
                               </Typography>
                               <Stack
-                                direction="row"
-                                justifyContent={'space-between'}
+                                direction={{ lg: 'row', xs: 'column-reverse' }}
+                                justifyContent={{
+                                  lg: 'space-between',
+                                  xs: 'flex-start'
+                                }}
                                 alignItems={'center'}
                                 width={'100%'}
-                                spacing={'40%'}
+                                spacing={{ lg: '40%', sx: 0 }}
                               >
                                 <TextField
                                   name="displayName"
@@ -277,7 +282,11 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                                 />
 
                                 {user.role && (
-                                  <Stack direction="row" spacing={0.5}>
+                                  <Stack
+                                    direction="row"
+                                    spacing={0.5}
+                                    alignSelf={{ lg: 'auto', xs: 'flex-start' }}
+                                  >
                                     <Typography
                                       variant={'body2'}
                                       color="text.secondary"
@@ -304,7 +313,7 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                               spacing={2}
                               mt={2}
                               width={'100%'}
-                              direction={'row'}
+                              direction={{ md: 'row', xs: 'column' }}
                             >
                               <Stack spacing={1}>
                                 <ProfileField icon={PersonIcon}>
@@ -480,6 +489,7 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                                 target="_blank"
                                 rel="noopener"
                                 href={user.websiteUrl}
+                                sx={{ wordBreak: 'break-all' }}
                               >
                                 {user.websiteUrl}
                               </Link>
