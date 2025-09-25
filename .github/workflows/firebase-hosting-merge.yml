@@ -11,10 +11,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: npm i && npm run build
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: mentor-match-app/package-lock.json
+
+      - name: Install
+       .run: npm ci
+        working-directory: mentor-match-app
+
+      - name: Build
+        run: npm run build
+        working-directory: mentor-match-app
+
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MENTOR_MATCH_BACKEND }}
           channelId: live
           projectId: mentor-match-backend
+          entryPoint: mentor-match-app
