@@ -1,7 +1,7 @@
-import { createTheme, PaletteMode } from '@mui/material'
-import { getTheme } from './index.tsx'
 import { useMemo, useState } from 'react'
-import { responsiveFontSizes } from '@mui/material/styles'
+import type { PaletteMode } from '@mui/material'
+import { createTheme, responsiveFontSizes } from '@mui/material/styles'
+import { getTheme } from './index'
 
 export const useColorTheme = () => {
   const [mode, setMode] = useState<PaletteMode>('light')
