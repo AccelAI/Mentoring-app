@@ -58,7 +58,7 @@ const EndMentorshipDialog = ({
         )
       } else if (
         (loggedUser.role === 'Mentor' || loggedUser.role === 'Mentor/Mentee') &&
-        loggedUser.mentees.includes(userId)
+        loggedUser.menteesId.includes(userId)
       ) {
         // Mentor is ending mentorship with a mentee
         console.log('Mentor is ending mentorship with a mentee')

@@ -171,11 +171,12 @@ const GetStarted = () => {
   )
 
   return (
-    <Container
+    <Box
       sx={{
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        height: '100vh'
       }}
     >
       <Stack
@@ -185,7 +186,7 @@ const GetStarted = () => {
           width: 1,
           height: 1
         }}
-        mt={5}
+        mt={{ lg: 2 }}
         spacing={3}
       >
         <Stepper
@@ -210,6 +211,7 @@ const GetStarted = () => {
           titleSize={'h5'}
           props={{ height: '100vh' }}
           enableContainer={false}
+          hideLogo={activeStep === 2}
         >
           <Formik
             initialValues={initialValues}
@@ -232,7 +234,7 @@ const GetStarted = () => {
                         Becoming a new member only takes a minute.
                       </Typography>
                       <Box>
-                        <Stack spacing={2} mt={3.5}>
+                        <Stack spacing={2} mt={1}>
                           <Stack>
                             <Typography fontWeight={'medium'}>
                               Gender
@@ -572,7 +574,7 @@ const GetStarted = () => {
           </Formik>
         </MainCard>
       </Stack>
-    </Container>
+    </Box>
   )
 }
 
