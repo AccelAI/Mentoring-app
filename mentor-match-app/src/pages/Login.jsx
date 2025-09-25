@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Button, Typography, Stack, Divider, Link, Box } from '@mui/material'
+// eslint-disable-next-line
 import { Google as GoogleIcon, GitHub as GitHubIcon } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
 
@@ -23,7 +24,9 @@ const Login = () => {
     schema,
     onSubmit,
     googleLogin,
+    // eslint-disable-next-line
     githubLogin,
+    // eslint-disable-next-line
     orcidLogin
   } = useAuthHandlers()
 

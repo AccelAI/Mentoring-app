@@ -1,4 +1,3 @@
-import React from 'react'
 import {
   AppBar,
   Box,
@@ -6,27 +5,23 @@ import {
   IconButton,
   Toolbar,
   Tooltip,
-  Button,
   Stack
 } from '@mui/material'
 import {
   Logout,
   DarkModeOutlined as DarkMode,
-  LightModeOutlined as LightMode,
-  ManageAccounts as AdminIcon,
-  Person as UserIcon
+  LightModeOutlined as LightMode
 } from '@mui/icons-material'
 import logo from '../assets/logo.png'
 import { signOut } from '../api/auth'
 import { useThemeContext } from '../hooks/useTheme'
 import { useUser } from '../hooks/useUser'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useSnackbar } from 'notistack'
 
 const Header = () => {
   const { user } = useUser()
   const navigate = useNavigate()
-  const location = useLocation()
   const { mode, toggleColorMode } = useThemeContext()
   const { enqueueSnackbar } = useSnackbar()
 

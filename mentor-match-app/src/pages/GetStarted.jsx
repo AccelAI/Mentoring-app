@@ -17,7 +17,6 @@ import {
   Step,
   StepButton,
   StepLabel,
-  Container,
   Switch,
   Dialog,
   DialogContent,

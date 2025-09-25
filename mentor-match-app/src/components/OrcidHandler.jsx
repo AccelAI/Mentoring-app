@@ -10,7 +10,7 @@ const OrcidHandler = () => {
   const navigate = useNavigate()
   const { enqueueSnackbar } = useSnackbar()
   const hasRun = useRef(false)
-  const { refreshUser, user } = useUser()
+  const { refreshUser } = useUser()
 
   useEffect(() => {
     if (hasRun.current) return

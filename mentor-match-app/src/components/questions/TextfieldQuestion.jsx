@@ -3,14 +3,12 @@ import {
   Card,
   Stack,
   FormControl,
-  FormGroup,
-  FormHelperText,
   FormLabel,
   Link,
   Box
 } from '@mui/material'
 import TextField from '../inputFields/TextField'
-import { Field, ErrorMessage, useFormikContext } from 'formik'
+import { Field, useFormikContext } from 'formik'
 import { formatDescription } from '../../utils/formatDescription'
 
 const TextfieldQuestion = ({

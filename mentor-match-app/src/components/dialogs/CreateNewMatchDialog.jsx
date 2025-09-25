@@ -79,6 +79,7 @@ const CreateNewMatchDialog = ({
     return () => {
       cancelled = true
     }
+    // eslint-disable-next-line
   }, [open, userList]) // re-fetch if list changes or dialog re-opens
 
   // Only include users with BOTH a role AND accepted status (after fetch)

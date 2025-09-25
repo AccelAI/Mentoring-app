@@ -57,6 +57,7 @@ const Dashboard = () => {
       const publicOnlyList = userList.filter((u) => u.publicProfile === true)
       setListWithoutLoggedUser(publicOnlyList)
     }
+    // eslint-disable-next-line
   }, [user, userList, isAdmin])
 
   useEffect(() => {

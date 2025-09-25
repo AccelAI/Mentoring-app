@@ -133,6 +133,7 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
       }
       fetchFormAnswers()
     }
+    // eslint-disable-next-line
   }, [openDialog, user.uid])
 
   const initialValues = useMemo(
