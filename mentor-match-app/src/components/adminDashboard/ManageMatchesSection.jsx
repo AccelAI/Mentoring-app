@@ -15,6 +15,9 @@ const ManageMatchesSection = ({ mentorshipPairs, fetchPairs }) => {
 
   return (
     <Stack spacing={2} width="100%" p={3}>
+      <Typography variant="h6" fontWeight={'light'}>
+        Number of Matches: {mentorshipPairs.length}
+      </Typography>
       <Grid container spacing={1}>
         <Grid size={1.7}>
           <Card
