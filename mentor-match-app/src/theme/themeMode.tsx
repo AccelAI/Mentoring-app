@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react'
 import type { PaletteMode } from '@mui/material'
-import { createTheme, responsiveFontSizes } from '@mui/material/styles'
 import { getTheme } from './index'
+import { useMemo, useState } from 'react'
+import { createTheme } from '@mui/material'
+import { responsiveFontSizes } from '@mui/material/styles'
 
 export const useColorTheme = () => {
   const [mode, setMode] = useState<PaletteMode>('light')
