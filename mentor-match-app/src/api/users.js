@@ -2,17 +2,33 @@ import { doc, updateDoc, getDocs, getDoc, collection, setDoc, deleteDoc } from '
 import { db } from './firebaseConfig'
 
 export const updateUserProfile = async (user, values) => {
-  console.log('user', user)
   if (!user || !user.uid) {
     return { ok: false, error: 'Invalid user object' }
   }
   const userDoc = doc(db, 'users', user.uid)
 
   try {
-    await updateDoc(userDoc, { ...values, profileCompleted: true })
-    return { ok: true }
+    // Only update profile data (do NOT set profileCompleted here)
+    await updateDoc(userDoc, { ...values, updatedTime: new Date() })
+    // Fetch fresh snapshot so caller can update context immediately
+    const snap = await getDoc(userDoc)
+    return { ok: true, data: { uid: user.uid, ...snap.data() } }
   } catch (err) {
     console.error('Error updating profile:', err)
+    return { ok: false, error: err.message }
+  }
+}
+
+// Mark profile as completed (called after onboarding dialogs)
+export const finalizeUserProfile = async (userId) => {
+  if (!userId) return { ok: false, error: 'Invalid user ID' }
+  try {
+    const userDoc = doc(db, 'users', userId)
+    await updateDoc(userDoc, { profileCompleted: true, updatedTime: new Date() })
+    const snap = await getDoc(userDoc)
+    return { ok: true, data: { uid: userId, ...snap.data() } }
+  } catch (err) {
+    console.error('Error finalizing profile:', err)
     return { ok: false, error: err.message }
   }
 }
@@ -45,18 +61,20 @@ export const getUserById = async (userId) => {
 }
 
 export const filterUsers = (query, users) => {
-  if (!query) {
-    return users
-  } else {
-    const lowerCaseQuery = query.toLowerCase()
-    return users.filter(
-      (d) =>
-        d.displayName.toLowerCase().includes(lowerCaseQuery) ||
-        d.location.toLowerCase().includes(lowerCaseQuery) ||
-        d.affiliation.toLowerCase().includes(lowerCaseQuery) ||
-        (d.role && d.role.toLowerCase().includes(lowerCaseQuery))
+  if (!Array.isArray(users)) return []
+  if (!query) return users
+  const lowerCaseQuery = query.toLowerCase()
+  const safe = (v) => (typeof v === 'string' ? v.toLowerCase() : '')
+  return users.filter((d) => {
+    if (!d) return false
+    return (
+      safe(d.displayName).includes(lowerCaseQuery) ||
+      safe(d.location).includes(lowerCaseQuery) ||
+      safe(d.affiliation).includes(lowerCaseQuery) ||
+      safe(d.role).includes(lowerCaseQuery) ||
+      safe(d.email).includes(lowerCaseQuery)
     )
-  }
+  })
 }
 
 export const getUserArrayByIds = async (userIds) => {

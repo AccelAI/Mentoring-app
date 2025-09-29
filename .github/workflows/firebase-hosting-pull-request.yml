@@ -1,0 +1,55 @@
+---
+name: Deploy to Firebase Hosting on PR
+on:
+  pull_request:
+    branches:
+      - main
+
+env:
+  REACT_APP_ORCID_CLIENT_SECRET: ${{ secrets.REACT_APP_ORCID_CLIENT_SECRET }}
+  REACT_APP_FIREBASE_API_KEY: ${{ secrets.REACT_APP_FIREBASE_API_KEY }}
+  REACT_APP_FIREBASE_AUTH_DOMAIN: ${{ secrets.REACT_APP_FIREBASE_AUTH_DOMAIN }}
+  REACT_APP_FIREBASE_PROJECT_ID: ${{ secrets.REACT_APP_FIREBASE_PROJECT_ID }}
+  REACT_APP_FIREBASE_STORAGE_BUCKET: ${{ secrets.REACT_APP_FIREBASE_STORAGE_BUCKET }}
+  REACT_APP_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.REACT_APP_FIREBASE_MESSAGING_SENDER_ID }}
+  REACT_APP_FIREBASE_APP_ID: ${{ secrets.REACT_APP_FIREBASE_APP_ID }}
+  REACT_APP_FIREBASE_MEASUREMENT_ID: ${{ secrets.REACT_APP_FIREBASE_MEASUREMENT_ID }}
+  REACT_APP_VAPID_KEY: ${{ secrets.REACT_APP_VAPID_KEY }}
+  REACT_APP_ORCID_CLIENT_ID: ${{ secrets.REACT_APP_ORCID_CLIENT_ID }}
+  REACT_APP_ORCID_REDIRECT_URI: ${{ secrets.REACT_APP_ORCID_REDIRECT_URI }}
+  ORCID_CLIENT_ID: ${{ secrets.ORCID_CLIENT_ID }}
+  ORCID_CLIENT_SECRET: ${{ secrets.ORCID_CLIENT_SECRET }}
+  ORCID_REDIRECT_URI: ${{ secrets.ORCID_REDIRECT_URI }}
+  FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: mentor-match-app/package-lock.json
+
+      - name: Install
+        run: npm ci
+        working-directory: mentor-match-app
+
+      - name: Build
+        run: npm run build
+        working-directory: mentor-match-app
+        env:
+          CI: false
+
+      - name: Deploy preview to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+            repoToken: ${{ secrets.GITHUB_TOKEN }}
+            firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MENTOR_MATCH_BACKEND }}
+            projectId: mentor-match-backend
+            entryPoint: mentor-match-app
+            channelId: pr-${{ github.event.pull_request.number }}
+            expires: 7d

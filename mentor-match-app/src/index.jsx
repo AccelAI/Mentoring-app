@@ -8,9 +8,7 @@ import { SnackbarProvider } from 'notistack'
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
   <SnackbarProvider>
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
+    <App />
   </SnackbarProvider>
 )
 

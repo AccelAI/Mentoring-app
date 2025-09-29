@@ -6,7 +6,8 @@ import {
   signInAnonymously,
   GoogleAuthProvider,
   GithubAuthProvider,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  getAdditionalUserInfo
 } from 'firebase/auth'
 import { doc, setDoc, updateDoc, getDoc } from 'firebase/firestore'
 import { getToken } from 'firebase/messaging'
@@ -44,23 +45,28 @@ const saveNotificationToken = async (userId) => {
   }
 }
 
-const handleSignInWithProvider = async (user, provider) => {
+const handleSignInWithProvider = async (user, provider, isNewUserOverride) => {
   const userDocRef = doc(db, 'users', user.uid)
   const userDoc = await getDoc(userDocRef)
 
-  if (!userDoc.exists()) {
-    const username = user.email.split('@')[0]
+  const existedBefore = userDoc.exists()
+  // If doc does not exist, create it regardless of override value.
+  if (!existedBefore) {
+    const username = (user.email || '').split('@')[0]
     await setDoc(userDocRef, {
-      displayName: user.displayName || user.email.split('@')[0],
-      email: user.email,
+      displayName: user.displayName || username,
+      email: user.email || '',
       username,
-      createdTime: new Date()
+      createdTime: new Date(),
+      profileCompleted: false
     })
   }
 
+  const isNewUser = !existedBefore || isNewUserOverride === true
+
   saveNotificationToken(user.uid)
 
-  return { ok: true }
+  return { ok: true, isNewUser, uid: user.uid }
 }
 
 export const logIn = async ({ email, password }) => {
@@ -100,7 +106,8 @@ export const signUp = async ({ name, email, password, username }) => {
       displayName: name,
       email,
       username,
-      createdTime: new Date()
+      createdTime: new Date(),
+      profileCompleted: false
     })
 
     saveNotificationToken(user.uid)
@@ -201,7 +208,8 @@ export const signInWithOrcid = async (orcidData, accessToken) => {
 export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider)
-    return await handleSignInWithProvider(result.user, GoogleAuthProvider)
+    const { isNewUser } = getAdditionalUserInfo(result) || {}
+    return await handleSignInWithProvider(result.user, GoogleAuthProvider, isNewUser)
   } catch (error) {
     // Handle Errors here.
     const errorCode = error.code

@@ -37,6 +37,7 @@ import CountrySelect from '../components/inputFields/CountrySelect'
 
 // Hooks and services
 import { updateUserProfile } from '../api/users'
+import { finalizeUserProfile } from '../api/users'
 import { useUser } from '../hooks/useUser'
 import { useSnackbar } from 'notistack'
 
@@ -75,13 +76,22 @@ const GetStarted = () => {
     setSelectedValue(event.target.value)
   }
 
+  const finalizeProfile = useCallback(async () => {
+    if (!user?.uid) return
+    const res = await finalizeUserProfile(user.uid)
+    if (res.ok) {
+      await refreshUser(user.uid)
+    }
+  }, [user, refreshUser])
+
   const handleDialogClose = () => {
     setOpenDialog(false)
+    // Do NOT finalize here to avoid Auth wrapper redirect before showing final step
     handleNext()
   }
 
   const handleApplicationDialogOpen = () => {
-    handleDialogClose()
+    setOpenDialog(false)
     setOpenApplicationDialog(true)
   }
 
@@ -91,11 +101,14 @@ const GetStarted = () => {
 
   const fillFormLater = () => {
     handleApplicationDialogClose()
+    // Do NOT finalize yet; let user see final step and click Finish
     handleNext()
   }
 
   const goToApplicationForm = () => {
     handleApplicationDialogClose()
+    // Finalize before leaving wizard to forms
+    finalizeProfile()
     if (selectedValue === 'mentee') {
       navigate('/mentee-form')
     } else if (selectedValue === 'mentor') {
@@ -113,10 +126,6 @@ const GetStarted = () => {
     }
   }
 
-  const handleStep = (index) => {
-    setActiveStep(index)
-  }
-
   const getTitle = () => {
     if (activeStep === 3) {
       return "Congrats, you've joined the private forum of the Accel AI network!"
@@ -129,17 +138,17 @@ const GetStarted = () => {
       console.log('Form submitted with values:', values)
       setSubmitting(true)
       try {
-        // send gender directly from Formik (radio or free text)
         const res = await updateUserProfile(user, values)
         if (!res.ok) {
           setSubmitting(false)
           return enqueueSnackbar(res.error, { variant: 'error' })
         }
         enqueueSnackbar('Profile created successfully', { variant: 'success' })
-        refreshUser()
-        setSubmitting(false)
-        if (user.authMigrated) {
+        // DO NOT refreshUser() here to avoid remount before showing dialog
+        if (user.authMigrated === true) {
+          await finalizeProfile()
           setActiveStep(3)
+          setSubmitting(false)
           return
         }
         setOpenDialog(true)
@@ -148,10 +157,11 @@ const GetStarted = () => {
         enqueueSnackbar('An error occurred during profile setup', {
           variant: 'error'
         })
+      } finally {
         setSubmitting(false)
       }
     },
-    [enqueueSnackbar, user, refreshUser]
+    [enqueueSnackbar, user, finalizeProfile]
   )
 
   const initialValues = useMemo(
@@ -197,7 +207,10 @@ const GetStarted = () => {
               {index === 0 ? (
                 <StepLabel />
               ) : (
-                <StepButton onClick={() => handleStep(index)}>
+                <StepButton
+                  disabled={index > activeStep}
+                  onClick={() => index <= activeStep && setActiveStep(index)}
+                >
                   <StepLabel />
                 </StepButton>
               )}
@@ -481,12 +494,15 @@ const GetStarted = () => {
                       <Typography variant="body1" sx={{ textAlign: 'start' }}>
                         This space has been created for latinx identifying
                         students, post-docs, academic researchers, industry
-                        researchers, and alies working in Artificial
+                        researchers, and allies working in Artificial
                         Intelligence and Machine Learning to connect, share
                         resources, and foster mentorship opportunities.
                       </Typography>
                       <Button
-                        onClick={handleNext}
+                        onClick={async () => {
+                          await finalizeProfile()
+                          handleNext()
+                        }}
                         variant="contained"
                         sx={{ width: '30%', alignSelf: 'end' }}
                       >
