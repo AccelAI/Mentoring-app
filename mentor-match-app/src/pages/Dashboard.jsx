@@ -36,7 +36,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (user) {
-      if (!user.profileCompleted && user.authMigrated) {
+      if (!user.profileCompleted && user.authMigrated === true) {
         navigate('/get-started')
         return
       }

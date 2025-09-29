@@ -29,13 +29,13 @@ export const useAuthHandlers = () => {
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
 
-  const handleRedirect = async () => {
+  const handleRedirect = async (path = '/dashboard', uid) => {
     try {
-      await Promise.resolve(refreshUser())
+      await refreshUser(uid)
     } catch (e) {
       console.warn('refreshUser failed (continuing):', e)
     }
-    navigate('/dashboard')
+    navigate(path)
   }
 
   // Regular email/password login
@@ -58,8 +58,11 @@ export const useAuthHandlers = () => {
         { variant: 'error' }
       )
     }
-    enqueueSnackbar('Welcome Back', { variant: 'success' })
-    await handleRedirect()
+    enqueueSnackbar(
+      res.isNewUser ? 'Account created successfully' : 'Welcome Back',
+      { variant: 'success' }
+    )
+    await handleRedirect(res.isNewUser ? '/get-started' : '/dashboard', res.uid)
   }
 
   const githubLogin = async () => {
@@ -71,7 +74,7 @@ export const useAuthHandlers = () => {
       )
     }
     enqueueSnackbar('Welcome Back', { variant: 'success' })
-    await handleRedirect()
+    await handleRedirect('/dashboard')
   }
 
   const orcidLogin = () => {
@@ -114,3 +117,4 @@ export const useAuthHandlers = () => {
     handleResetPassword
   }
 }
+

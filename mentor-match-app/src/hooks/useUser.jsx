@@ -16,10 +16,11 @@ const UserProvider = ({ children }) => {
 
   // Function to fetch the logged-in user's data
   const fetchLoggedUser = async (uid) => {
+    setLoading(true) // ensure loading true at start
     try {
+      console.log(`Fetching user data for uid: ${uid}`)
       const userDoc = doc(db, 'users', uid)
       const userSnap = await getDoc(userDoc)
-      // Determine admin via Firestore collection `admins/{uid}`
       let isAdmin = false
       try {
         const adminDoc = doc(db, 'admins', uid)
@@ -29,40 +30,35 @@ const UserProvider = ({ children }) => {
         console.warn('Failed to check admin membership', adminError)
       }
       if (userSnap.exists()) {
-        const userData = {
-          uid,
-          ...userSnap.data(),
-          isAdmin
-        }
+        const userData = { uid, ...userSnap.data(), isAdmin }
+        console.log('Setting user data: ', userData)
         setUser(userData)
+        setLoading(false) // success path
         return
       }
-
-      // No user found
+      console.log('No user data found for uid:', uid)
       setUser(null)
-    } catch (error) {
-      console.error('Error fetching user data: ', error)
+    } catch (err) {
+      console.error('Error fetching user data: ', err)
       setUser(null)
     } finally {
-      setLoading(false)
+      setLoading(false) // guarantee completion
     }
   }
 
   // Function to refresh the logged-in user's data
-  const refreshUser = async (oricidUid) => {
-    if (user?.uid) {
-      await fetchLoggedUser(user.uid)
-    } else if (oricidUid) {
-      await fetchLoggedUser(oricidUid)
+  const refreshUser = async (uidOverride) => {
+    const targetUid = uidOverride || user?.uid || auth.currentUser?.uid
+    if (targetUid) {
+      await fetchLoggedUser(targetUid)
     }
   }
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setLoading(true)
-      if (user) {
-        console.log('User is logged in: ', user.uid)
-        await fetchLoggedUser(user.uid)
+    const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
+      if (authUser) {
+        console.log('User is logged in: ', authUser.uid)
+        await fetchLoggedUser(authUser.uid)
       } else {
         setUser(null)
         setLoading(false)
@@ -74,8 +70,8 @@ const UserProvider = ({ children }) => {
   useEffect(() => {
     const fetchUsers = async () => {
       const usersList = await getUsers({ includePrivate: !!user?.isAdmin })
-      console.log('usersList', usersList)
-      setUserList(usersList)
+      // Guard: getUsers may return error object
+      if (Array.isArray(usersList)) setUserList(usersList)
     }
     fetchUsers()
   }, [user?.isAdmin])
@@ -85,6 +81,8 @@ const UserProvider = ({ children }) => {
       if (user && user.menteesId) {
         const menteeArr = await getUserArrayByIds(user.menteesId)
         setMentees(menteeArr)
+      } else {
+        setMentees([])
       }
     }
     fetchMenteeList()
