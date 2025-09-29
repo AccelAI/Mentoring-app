@@ -494,7 +494,7 @@ const GetStarted = () => {
                       <Typography variant="body1" sx={{ textAlign: 'start' }}>
                         This space has been created for latinx identifying
                         students, post-docs, academic researchers, industry
-                        researchers, and alies working in Artificial
+                        researchers, and allies working in Artificial
                         Intelligence and Machine Learning to connect, share
                         resources, and foster mentorship opportunities.
                       </Typography>

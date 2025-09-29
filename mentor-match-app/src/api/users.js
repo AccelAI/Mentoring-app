@@ -61,18 +61,20 @@ export const getUserById = async (userId) => {
 }
 
 export const filterUsers = (query, users) => {
-  if (!query) {
-    return users
-  } else {
-    const lowerCaseQuery = query.toLowerCase()
-    return users.filter(
-      (d) =>
-        d.displayName.toLowerCase().includes(lowerCaseQuery) ||
-        d.location.toLowerCase().includes(lowerCaseQuery) ||
-        d.affiliation.toLowerCase().includes(lowerCaseQuery) ||
-        (d.role && d.role.toLowerCase().includes(lowerCaseQuery))
+  if (!Array.isArray(users)) return []
+  if (!query) return users
+  const lowerCaseQuery = query.toLowerCase()
+  const safe = (v) => (typeof v === 'string' ? v.toLowerCase() : '')
+  return users.filter((d) => {
+    if (!d) return false
+    return (
+      safe(d.displayName).includes(lowerCaseQuery) ||
+      safe(d.location).includes(lowerCaseQuery) ||
+      safe(d.affiliation).includes(lowerCaseQuery) ||
+      safe(d.role).includes(lowerCaseQuery) ||
+      safe(d.email).includes(lowerCaseQuery)
     )
-  }
+  })
 }
 
 export const getUserArrayByIds = async (userIds) => {

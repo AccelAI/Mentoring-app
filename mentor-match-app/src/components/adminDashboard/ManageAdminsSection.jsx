@@ -202,7 +202,10 @@ const ManageAdminsSection = () => {
                       borderRadius={100}
                     />
                   </ListItemAvatar>
-                  <ListItemText primary={user.displayName} />
+                  <ListItemText
+                    primary={user.displayName}
+                    secondary={user.email}
+                  />
                 </ListItemButton>
               ))}
             </List>
