@@ -71,8 +71,12 @@ const UserProvider = ({ children }) => {
     const fetchUsers = async () => {
       const usersList = await getUsers({ includePrivate: !!user?.isAdmin })
       // Guard: getUsers may return error object
-      if (Array.isArray(usersList)) setUserList(usersList)
-    }
+      if (Array.isArray(usersList)) {
+        setUserList(usersList)
+      } else if (usersList && usersList.ok === false && usersList.error) {
+        console.error('Error fetching users:', usersList.error)
+        setUserList([])
+      }
     fetchUsers()
   }, [user?.isAdmin])
 
