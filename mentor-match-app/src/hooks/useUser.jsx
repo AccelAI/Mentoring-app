@@ -77,6 +77,7 @@ const UserProvider = ({ children }) => {
         console.error('Error fetching users:', usersList.error)
         setUserList([])
       }
+    }
     fetchUsers()
   }, [user?.isAdmin])
 
