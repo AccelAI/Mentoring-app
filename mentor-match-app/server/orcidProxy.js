@@ -20,15 +20,18 @@ app.post('/api/orcid/token', async (req, res) => {
   console.log('- Redirect URI:', redirectUri)
 
   if (!code || !clientId || !clientSecret || !redirectUri) {
-    console.error('Missing required environment variables or code')
-    return res.status(400).json({
-      error: 'Missing required parameters',
-      missing: {
+    // Clarify why 400
+    console.error(
+      'Bad Request: missing item(s):',
+      {
         code: !code,
         clientId: !clientId,
         clientSecret: !clientSecret,
         redirectUri: !redirectUri
       }
+    )
+    return res.status(400).json({
+      error: 'Missing required parameters (check server-side ORCID_* env vars and request body code)'
     })
   }
 
@@ -115,3 +118,5 @@ app.get('/api/orcid/record/:orcidId', async (req, res) => {
 
 const PORT = process.env.PORT || 5000
 app.listen(PORT, () => console.log(`Backend running on port ${PORT}`))
+
+// NOTE: In production use Firebase Function 'api'. This file kept only for local standalone dev.

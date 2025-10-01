@@ -55,3 +55,14 @@ jobs:
           channelId: live
           projectId: mentor-match-backend
           entryPoint: mentor-match-app
+
+      - name: Install Functions deps
+        run: npm ci
+        working-directory: mentor-match-app/functions
+
+      - name: Deploy Functions (api)
+        uses: w9jds/firebase-action@v2.2.0
+        with:
+          args: deploy --only functions:api
+        env:
+          GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MENTOR_MATCH_BACKEND }}

@@ -29,3 +29,4 @@ yarn-debug.log*
 yarn-error.log*
 
 server/firebase-service-account-key.json
+functions/node_modules/
