@@ -45,8 +45,9 @@ app.post('/api/orcid/token', async (req, res) => {
 app.get('/api/orcid/record/:orcidId', async (req, res) => {
   const { orcidId } = req.params
   const auth = req.headers.authorization
-  if (!auth || !auth.startsWith('Bearer '))
+  if (!auth || !auth.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Missing or invalid authorization header' })
+  }
   const accessToken = auth.split(' ')[1]
   try {
     const r = await fetch(`https://api.orcid.org/v3.0/${orcidId}/record`, {
