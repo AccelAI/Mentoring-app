@@ -91,7 +91,7 @@ export const extractProfileFromOrcidRecord = (orcidRecord) => {
 export const fetchOrcidProfile = async (orcidId, accessToken) => {
   try {
     const response = await fetch(
-      `http://localhost:5000/api/orcid/record/${orcidId}`,
+      `/api/orcid/record/${orcidId}`,
       {
         method: 'GET',
         headers: {
