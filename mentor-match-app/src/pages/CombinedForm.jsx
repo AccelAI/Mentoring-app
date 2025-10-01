@@ -240,7 +240,7 @@ const CombinedForm = () => {
           validationSchema={schema}
           onSubmit={onSubmit}
         >
-          {({ isSubmitting, isValid, errors }) => (
+          {({ isSubmitting, isValid }) => (
             <>
               {/* {console.log('Formik validation errors:', errors)} */}
               <Form>

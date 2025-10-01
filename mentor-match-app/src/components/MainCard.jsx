@@ -14,8 +14,8 @@ const MainCard = ({
   const content = (
     <Card
       sx={{
-        width: { xl: '50%', md: '70%', sm: '100%' },
-        maxHeight: { lg: '87vh', md: '90vh', sm: '100vh' },
+        width: { xl: '50%', md: '70%', xs: '100%' },
+        maxHeight: { md: '90vh', sm: '100vh', lg: '98vh' },
         p: 3,
         overflowY: 'auto'
       }}
