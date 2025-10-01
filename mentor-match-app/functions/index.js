@@ -5,8 +5,19 @@ const fetch = require('node-fetch')
 
 setGlobalOptions({ region: 'us-central1' })
 
+console.log('Cold start: ORCID env present?', {
+  id: !!process.env.ORCID_CLIENT_ID,
+  secret: !!process.env.ORCID_CLIENT_SECRET,
+  redirect: !!process.env.ORCID_REDIRECT_URI
+})
+
 const app = express()
 app.use(express.json())
+
+// Health check
+app.get('/api/health', (_req, res) => {
+  res.json({ ok: true, ts: Date.now() })
+})
 
 // POST /api/orcid/token
 app.post('/api/orcid/token', async (req, res) => {
