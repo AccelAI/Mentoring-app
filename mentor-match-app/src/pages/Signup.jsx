@@ -170,7 +170,7 @@ const Signup = () => {
                   sx={{ width: '100%' }}
                   onClick={githubSignUp}
                 >
-                  Sign Up with Github
+                  Sign Up with GitHub
                 </Button>
                 <Button
                   variant="outlined"
