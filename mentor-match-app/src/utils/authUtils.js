@@ -87,9 +87,9 @@ export const useAuthHandlers = () => {
     const state = crypto.randomUUID()
     sessionStorage.setItem('orcid_oauth_state', state)
     const url =
-      `https://orcid.org/oauth/authorize` +
+      'https://orcid.org/oauth/authorize' +
       `?client_id=${encodeURIComponent(clientId)}` +
-      `&response_type=code` +
+      '&response_type=code' +
       `&redirect_uri=${encodeURIComponent(redirectUri)}` +
       `&scope=${encodeURIComponent('/authenticate')}` +
       `&state=${encodeURIComponent(state)}`
