@@ -1,8 +1,8 @@
 const { onRequest } = require('firebase-functions/v2/https')
 const { setGlobalOptions } = require('firebase-functions/v2')
 const express = require('express')
-const fetch = require('node-fetch')
 
+// Global defaults
 setGlobalOptions({ region: 'us-central1' })
 
 console.log('Cold start: ORCID env present?', {
@@ -25,11 +25,9 @@ app.post('/api/orcid/token', async (req, res) => {
   const clientId = process.env.ORCID_CLIENT_ID
   const clientSecret = process.env.ORCID_CLIENT_SECRET
   const redirectUri = process.env.ORCID_REDIRECT_URI
-
   if (!code || !clientId || !clientSecret || !redirectUri) {
     return res.status(400).json({
-      error:
-        'Missing required parameters (server ORCID_* secrets or request code)'
+      error: 'Missing required parameters (server ORCID_* secrets or request code)'
     })
   }
   try {

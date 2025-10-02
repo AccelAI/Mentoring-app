@@ -80,8 +80,32 @@ export const useAuthHandlers = () => {
   const orcidLogin = () => {
     const clientId = process.env.REACT_APP_ORCID_CLIENT_ID
     const redirectUri = process.env.REACT_APP_ORCID_REDIRECT_URI
-    const url = `https://orcid.org/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=/authenticate`
-    window.location.href = url
+    if (!clientId || !redirectUri) {
+      console.error('Missing ORCID env vars')
+      return
+    }
+    const state = crypto.randomUUID()
+    sessionStorage.setItem('orcid_oauth_state', state)
+    const url =
+      `https://orcid.org/oauth/authorize` +
+      `?client_id=${encodeURIComponent(clientId)}` +
+      `&response_type=code` +
+      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+      `&scope=${encodeURIComponent('/authenticate')}` +
+      `&state=${encodeURIComponent(state)}`
+
+    const inIframe = window.top !== window
+    try {
+      if (inIframe) {
+        // Force top-level navigation if embedded
+        window.top.location.href = url
+      } else {
+        window.location.assign(url)
+      }
+    } catch (e) {
+      // Fallback
+      window.location.href = url
+    }
   }
 
   const handleResetPassword = async (

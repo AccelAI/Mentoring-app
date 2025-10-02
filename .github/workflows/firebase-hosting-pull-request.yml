@@ -53,15 +53,3 @@ jobs:
             entryPoint: mentor-match-app
             channelId: pr-${{ github.event.pull_request.number }}
             expires: 7d
-
-      - name: Install Functions deps
-        run: npm ci
-        working-directory: mentor-match-app/functions
-
-      - name: Deploy Functions (api)
-        uses: w9jds/firebase-action@v2.2.0
-        with:
-          project_path: mentor-match-app
-          args: deploy --only functions:api --project mentor-match-backend
-        env:
-          GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MENTOR_MATCH_BACKEND }}
