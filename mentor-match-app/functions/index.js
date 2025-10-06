@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const { onRequest } = require('firebase-functions/v2/https')
 const { setGlobalOptions } = require('firebase-functions/v2')
 const express = require('express')
@@ -5,18 +6,12 @@ const express = require('express')
 // Global defaults
 setGlobalOptions({ region: 'us-central1' })
 
-console.log('Cold start: ORCID env present?', {
-  id: !!process.env.ORCID_CLIENT_ID,
-  secret: !!process.env.ORCID_CLIENT_SECRET,
-  redirect: !!process.env.ORCID_REDIRECT_URI
-})
-
 const app = express()
 app.use(express.json())
 
-// Health check
-app.get('/api/health', (_req, res) => {
-  res.json({ ok: true, ts: Date.now() })
+// Health (both /health and /api/health)
+app.get(['/health', '/api/health'], (_req, res) => {
+  res.json({ ok: true, ts: Date.now(), via: 'express' })
 })
 
 // POST /api/orcid/token
@@ -26,9 +21,7 @@ app.post('/api/orcid/token', async (req, res) => {
   const clientSecret = process.env.ORCID_CLIENT_SECRET
   const redirectUri = process.env.ORCID_REDIRECT_URI
   if (!code || !clientId || !clientSecret || !redirectUri) {
-    return res.status(400).json({
-      error: 'Missing required parameters (server ORCID_* secrets or request code)'
-    })
+    return res.status(400).json({ error: 'Missing required parameters' })
   }
   try {
     const response = await fetch('https://orcid.org/oauth/token', {
@@ -73,5 +66,9 @@ app.get('/api/orcid/record/:orcidId', async (req, res) => {
   }
 })
 
-// Export function (v2)
-exports.api = onRequest(app)
+// 404 fallback
+app.use((req, res) => {
+  res.status(404).json({ error: 'Not Found', path: req.path })
+})
+
+exports.api = onRequest({ timeoutSeconds: 60, memory: '256MiB' }, (req, res) => app(req, res))
