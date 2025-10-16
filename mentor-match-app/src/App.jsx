@@ -1,6 +1,10 @@
 import './App.css'
 import { BrowserRouter, Route, Routes, Outlet } from 'react-router-dom'
 import { ThemeContextProvider } from './hooks/useTheme'
+import { UserProvider } from './hooks/useUser'
+import { CssBaseline } from '@mui/material'
+
+// Pages
 import Dashboard from './pages/Dashboard'
 import MenteeForm from './pages/MenteeForm'
 import MentorForm from './pages/MentorForm'
@@ -8,15 +12,16 @@ import CombinedForm from './pages/CombinedForm'
 import Login from './pages/Login'
 import GetStarted from './pages/GetStarted'
 import Signup from './pages/Signup'
-import { CssBaseline } from '@mui/material'
-import UnAuthPage from './components/UnAuthPage'
-import AuthPage from './components/AuthPage'
-import { UserProvider } from './hooks/useUser'
-import ErrorPage from './components/ErrorPage'
-import AdminRoute from './components/AdminRoute'
 import AdminDashboard from './pages/AdminDashboard'
 import MentorPick from './pages/MentorPick'
-import RootHandler from './components/RootHandler'
+import ErrorPage from './components/ErrorPage'
+import EditSurvey from './pages/EditSurvey'
+
+// Authentication Handlers
+import RootHandler from './components/auth/RootHandler'
+import UnAuthPage from './components/auth/UnAuthPage'
+import AuthPage from './components/auth/AuthPage'
+import AdminRoute from './components/auth/AdminRoute'
 
 function App() {
   return (
@@ -64,6 +69,7 @@ function App() {
                 }
               >
                 <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/survey/edit/:id" element={<EditSurvey />} />
               </Route>
             </Route>
           </Routes>

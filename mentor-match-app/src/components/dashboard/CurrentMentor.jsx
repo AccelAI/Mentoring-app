@@ -5,7 +5,7 @@ import { useState } from 'react'
 import {
   Box,
   Card,
-  Grid2 as Grid,
+  Grid,
   Stack,
   Button,
   Typography,
