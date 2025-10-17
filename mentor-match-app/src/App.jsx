@@ -16,6 +16,7 @@ import AdminDashboard from './pages/AdminDashboard'
 import MentorPick from './pages/MentorPick'
 import ErrorPage from './components/ErrorPage'
 import EditSurvey from './pages/EditSurvey'
+import Survey from './pages/Survey'
 
 // Authentication Handlers
 import RootHandler from './components/auth/RootHandler'
@@ -61,6 +62,7 @@ function App() {
                 element={<ErrorPage>Couldn't find this form!</ErrorPage>}
               />
               <Route path="/mentor-pick" element={<MentorPick />} />
+              <Route path="/survey/:id" element={<Survey />} />
               <Route
                 element={
                   <AdminRoute>

@@ -25,7 +25,6 @@ import {
   RadioGroup,
   Radio
 } from '@mui/material'
-import { LoadingButton } from '@mui/lab'
 import { ErrorOutline } from '@mui/icons-material'
 
 // Component imports
@@ -479,13 +478,13 @@ const GetStarted = () => {
                             </Typography>
                           </Stack>
                         )}
-                        <LoadingButton
+                        <Button
                           type="submit"
                           loading={isSubmitting}
                           variant="contained"
                         >
                           Continue
-                        </LoadingButton>
+                        </Button>
                       </Stack>
                     </Box>
                   )}

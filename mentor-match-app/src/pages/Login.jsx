@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom'
 import { Button, Typography, Stack, Divider, Link, Box } from '@mui/material'
 // eslint-disable-next-line
 import { Google as GoogleIcon, GitHub as GitHubIcon } from '@mui/icons-material'
-import { LoadingButton } from '@mui/lab'
 
 import MainCard from '../components/MainCard'
 import PasswordField from '../components/inputFields/PasswordField'
@@ -80,14 +79,14 @@ const Login = () => {
                   handleDialogClose
                 }}
               />
-              <LoadingButton
+              <Button
                 variant="contained"
                 type="submit"
                 sx={{ width: '100%' }}
                 loading={isSubmitting}
               >
                 Log in
-              </LoadingButton>
+              </Button>
 
               <Divider>Or</Divider>
               <Stack spacing={1} sx={{ width: 1 }}>

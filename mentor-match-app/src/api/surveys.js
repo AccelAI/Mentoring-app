@@ -51,6 +51,26 @@ export const deleteSurvey = async (surveyId) => {
   }
 }
 
+export const getSurveyById = async (surveyId) => {
+  try {
+    const surveyRef = doc(db, 'surveys', surveyId)
+    const surveySnapshot = await getDoc(surveyRef)
+    if (!surveySnapshot.exists()) {
+      throw new Error('Survey not found')
+    }
+
+    // Fetch questions ordered by "order"
+    const questionsRef = collection(db, 'surveys', surveyId, 'questions')
+    const questionsSnap = await getDocs(query(questionsRef, orderBy('order', 'asc')))
+    const questions = questionsSnap.docs.map((d) => ({ id: d.id, ...d.data() }))
+
+    return { id: surveySnapshot.id, ...surveySnapshot.data(), questions }
+  } catch (error) {
+    console.error('Error fetching survey by ID:', error)
+    throw error
+  }
+}
+
 export const getAllSurveys = async () => {
   try {
     const surveysCol = collection(db, 'surveys')
@@ -74,7 +94,7 @@ export const addQuestionToSurvey = async (surveyId, questionType, questionData =
     const emptyDefault = {
       title: 'New Question',
       type: questionType,
-      required: false,
+      isRequired: false,
       options: [],
       description: '',
       order: Date.now()
@@ -136,4 +156,15 @@ export const deleteQuestionFromSurvey = async (surveyId, questionId) => {
     questionsCount: increment(-1),
     updatedAt: serverTimestamp()
   })
+}
+
+export const submitSurveyResponse = async (surveyId, responses, userId) => {
+  try {
+    const responsesCol = collection(db, 'surveys', surveyId, 'responses')
+    const docRef = await addDoc(responsesCol, { answers: responses, submittedAt: serverTimestamp(), userId })
+    return { ok: true, id: docRef.id }
+  } catch (error) {
+    console.error('Error submitting survey response:', error)
+    return { ok: false, error: error.message }
+  }
 }

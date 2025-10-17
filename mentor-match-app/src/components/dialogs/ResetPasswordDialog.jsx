@@ -5,10 +5,10 @@ import {
   DialogActions,
   DialogTitle,
   Stack,
-  Typography
+  Typography,
+  Button
 } from '@mui/material'
 import TextField from '../inputFields/TextField'
-import { LoadingButton } from '@mui/lab'
 import { useAuthHandlers } from '../../utils/authUtils'
 
 const ResetPasswordDialog = ({
@@ -38,7 +38,7 @@ const ResetPasswordDialog = ({
         </Stack>
       </DialogContent>
       <DialogActions>
-        <LoadingButton
+        <Button
           variant="contained"
           onClick={() =>
             handleResetPassword(values, {
@@ -50,7 +50,7 @@ const ResetPasswordDialog = ({
           loading={isSubmitting}
         >
           Reset password
-        </LoadingButton>
+        </Button>
       </DialogActions>
     </Dialog>
   )
