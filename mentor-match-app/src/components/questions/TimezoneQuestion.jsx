@@ -35,7 +35,7 @@ const TimezoneQuestion = ({
             </Typography>
           )}
           <Field name={name}>
-            {({ field, form }) => (
+            {({ form }) => (
               <TimezoneSelect
                 name={name}
                 values={form.values}

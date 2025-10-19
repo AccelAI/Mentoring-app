@@ -24,9 +24,7 @@ const Login = () => {
     schema,
     onSubmit,
     googleLogin,
-    // eslint-disable-next-line
     githubLogin,
-    // eslint-disable-next-line
     orcidLogin
   } = useAuthHandlers()
 
@@ -102,7 +100,7 @@ const Login = () => {
                 >
                   Continue with Google
                 </Button>
-                {/* <Button
+                <Button
                   variant="outlined"
                   color="primary"
                   startIcon={<GitHubIcon />}
@@ -132,7 +130,7 @@ const Login = () => {
                   onClick={orcidLogin}
                 >
                   Continue with ORCID
-                </Button> */}
+                </Button>
               </Stack>
 
               <Stack

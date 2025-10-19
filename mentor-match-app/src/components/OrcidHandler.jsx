@@ -26,7 +26,7 @@ const OrcidHandler = () => {
 
     const exchangeCodeForToken = async () => {
       // Exchange authorization code for access token
-      const response = await fetch('http://localhost:5000/api/orcid/token', {
+      const response = await fetch('/api/orcid/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code })

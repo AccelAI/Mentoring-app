@@ -67,7 +67,7 @@ const UserGrid = ({
           }
         }}
         variant="outlined"
-        onClick={(e) => {
+        onClick={() => {
           // Ignore if click originated from an element that should not open the dialog
           if (!showSelectAsMentorButton && !showApplicationButton) {
             setOpenDialog(true)
