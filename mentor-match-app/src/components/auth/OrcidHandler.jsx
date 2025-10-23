@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSnackbar } from 'notistack'
-import { fetchOrcidProfile } from '../utils/orcidUtils'
-import { signInWithOrcid } from '../api/auth'
+import { fetchOrcidProfile } from '../../utils/orcidUtils'
+import { signInWithOrcid } from '../../api/auth'
 import { Card, CardContent, Typography, CircularProgress } from '@mui/material'
-import { useUser } from '../hooks/useUser'
+import { useUser } from '../../hooks/useUser'
 
 const OrcidHandler = () => {
   const navigate = useNavigate()
@@ -51,14 +51,15 @@ const OrcidHandler = () => {
           )
 
           if (authResult.ok) {
-            // Check if profile has enough information for account creation
-            if (!authResult.isNewUser) {
+            console.log('ORCID sign-in successful:', authResult)
+            if (authResult.isNewUser) {
+              console.log('New user created with ORCID ID:', authResult.userId)
+              navigate('/get-started')
+            } else {
+              console.log('Existing user signed in, refreshing user data...')
               await refreshUser(profileData.orcidId.replace(/-/g, ''))
               console.log('User refreshed, navigating to dashboard')
               navigate('/dashboard')
-            } else {
-              // Navigate to a profile completion page if needed
-              navigate('/get-started')
             }
             enqueueSnackbar(
               authResult.isNewUser
