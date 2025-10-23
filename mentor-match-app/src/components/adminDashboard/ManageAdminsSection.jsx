@@ -3,7 +3,7 @@ import {
   Stack,
   Typography,
   Card,
-  Grid2 as Grid,
+  Grid,
   IconButton,
   Dialog,
   DialogTitle,
@@ -33,8 +33,8 @@ import { useUser } from '../../hooks/useUser'
 import SearchBar from '../SearchBar'
 import { useSnackbar } from 'notistack'
 
-const ManageAdminsSection = () => {
-  const { userList, user } = useUser()
+const ManageAdminsSection = ({ userList }) => {
+  const { user } = useUser()
   const [admins, setAdmins] = useState([])
   const [dialogOpen, setDialogOpen] = useState(false)
   const [reloadList, setReloadList] = useState(true)

@@ -18,7 +18,6 @@ import {
   Google as GoogleIcon,
   GitHub as GitHubIcon
 } from '@mui/icons-material'
-import { LoadingButton } from '@mui/lab'
 
 // Hooks and services
 import { Form, Formik } from 'formik'
@@ -178,14 +177,14 @@ const ProfileWidget = () => {
                     handleDialogClose
                   }}
                 />
-                <LoadingButton
+                <Button
                   variant="contained"
                   type="submit"
                   size="small"
                   loading={isSubmitting}
                 >
                   Log in
-                </LoadingButton>
+                </Button>
 
                 <Typography
                   variant="body2"

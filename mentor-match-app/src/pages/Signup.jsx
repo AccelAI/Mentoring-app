@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom'
 import { useCallback } from 'react'
 
 import { Stack, Button, Typography, Link } from '@mui/material'
-import { LoadingButton } from '@mui/lab'
 // eslint-disable-next-line
 import { Google as GoogleIcon, GitHub as GitHubIcon } from '@mui/icons-material'
 
@@ -143,14 +142,14 @@ const Signup = () => {
                 required
                 variant="outlined"
               />
-              <LoadingButton
+              <Button
                 variant="contained"
                 type="submit"
                 sx={{ width: '100%' }}
                 loading={isSubmitting}
               >
                 Sign Up
-              </LoadingButton>
+              </Button>
               {/* Socials sign up buttons */}
               <Typography variant="body2">Or</Typography>
               <Stack spacing={1} sx={{ width: 1 }}>

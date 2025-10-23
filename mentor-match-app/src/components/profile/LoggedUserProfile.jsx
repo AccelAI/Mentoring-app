@@ -25,7 +25,6 @@ import {
   Close as CloseIcon,
   Edit as EditIcon
 } from '@mui/icons-material'
-import { LoadingButton } from '@mui/lab'
 
 // Component imports
 import ProfilePicture from '../ProfilePicture'
@@ -366,7 +365,7 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                               spacing={1}
                               alignSelf={'flex-end'}
                             >
-                              <LoadingButton
+                              <Button
                                 type="submit"
                                 loading={isSubmitting}
                                 variant="contained"
@@ -376,7 +375,7 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                                 size="small"
                               >
                                 Save Changes
-                              </LoadingButton>
+                              </Button>
                               <Button
                                 sx={{ width: 'fit-content' }}
                                 onClick={() => {

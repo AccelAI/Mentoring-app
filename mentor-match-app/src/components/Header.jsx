@@ -5,12 +5,15 @@ import {
   IconButton,
   Toolbar,
   Tooltip,
-  Stack
+  Stack,
+  Button
 } from '@mui/material'
 import {
   Logout,
   DarkModeOutlined as DarkMode,
-  LightModeOutlined as LightMode
+  LightModeOutlined as LightMode,
+  Person as UserIcon,
+  Dashboard as DashboardIcon
 } from '@mui/icons-material'
 import logo from '../assets/logo.png'
 import { signOut } from '../api/auth'
@@ -19,7 +22,7 @@ import { useUser } from '../hooks/useUser'
 import { useNavigate } from 'react-router-dom'
 import { useSnackbar } from 'notistack'
 
-const Header = () => {
+const Header = ({ props }) => {
   const { user } = useUser()
   const navigate = useNavigate()
   const { mode, toggleColorMode } = useThemeContext()
@@ -40,7 +43,10 @@ const Header = () => {
   }
 
   return (
-    <AppBar position="sticky" sx={{ backgroundColor: 'background.paper' }}>
+    <AppBar
+      position="sticky"
+      sx={{ backgroundColor: 'background.paper', ...props }}
+    >
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <Box
@@ -52,19 +58,17 @@ const Header = () => {
           />
           <Box sx={{ flexGrow: 1 }} />
           <Stack direction="row" spacing={2}>
-            {/* {user?.isAdmin && location.pathname === '/admin' && (
-              <Button
-                color="accent"
-                variant="outlined"
-                size="small"
-                startIcon={<UserIcon />}
-                onClick={() => navigate('/dashboard')}
-              >
-                User Dashboard
-              </Button>
-            )} */}
-
             <Box>
+              {user?.isAdmin && location.pathname === '/admin' && (
+                <Tooltip title="Return to User Dashboard">
+                  <IconButton
+                    color="primary"
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    <DashboardIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
               <Tooltip title="Toggle Theme">
                 <IconButton
                   color="primary"

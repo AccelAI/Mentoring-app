@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import {
-  Grid2 as Grid,
+  Grid,
   Stack,
   Typography,
   Box,

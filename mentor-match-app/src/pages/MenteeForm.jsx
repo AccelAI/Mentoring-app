@@ -2,9 +2,8 @@
 import { useCallback, useState, useRef } from 'react'
 
 // Material-UI components and icons
-import { Typography, Stack, CircularProgress } from '@mui/material'
+import { Typography, Stack, CircularProgress, Button } from '@mui/material'
 import { ErrorOutline } from '@mui/icons-material'
-import { LoadingButton } from '@mui/lab'
 
 // Form validation
 import { Form, Formik } from 'formik'
@@ -180,14 +179,14 @@ const MenteeForm = () => {
                       </Typography>
                     </Stack>
                   )}
-                  <LoadingButton
+                  <Button
                     variant="contained"
                     type="submit"
                     sx={{ width: '130px', alignSelf: 'flex-end' }}
                     loading={isSubmitting}
                   >
                     Submit
-                  </LoadingButton>
+                  </Button>
                 </Stack>
               </Stack>
             </Form>
