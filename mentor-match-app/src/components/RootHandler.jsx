@@ -1,6 +1,6 @@
 import React from 'react'
 import { useLocation, Navigate } from 'react-router-dom'
-import OrcidHandler from './OrcidHandler'
+import OrcidHandler from './auth/OrcidHandler'
 
 const RootHandler = () => {
   const location = useLocation()
