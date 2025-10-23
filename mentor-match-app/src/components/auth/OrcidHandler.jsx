@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSnackbar } from 'notistack'
-import { fetchOrcidProfile } from '../utils/orcidUtils'
-import { signInWithOrcid } from '../api/auth'
+import { fetchOrcidProfile } from '../../utils/orcidUtils'
+import { signInWithOrcid } from '../../api/auth'
 import { Card, CardContent, Typography, CircularProgress } from '@mui/material'
-import { useUser } from '../hooks/useUser'
+import { useUser } from '../../hooks/useUser'
 
 const OrcidHandler = () => {
   const navigate = useNavigate()

@@ -13,13 +13,13 @@ if (nodeMajor < 18) {
 setGlobalOptions({ region: 'us-central1' })
 
 // Helpers for consistent response parsing and redaction
-function redact(value) {
+function redact (value) {
   if (!value) return 'missing'
   const s = String(value)
   if (s.length <= 6) return '***'
   return `${s.slice(0, 4)}***${s.slice(-2)}`
 }
-async function parseResponseSafe(response) {
+async function parseResponseSafe (response) {
   const contentType = response.headers.get('content-type') || ''
   try {
     if (contentType.includes('application/json')) {
