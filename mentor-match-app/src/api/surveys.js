@@ -168,3 +168,15 @@ export const submitSurveyResponse = async (surveyId, responses, userId) => {
     return { ok: false, error: error.message }
   }
 }
+
+export const getSurveyResponses = async (surveyId) => {
+  try {
+    const responsesCol = collection(db, 'surveys', surveyId, 'responses')
+    const responsesSnap = await getDocs(responsesCol)
+    const responses = responsesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+    return { ok: true, responses }
+  } catch (error) {
+    console.error('Error fetching survey responses:', error)
+    return { ok: false, error: error.message }
+  }
+}

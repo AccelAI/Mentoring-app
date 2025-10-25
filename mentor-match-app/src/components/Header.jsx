@@ -69,6 +69,11 @@ const Header = ({ props }) => {
                   </IconButton>
                 </Tooltip>
               )}
+              {user?.isAdmin && location.pathname.includes('/survey/edit/') && (
+                <Button sx={{ marginRight: 2 }} variant="contained">
+                  Post survey
+                </Button>
+              )}
               <Tooltip title="Toggle Theme">
                 <IconButton
                   color="primary"

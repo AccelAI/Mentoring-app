@@ -21,6 +21,7 @@
     "cors": "^2.8.5",
     "dayjs": "^1.11.18",
     "dotenv": "^17.2.1",
+    "export-to-csv": "^1.4.0",
     "express": "^5.1.0",
     "firebase": "^10.13.1",
     "firebase-admin": "^13.5.0",

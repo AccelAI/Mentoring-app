@@ -26,13 +26,15 @@ import {
 import Header from '../components/Header'
 import QuestionPreview from '../components/surveys/QuestionPreview'
 import OptionsEditor from '../components/surveys/OptionsEditor'
+import AnswersTable from '../components/surveys/AnswersTable'
 import {
   subscribeToSurvey,
   subscribeToQuestions,
   updateSurveyMeta,
   upsertQuestion,
   addQuestionToSurvey,
-  deleteQuestionFromSurvey
+  deleteQuestionFromSurvey,
+  getSurveyResponses
 } from '../api/surveys'
 
 const drawerWidth = 350
@@ -41,6 +43,7 @@ const EditSurvey = () => {
   const navigate = useNavigate()
   const [tabValue, setTabValue] = useState('0')
   const [questions, setQuestions] = useState([])
+  const [responses, setResponses] = useState([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(null)
   const [surveyMeta, setSurveyMeta] = useState({
     title: 'Untitled Survey',
@@ -153,6 +156,34 @@ const EditSurvey = () => {
 
   const currentQuestion =
     currentQuestionIndex !== null ? questions[currentQuestionIndex] : null
+
+  useEffect(() => {
+    if (!surveyId) return
+    let cancelled = false
+
+    const fetchOnce = async () => {
+      try {
+        const res = await getSurveyResponses(surveyId)
+        if (!cancelled && res?.ok) {
+          console.log('Fetched responses:', res)
+          setResponses(res)
+        }
+      } catch (err) {
+        console.error('Failed to fetch responses:', err)
+      }
+    }
+
+    // Initial fetch on mount/id change
+    fetchOnce()
+
+    // Poll for updates to approximate real-time
+    const intervalId = setInterval(fetchOnce, 120000)
+
+    return () => {
+      cancelled = true
+      clearInterval(intervalId)
+    }
+  }, [surveyId])
 
   return (
     <>
@@ -357,9 +388,11 @@ const EditSurvey = () => {
 
                 {/* RESPONSES PREVIEW */}
                 <TabPanel value="1">
-                  <Typography variant="body1">
-                    Responses content goes here
-                  </Typography>
+                  <AnswersTable
+                    data={responses}
+                    questions={questions}
+                    surveyName={surveyMeta.title}
+                  />
                 </TabPanel>
               </TabContext>
             </Card>
