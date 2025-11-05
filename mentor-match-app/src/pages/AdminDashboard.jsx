@@ -48,6 +48,7 @@ const AdminDashboard = () => {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [statusFilter, setStatusFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all') // new state
+  const [loadingSurveys, setLoadingSurveys] = useState(true)
 
   // Mentorship pairs (lifted to page scope)
   const [mentorshipPairs, setMentorshipPairs] = useState([])
@@ -71,11 +72,14 @@ const AdminDashboard = () => {
 
   const [surveys, setSurveys] = useState([])
   const fetchSurveys = useCallback(async () => {
+    setLoadingSurveys(true)
     try {
       const surveys = await getAllSurveys()
       setSurveys(surveys)
     } catch (error) {
       console.error('Error fetching surveys:', error)
+    } finally {
+      setLoadingSurveys(false)
     }
   }, [])
 
@@ -288,6 +292,7 @@ const AdminDashboard = () => {
                   <ManageSurveysSection
                     surveyData={surveys}
                     fetchSurveys={fetchSurveys}
+                    loading={loadingSurveys}
                   />
                 </TabPanel>
               </TabContext>

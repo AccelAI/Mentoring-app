@@ -40,38 +40,63 @@ const OptionsEditor = ({
     updateOptions(newOptions)
   }
 
+  // Add "Other" option support for checklist/radio
+  const isChoiceType = questionType === 'checklist' || questionType === 'radio'
+  const hasOther = options.some(
+    (o) => String(o).trim().toLowerCase() === 'other'
+  )
+  const handleAddOtherOption = () => {
+    if (!isChoiceType || hasOther) return
+    const newOptions = [...options, 'Other']
+    setOptions(newOptions)
+    updateOptions(newOptions)
+  }
+
   return (
     <Stack spacing={2}>
       <Typography color="text.secondary">Options</Typography>
       <Stack spacing={1}>
-        {options.map((option, index) => (
-          <Stack key={index} direction="row" spacing={1} alignItems="center">
-            {questionType === 'checklist' && (
-              <Checkbox
-                disabled
-                sx={{ '&.Mui-disabled': { color: 'lightgray' } }}
+        {options.map((option, index) => {
+          const isOther = String(option).trim().toLowerCase() === 'other'
+          return (
+            <Stack key={index} direction="row" spacing={1} alignItems="center">
+              {questionType === 'checklist' && (
+                <Checkbox
+                  disabled
+                  sx={{ '&.Mui-disabled': { color: 'lightgray' } }}
+                />
+              )}
+              {questionType === 'radio' && (
+                <Radio
+                  disabled
+                  sx={{ '&.Mui-disabled': { color: 'lightgray' } }}
+                />
+              )}
+              <TextField
+                variant="standard"
+                value={option}
+                onChange={(e) => handleOptionChange(index, e.target.value)}
+                fullWidth
+                disabled={isOther} // keep "Other" label fixed
               />
-            )}
-            {questionType === 'radio' && (
-              <Radio
-                disabled
-                sx={{ '&.Mui-disabled': { color: 'lightgray' } }}
-              />
-            )}
-            <TextField
-              variant="standard"
-              value={option}
-              onChange={(e) => handleOptionChange(index, e.target.value)}
-              fullWidth
-            />
-            <IconButton onClick={() => handleDeleteOption(index)}>
-              <DeleteIcon />
-            </IconButton>
-          </Stack>
-        ))}
-        <Button size="small" onClick={handleAddOption}>
-          Add Option
-        </Button>
+              <IconButton onClick={() => handleDeleteOption(index)}>
+                <DeleteIcon />
+              </IconButton>
+            </Stack>
+          )
+        })}
+        <Stack spacing={1}>
+          <Button size="small" onClick={handleAddOption}>
+            Add Option
+          </Button>
+          <Button
+            size="small"
+            onClick={handleAddOtherOption}
+            disabled={!isChoiceType || hasOther}
+          >
+            Add an "Other" option
+          </Button>
+        </Stack>
       </Stack>
     </Stack>
   )

@@ -119,7 +119,7 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
         try {
           const ans = await getFormAnswers(user.uid)
           setFormAnswers(ans)
-          console.log('formAnswers', ans)
+          //console.log('formAnswers', ans)
           setFormAnswers(ans || {})
           setLoading(false)
         } catch (error) {

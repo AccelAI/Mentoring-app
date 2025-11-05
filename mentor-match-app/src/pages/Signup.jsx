@@ -79,7 +79,7 @@ const Signup = () => {
   // eslint-disable-next-line
   const githubSignUp = useCallback(async () => {
     const res = await signInWithGithub()
-    console.log(res)
+    //console.log(res)
     if (!res.ok) {
       return enqueueSnackbar(
         'Failed to sign in with Github. Please try again.',

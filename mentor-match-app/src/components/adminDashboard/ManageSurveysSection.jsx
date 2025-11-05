@@ -7,19 +7,20 @@ import {
   MRT_ToggleGlobalFilterButton,
   MRT_ToggleDensePaddingButton
 } from 'material-react-table'
-import { Box, IconButton, Tooltip } from '@mui/material'
+import { Box, IconButton, Tooltip, Typography } from '@mui/material'
 import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Add as AddIcon,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Preview as PreviewIcon
 } from '@mui/icons-material'
 import { createEmptySurvey, deleteSurvey } from '../../api/surveys'
 import { useUser } from '../../hooks/useUser'
 import { useNavigate } from 'react-router-dom'
 import { useSnackbar } from 'notistack'
 
-const ManageSurveysSection = ({ surveyData, fetchSurveys }) => {
+const ManageSurveysSection = ({ surveyData, fetchSurveys, loading }) => {
   const { user } = useUser()
   const navigate = useNavigate()
   const { enqueueSnackbar } = useSnackbar()
@@ -73,6 +74,7 @@ const ManageSurveysSection = ({ surveyData, fetchSurveys }) => {
     enableColumnActions: false,
     enableRowActions: true,
     positionActionsColumn: 'last',
+    state: { isLoading: loading },
     renderRowActions: ({ row }) => (
       <Box sx={{ display: 'flex', flexWrap: 'nowrap', gap: '2px' }}>
         <Tooltip title="Edit Survey">
@@ -93,6 +95,19 @@ const ManageSurveysSection = ({ surveyData, fetchSurveys }) => {
             }}
           >
             <LinkIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="See Live Survey">
+          <IconButton
+            onClick={() =>
+              window.open(
+                `${window.location.origin}/survey/${row.original.id}`,
+                '_blank',
+                'noopener,noreferrer'
+              )
+            }
+          >
+            <PreviewIcon />
           </IconButton>
         </Tooltip>
         <Tooltip title="Delete Survey">
@@ -122,7 +137,7 @@ const ManageSurveysSection = ({ surveyData, fetchSurveys }) => {
           <IconButton
             onClick={async () => {
               const newSurveyId = await createEmptySurvey(user.uid)
-              console.log('New survey created with ID:', newSurveyId)
+              //console.log('New survey created with ID:', newSurveyId)
               navigate('/survey/edit/' + newSurveyId)
             }}
           >
@@ -134,10 +149,15 @@ const ManageSurveysSection = ({ surveyData, fetchSurveys }) => {
         <MRT_ToggleDensePaddingButton table={table} />
         <MRT_ToggleFullScreenButton table={table} />
       </>
+    ),
+    renderEmptyRowsFallback: () => (
+      <Typography p={3} fontStyle={'italic'} textAlign={'center'}>
+        No surveys created yet
+      </Typography>
     )
   })
 
-  return <MaterialReactTable table={table} />
+  return <MaterialReactTable table={table} loading={loading} />
 }
 
 export default ManageSurveysSection

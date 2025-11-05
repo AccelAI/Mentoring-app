@@ -29,8 +29,11 @@ export const createEmptySurvey = async (userId) => {
       title: 'Untitled Survey',
       description: '',
       createdAt: serverTimestamp(),
+      publishedAt: null,
       responses: 0,
       questionsCount: 0,
+      enabledFor: { mentors: false, mentees: false },
+      status: 'draft',
     })
 
     return surveyRef.id
@@ -38,7 +41,7 @@ export const createEmptySurvey = async (userId) => {
     console.error('Error creating survey:', error)
     throw error
   } 
-}
+} 
 
 export const deleteSurvey = async (surveyId) => {
   try {
@@ -51,20 +54,24 @@ export const deleteSurvey = async (surveyId) => {
   }
 }
 
-export const getSurveyById = async (surveyId) => {
+export async function getSurveyById(id) {
+  if (!id) {
+    throw new Error('getSurveyById: missing survey id')
+  }
   try {
-    const surveyRef = doc(db, 'surveys', surveyId)
-    const surveySnapshot = await getDoc(surveyRef)
-    if (!surveySnapshot.exists()) {
+    // Ensure we never pass undefined into doc()
+    const ref = doc(collection(db, 'surveys'), String(id))
+    const snap = await getDoc(ref)
+    if (!snap.exists()) {
       throw new Error('Survey not found')
     }
 
     // Fetch questions ordered by "order"
-    const questionsRef = collection(db, 'surveys', surveyId, 'questions')
+    const questionsRef = collection(db, 'surveys', id, 'questions')
     const questionsSnap = await getDocs(query(questionsRef, orderBy('order', 'asc')))
     const questions = questionsSnap.docs.map((d) => ({ id: d.id, ...d.data() }))
 
-    return { id: surveySnapshot.id, ...surveySnapshot.data(), questions }
+    return { id: snap.id, ...snap.data(), questions }
   } catch (error) {
     console.error('Error fetching survey by ID:', error)
     throw error
@@ -76,12 +83,34 @@ export const getAllSurveys = async () => {
     const surveysCol = collection(db, 'surveys')
     const surveySnapshot = await getDocs(surveysCol)
     const surveys = surveySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-    console.log('Fetched surveys:', surveys)
+    //console.log('Fetched surveys:', surveys)
     return surveys
   } catch (error) {
     console.error('Error fetching surveys:', error)
     throw error
   }
+}
+
+export const getSurveysByStatusAndUserRole = async (status, role) => {
+  const surveys = await getAllSurveys()
+
+  // normalize role to 'mentors' | 'mentees'
+  const normalizeRole = (r) => {
+    if (!r) return null
+    const v = String(r).toLowerCase()
+    if (v === 'mentor') return 'mentors'
+    if (v === 'mentee') return 'mentees'
+    return null
+  }
+  const roleKey = normalizeRole(role)
+
+  const filteredSurveys = surveys.filter((survey) => {
+    const matchesStatus = survey.status === status
+    const matchesRole = roleKey ? !!(survey.enabledFor && survey.enabledFor[roleKey]) : true
+    return matchesStatus && matchesRole
+  })
+
+  return filteredSurveys
 }
 
 // Adds a new document in subcollection surveys/{surveyId}/questions
@@ -138,7 +167,13 @@ export const subscribeToQuestions = (surveyId, callback) => {
 // Update survey metadata (debounced from UI)
 export const updateSurveyMeta = async (surveyId, patch) => {
   const surveyRef = doc(db, 'surveys', surveyId)
-  await updateDoc(surveyRef, { ...patch, updatedAt: serverTimestamp() })
+  try {
+    await updateDoc(surveyRef, { ...patch, updatedAt: serverTimestamp() })
+    return { ok: true }
+  } catch (error) {
+    console.error('Error updating survey meta:', error)
+    return { ok: false, error: error.message }
+  }
 }
 
 // Upsert a question (debounced from UI)

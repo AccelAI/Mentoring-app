@@ -98,7 +98,7 @@ const MenteeForm = () => {
       try {
         const res = await setMenteeForm(user, values)
         if (res.ok) {
-          console.log('Form submitted successfully')
+          //console.log('Form submitted successfully')
           refreshUser() // Refresh the user data
           setOpenDialog(true)
         }

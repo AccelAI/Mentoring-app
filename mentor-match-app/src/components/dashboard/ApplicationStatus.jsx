@@ -56,7 +56,7 @@ const ApplicationStatus = () => {
         setFormType(type)
 
         const data = await getCurrentApplicationStatus(user.uid, type)
-        console.log('Application data:', data)
+        //console.log('Application data:', data)
         if (!data) {
           setApplicationInfo(null)
           return

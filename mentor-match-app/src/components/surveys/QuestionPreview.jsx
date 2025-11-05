@@ -13,6 +13,18 @@ const QuestionPreview = ({ questionData, isCurrentQuestion }) => {
   if (!questionData) return null
   const { title, description, type, options, isRequired } = questionData
 
+  const isOtherOption = (opt) => String(opt).trim().toLowerCase() === 'other'
+
+  const renderOptionLabel = (option) =>
+    isOtherOption(option) ? (
+      <Stack direction="row" spacing={1.5} alignItems="center">
+        <Typography>Other</Typography>
+        <TextField variant="standard" disabled sx={{ minWidth: 200 }} />
+      </Stack>
+    ) : (
+      option
+    )
+
   return (
     <Card
       sx={{
@@ -57,7 +69,7 @@ const QuestionPreview = ({ questionData, isCurrentQuestion }) => {
                       sx={{ '&.Mui-disabled': { color: 'gray' } }}
                     />
                   }
-                  label={option}
+                  label={renderOptionLabel(option)}
                 />
               </Stack>
             ))}
@@ -72,7 +84,7 @@ const QuestionPreview = ({ questionData, isCurrentQuestion }) => {
                     sx={{ '&.Mui-disabled': { color: 'gray' } }}
                   />
                 }
-                label={option}
+                label={renderOptionLabel(option)}
               />
             ))}
           {type === 'dropdown' && (

@@ -15,7 +15,8 @@ import {
   Checkbox,
   FormControlLabel,
   Button,
-  IconButton
+  IconButton,
+  CircularProgress
 } from '@mui/material'
 import { TabList, TabPanel, TabContext } from '@mui/lab'
 import {
@@ -49,11 +50,14 @@ const EditSurvey = () => {
     title: 'Untitled Survey',
     description: ''
   })
+  const [metaLoaded, setMetaLoaded] = useState(false)
+  const [questionsLoaded, setQuestionsLoaded] = useState(false)
   const pendingSelectIdRef = useRef(null)
 
   // Realtime subscriptions
   useEffect(() => {
     if (!surveyId) return
+
     const unsubSurvey = subscribeToSurvey(surveyId, (snap) => {
       const data = snap.data()
       if (data) {
@@ -62,6 +66,8 @@ const EditSurvey = () => {
           description: data.description || ''
         })
       }
+      // Mark meta as loaded on first callback
+      setMetaLoaded(true)
     })
     const unsubQuestions = subscribeToQuestions(surveyId, (list) => {
       setQuestions(list)
@@ -78,6 +84,8 @@ const EditSurvey = () => {
         }
         return prev
       })
+      // Mark questions as loaded on first callback
+      setQuestionsLoaded(true)
     })
     return () => {
       unsubSurvey && unsubSurvey()
@@ -157,6 +165,8 @@ const EditSurvey = () => {
   const currentQuestion =
     currentQuestionIndex !== null ? questions[currentQuestionIndex] : null
 
+  const isLoading = !metaLoaded || !questionsLoaded
+
   useEffect(() => {
     if (!surveyId) return
     let cancelled = false
@@ -165,7 +175,7 @@ const EditSurvey = () => {
       try {
         const res = await getSurveyResponses(surveyId)
         if (!cancelled && res?.ok) {
-          console.log('Fetched responses:', res)
+          //console.log('Fetched responses:', res)
           setResponses(res)
         }
       } catch (err) {
@@ -312,112 +322,127 @@ const EditSurvey = () => {
         {/* END EDIT QUESTION DRAWER */}
 
         {/* MAIN CONTENT */}
-        <Box p={3} flexGrow={1} display="flex" justifyContent="center">
-          <Stack sx={{ width: '75%', alignContent: 'center' }} spacing={2}>
-            <Card sx={{ p: 3 }}>
-              <Stack spacing={1}>
-                <TextField
-                  label="Survey Title"
-                  fullWidth
-                  value={surveyMeta.title}
-                  onChange={(e) => {
-                    const title = e.target.value
-                    setSurveyMeta((s) => ({ ...s, title }))
-                    scheduleMetaSave({ title })
-                  }}
-                  variant="standard"
-                />
-                <TextField
-                  label="Survey Description"
-                  fullWidth
-                  value={surveyMeta.description}
-                  onChange={(e) => {
-                    const description = e.target.value
-                    setSurveyMeta((s) => ({ ...s, description }))
-                    scheduleMetaSave({ description })
-                  }}
-                  variant="standard"
-                />
-              </Stack>
-            </Card>
-
-            {/* QUESTIONS AND ANSWERS CARD */}
-            <Card sx={{ p: 3 }}>
-              <TabContext value={tabValue}>
-                <TabList
-                  value={tabValue}
-                  onChange={(event, newValue) => setTabValue(newValue)}
-                  variant="fullWidth"
-                  sx={{
-                    '& .MuiTabs-indicator': { backgroundColor: 'accent.main' }
-                  }}
-                >
-                  <Tab
-                    label="Questions"
-                    value="0"
-                    sx={{ '&.Mui-selected': { color: 'accent.main' } }}
-                  />
-                  <Tab
-                    label="Responses"
-                    value="1"
-                    sx={{ '&.Mui-selected': { color: 'accent.main' } }}
-                  />
-                </TabList>
-
-                {/* QUESTIONS PREVIEW */}
-                <TabPanel value="0">
-                  <Stack spacing={3}>
-                    {questions.map((question, index) => (
-                      <Box
-                        key={question.id}
-                        onClick={() => handleSelectQuestion(index)}
-                      >
-                        <QuestionPreview
-                          questionData={question}
-                          isCurrentQuestion={currentQuestionIndex === index}
-                        />
-                      </Box>
-                    ))}
-                    {questions.length === 0 && (
-                      <Typography variant="body2" color="text.secondary">
-                        No questions yet. Click “Add Question” to get started.
-                      </Typography>
-                    )}
+        <Box
+          p={3}
+          flexGrow={1}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+        >
+          {isLoading ? (
+            <CircularProgress color="#fff" />
+          ) : (
+            <>
+              <Stack sx={{ width: '75%', alignContent: 'center' }} spacing={2}>
+                <Card sx={{ p: 3 }}>
+                  <Stack spacing={1}>
+                    <TextField
+                      label="Survey Title"
+                      fullWidth
+                      value={surveyMeta.title}
+                      onChange={(e) => {
+                        const title = e.target.value
+                        setSurveyMeta((s) => ({ ...s, title }))
+                        scheduleMetaSave({ title })
+                      }}
+                      variant="standard"
+                    />
+                    <TextField
+                      label="Survey Description"
+                      fullWidth
+                      value={surveyMeta.description}
+                      onChange={(e) => {
+                        const description = e.target.value
+                        setSurveyMeta((s) => ({ ...s, description }))
+                        scheduleMetaSave({ description })
+                      }}
+                      variant="standard"
+                    />
                   </Stack>
-                </TabPanel>
+                </Card>
 
-                {/* RESPONSES PREVIEW */}
-                <TabPanel value="1">
-                  <AnswersTable
-                    data={responses}
-                    questions={questions}
-                    surveyName={surveyMeta.title}
-                  />
-                </TabPanel>
-              </TabContext>
-            </Card>
-          </Stack>
+                {/* QUESTIONS AND ANSWERS CARD */}
+                <Card sx={{ p: 3 }}>
+                  <TabContext value={tabValue}>
+                    <TabList
+                      value={tabValue}
+                      onChange={(event, newValue) => setTabValue(newValue)}
+                      variant="fullWidth"
+                      sx={{
+                        '& .MuiTabs-indicator': {
+                          backgroundColor: 'accent.main'
+                        }
+                      }}
+                    >
+                      <Tab
+                        label="Questions"
+                        value="0"
+                        sx={{ '&.Mui-selected': { color: 'accent.main' } }}
+                      />
+                      <Tab
+                        label="Responses"
+                        value="1"
+                        sx={{ '&.Mui-selected': { color: 'accent.main' } }}
+                      />
+                    </TabList>
 
-          {/* ADD QUESTION BUTTON */}
-          <Tooltip title="Add Question">
-            <Fab
-              color="secondary"
-              aria-label="add"
-              sx={{
-                position: 'fixed',
-                right: { xs: 16, sm: 24, md: 32 },
-                bottom: {
-                  xs: 'calc(env(safe-area-inset-bottom) + 16px)',
-                  sm: 'calc(env(safe-area-inset-bottom) + 24px)',
-                  md: 'calc(env(safe-area-inset-bottom) + 32px)'
-                },
-                zIndex: (theme) => theme.zIndex.appBar + 1
-              }}
-              onClick={handleAddNewQuestion}
-            >
-              <AddIcon />
-            </Fab>
-          </Tooltip>
+                    {/* QUESTIONS PREVIEW */}
+                    <TabPanel value="0">
+                      <Stack spacing={3}>
+                        {questions.map((question, index) => (
+                          <Box
+                            key={question.id}
+                            onClick={() => handleSelectQuestion(index)}
+                          >
+                            <QuestionPreview
+                              questionData={question}
+                              isCurrentQuestion={currentQuestionIndex === index}
+                            />
+                          </Box>
+                        ))}
+                        {questions.length === 0 && (
+                          <Typography variant="body2" color="text.secondary">
+                            No questions yet. Click “Add Question” to get
+                            started.
+                          </Typography>
+                        )}
+                      </Stack>
+                    </TabPanel>
+
+                    {/* RESPONSES PREVIEW */}
+                    <TabPanel value="1">
+                      <AnswersTable
+                        data={responses}
+                        questions={questions}
+                        surveyName={surveyMeta.title}
+                      />
+                    </TabPanel>
+                  </TabContext>
+                </Card>
+              </Stack>
+
+              {/* ADD QUESTION BUTTON */}
+              <Tooltip title="Add Question">
+                <Fab
+                  color="secondary"
+                  aria-label="add"
+                  sx={{
+                    position: 'fixed',
+                    right: { xs: 16, sm: 24, md: 32 },
+                    bottom: {
+                      xs: 'calc(env(safe-area-inset-bottom) + 16px)',
+                      sm: 'calc(env(safe-area-inset-bottom) + 24px)',
+                      md: 'calc(env(safe-area-inset-bottom) + 32px)'
+                    },
+                    zIndex: (theme) => theme.zIndex.appBar + 1
+                  }}
+                  onClick={handleAddNewQuestion}
+                >
+                  <AddIcon />
+                </Fab>
+              </Tooltip>
+            </>
+          )}
         </Box>
       </Box>
     </>

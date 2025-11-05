@@ -134,7 +134,7 @@ const GetStarted = () => {
 
   const onSubmit = useCallback(
     async (values, { setSubmitting }) => {
-      console.log('Form submitted with values:', values)
+      //console.log('Form submitted with values:', values)
       setSubmitting(true)
       try {
         const res = await updateUserProfile(user, values)

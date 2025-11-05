@@ -8,7 +8,7 @@ import {
 } from 'material-react-table'
 import { useMemo } from 'react'
 import { mkConfig, generateCsv, download } from 'export-to-csv'
-import { Box, IconButton, Tooltip } from '@mui/material'
+import { Typography, IconButton, Tooltip } from '@mui/material'
 import { Download as DownloadIcon } from '@mui/icons-material'
 
 const AnswersTable = ({ data, questions, surveyName }) => {
@@ -48,7 +48,7 @@ const AnswersTable = ({ data, questions, surveyName }) => {
     })
   }, [data])
 
-  console.log('Formatted data for AnswersTable:', formattedData)
+  //console.log('Formatted data for AnswersTable:', formattedData)
 
   const handleExportData = () => {
     const csv = generateCsv(csvConfig)(formattedData)
@@ -75,6 +75,11 @@ const AnswersTable = ({ data, questions, surveyName }) => {
         <MRT_ToggleDensePaddingButton table={table} />
         <MRT_ToggleFullScreenButton table={table} />
       </>
+    ),
+    renderEmptyRowsFallback: () => (
+      <Typography p={3} fontStyle={'italic'} textAlign={'center'}>
+        No responses available at the moment
+      </Typography>
     )
   })
 

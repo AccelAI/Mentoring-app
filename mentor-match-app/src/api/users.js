@@ -83,7 +83,7 @@ export const getUserArrayByIds = async (userIds) => {
   }
   try {
     const users = await Promise.all(userIds.map((id) => getUserById(id)))
-    console.log('Fetched users:', users)
+    //console.log('Fetched users:', users)
     return users
   } catch (err) {
     console.error('Error fetching user list by IDs:', err)
@@ -96,7 +96,7 @@ export const getAdmins = async () => {
     const querySnapshot = await getDocs(collection(db, 'admins'))
     const adminIds = querySnapshot.docs.map((d) => (d.id))
     const admins = await getUserArrayByIds(adminIds)
-    console.log('Fetched admins:', admins)
+    //console.log('Fetched admins:', admins)
     return admins
   } catch (err) {
     console.error('Error fetching admins:', err)

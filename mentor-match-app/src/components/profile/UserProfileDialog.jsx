@@ -62,12 +62,12 @@ const UserProfileDialog = ({
     if (openDialog) {
       const fetchUser = async () => {
         const res = userList.find((user) => user.uid === userId)
-        console.log('user', res)
+        //console.log('user', res)
         setUser(res)
 
         if (loggedUser) {
           const ans = await getFormAnswers(userId)
-          console.log('formAnswers', ans)
+          //console.log('formAnswers', ans)
           setFormAnswers(ans)
         }
         setLoading(false)

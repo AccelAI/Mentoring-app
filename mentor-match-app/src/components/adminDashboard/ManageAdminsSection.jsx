@@ -45,7 +45,7 @@ const ManageAdminsSection = ({ userList }) => {
   useEffect(() => {
     const fetchAdmins = async () => {
       const admins = await getAdmins()
-      console.log('Admins:', admins)
+      //console.log('Admins:', admins)
       setAdmins(admins)
       setReloadList(false)
       setLoading(false)

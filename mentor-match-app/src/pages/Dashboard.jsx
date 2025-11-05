@@ -13,12 +13,17 @@ import MatchAlert from '../components/dashboard/MatchAlert'
 import SideMenu from '../components/dashboard/SideMenu'
 import CurrentMentor from '../components/dashboard/CurrentMentor'
 import ApplicationStatus from '../components/dashboard/ApplicationStatus'
+import ActiveSurveys from '../components/dashboard/ActiveSurveys'
 
 // Hooks and services
 import { getUserById } from '../api/users'
 import { getMentorshipStartDate } from '../api/match'
 import { useUser } from '../hooks/useUser'
 import ChatDrawer from '../components/chat/ChatDrawer'
+import {
+  getSurveysByStatusAndUserRole,
+  getSurveyResponses
+} from '../api/surveys'
 
 const Dashboard = () => {
   const { userList, user, loading, mentees, isAdmin } = useUser()
@@ -27,6 +32,8 @@ const Dashboard = () => {
   const [viewType, setViewType] = useState('dashboard')
   const [mentorData, setMentorData] = useState(null)
   const [loadingMentor, setLoadingMentor] = useState(false)
+  const [loadingSurveys, setLoadingSurveys] = useState(false)
+  const [activeSurveys, setActiveSurveys] = useState([])
   const [toggleChat, setToggleChat] = useState(false)
   const [selectedChatRoomId, setSelectedChatRoomId] = useState(null)
   const [showAlert, setShowAlert] = useState(true)
@@ -64,7 +71,7 @@ const Dashboard = () => {
     if (!user) return
     // Fetch mentor data when user is available
     setLoadingMentor(true)
-    console.log('Fetching mentor data for user:', user)
+    //console.log('Fetching mentor data for user:', user)
     if (user.mentorId) {
       const fetchMentorData = async () => {
         try {
@@ -79,7 +86,7 @@ const Dashboard = () => {
         }
       }
       fetchMentorData()
-      console.log('Mentor data fetched')
+      //console.log('Mentor data fetched')
     } else {
       setMentorData(null)
     }
@@ -87,12 +94,43 @@ const Dashboard = () => {
   }, [user])
 
   const handleStartChat = useCallback((chatRoomId) => {
-    console.log('Dashboard handleStartChat called with chatRoomId:', chatRoomId)
+    //console.log('Dashboard handleStartChat called with chatRoomId:', chatRoomId)
     setSelectedChatRoomId(chatRoomId)
     setToggleChat(true)
-    console.log('Dashboard - setSelectedChatRoomId to:', chatRoomId)
-    console.log('Dashboard - setToggleChat to true')
+    //console.log('Dashboard - setSelectedChatRoomId to:', chatRoomId)
+    //console.log('Dashboard - setToggleChat to true')
   }, [])
+
+  const fetchActiveSurveys = useCallback(async () => {
+    if (!user?.uid) return
+    try {
+      const surveys = await getSurveysByStatusAndUserRole(
+        'published',
+        user.role
+      )
+      const surveysWithStatus = await Promise.all(
+        (surveys || []).map(async (s) => {
+          try {
+            const res = await getSurveyResponses(s.id)
+            const answered =
+              res?.ok &&
+              Array.isArray(res.responses) &&
+              res.responses.some((r) => r.userId === user.uid)
+            return { ...s, answerStatus: answered ? 'Answered' : 'Pending' }
+          } catch {
+            return { ...s, answerStatus: 'Pending' }
+          }
+        })
+      )
+      setActiveSurveys(surveysWithStatus)
+    } catch (error) {
+      console.error('Error fetching active surveys:', error)
+    }
+  }, [user])
+
+  useEffect(() => {
+    fetchActiveSurveys()
+  }, [fetchActiveSurveys])
 
   return (
     <>
@@ -164,6 +202,12 @@ const Dashboard = () => {
                 )}
                 {user && viewType === 'applicationStatus' && (
                   <ApplicationStatus />
+                )}
+                {user && viewType === 'activeSurveys' && (
+                  <ActiveSurveys
+                    loadingSurveys={loadingSurveys}
+                    activeSurveys={activeSurveys}
+                  />
                 )}
               </Stack>
             </Stack>
