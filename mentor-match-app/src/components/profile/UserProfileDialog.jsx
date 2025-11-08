@@ -14,6 +14,7 @@ import {
   Link,
   IconButton
 } from '@mui/material'
+import { LoadingButton } from '@mui/lab'
 import {
   Business as BusinessIcon,
   Language as LanguageIcon,
@@ -321,7 +322,7 @@ const UserProfileDialog = ({
                     )}
                   </Stack>
                   {showSelectAsMentorButton && (
-                    <Button
+                    <LoadingButton
                       variant="contained"
                       sx={{
                         width: 'fit-content',
@@ -331,7 +332,7 @@ const UserProfileDialog = ({
                       loading={loadingMatch}
                     >
                       Choose as mentor
-                    </Button>
+                    </LoadingButton>
                   )}
                 </Stack>
               </Stack>

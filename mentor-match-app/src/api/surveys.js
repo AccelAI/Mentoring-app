@@ -33,15 +33,15 @@ export const createEmptySurvey = async (userId) => {
       responses: 0,
       questionsCount: 0,
       enabledFor: { mentors: false, mentees: false },
-      status: 'draft',
+      status: 'draft'
     })
 
     return surveyRef.id
   } catch (error) {
     console.error('Error creating survey:', error)
     throw error
-  } 
-} 
+  }
+}
 
 export const deleteSurvey = async (surveyId) => {
   try {
@@ -54,7 +54,7 @@ export const deleteSurvey = async (surveyId) => {
   }
 }
 
-export async function getSurveyById(id) {
+export const getSurveyById = async (id) => {
   if (!id) {
     throw new Error('getSurveyById: missing survey id')
   }
@@ -83,7 +83,7 @@ export const getAllSurveys = async () => {
     const surveysCol = collection(db, 'surveys')
     const surveySnapshot = await getDocs(surveysCol)
     const surveys = surveySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-    //console.log('Fetched surveys:', surveys)
+    // console.log('Fetched surveys:', surveys)
     return surveys
   } catch (error) {
     console.error('Error fetching surveys:', error)

@@ -52,7 +52,7 @@ const Header = ({ props }) => {
         position="sticky"
         sx={{ backgroundColor: 'background.paper', ...props }}
       >
-        <Container maxWidth="xl">
+        <Container maxWidth="100%">
           <Toolbar disableGutters>
             <Box
               component="img"

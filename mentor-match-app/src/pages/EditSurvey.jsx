@@ -198,7 +198,7 @@ const EditSurvey = () => {
   return (
     <>
       <Header props={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} />
-      <Box display="flex">
+      <Box display="flex" justifySelf="center">
         {/* EDIT QUESTION DRAWER */}
         <Drawer
           anchor="left"
@@ -323,17 +323,24 @@ const EditSurvey = () => {
 
         {/* MAIN CONTENT */}
         <Box
-          p={3}
+          p={{ md: 0, lg: 3 }}
           flexGrow={1}
           display="flex"
           justifyContent="center"
           alignItems="center"
+          maxWidth={{ lg: '70vw', md: '60vw' }}
         >
           {isLoading ? (
             <CircularProgress color="#fff" />
           ) : (
             <>
-              <Stack sx={{ width: '75%', alignContent: 'center' }} spacing={2}>
+              <Stack
+                sx={{
+                  alignContent: 'center',
+                  maxWidth: '-webkit-fill-available'
+                }}
+                spacing={2}
+              >
                 <Card sx={{ p: 3 }}>
                   <Stack spacing={1}>
                     <TextField

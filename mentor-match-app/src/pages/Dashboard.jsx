@@ -123,6 +123,7 @@ const Dashboard = () => {
         })
       )
       setActiveSurveys(surveysWithStatus)
+      setLoadingSurveys(false)
     } catch (error) {
       console.error('Error fetching active surveys:', error)
     }

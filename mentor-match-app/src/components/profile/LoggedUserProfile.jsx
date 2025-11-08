@@ -15,6 +15,7 @@ import {
   IconButton,
   Fab
 } from '@mui/material'
+import { LoadingButton } from '@mui/lab'
 import {
   Business as BusinessIcon,
   Language as LanguageIcon,
@@ -365,7 +366,7 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                               spacing={1}
                               alignSelf={'flex-end'}
                             >
-                              <Button
+                              <LoadingButton
                                 type="submit"
                                 loading={isSubmitting}
                                 variant="contained"
@@ -375,7 +376,7 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
                                 size="small"
                               >
                                 Save Changes
-                              </Button>
+                              </LoadingButton>
                               <Button
                                 sx={{ width: 'fit-content' }}
                                 onClick={() => {

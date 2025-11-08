@@ -26,6 +26,7 @@ import {
   Radio
 } from '@mui/material'
 import { ErrorOutline } from '@mui/icons-material'
+import { LoadingButton } from '@mui/lab'
 
 // Component imports
 import ProfilePicture from '../components/ProfilePicture'
@@ -478,13 +479,13 @@ const GetStarted = () => {
                             </Typography>
                           </Stack>
                         )}
-                        <Button
+                        <LoadingButton
                           type="submit"
                           loading={isSubmitting}
                           variant="contained"
                         >
                           Continue
-                        </Button>
+                        </LoadingButton>
                       </Stack>
                     </Box>
                   )}

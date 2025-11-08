@@ -3,17 +3,11 @@ import {
   Box,
   Stack,
   Typography,
-  CircularProgress,
   Tooltip,
   IconButton
 } from '@mui/material'
 import { AssignmentOutlined as SurveyIcon } from '@mui/icons-material'
-import { useUser } from '../../hooks/useUser'
-import {
-  getSurveysByStatusAndUserRole,
-  getSurveyResponses
-} from '../../api/surveys'
-import { useCallback, useEffect, useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table'
 

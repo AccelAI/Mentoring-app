@@ -13,6 +13,7 @@ import {
   Link,
   Tooltip
 } from '@mui/material'
+import { LoadingButton } from '@mui/lab'
 import {
   Settings as SettingsIcon,
   Google as GoogleIcon,
@@ -177,14 +178,14 @@ const ProfileWidget = () => {
                     handleDialogClose
                   }}
                 />
-                <Button
+                <LoadingButton
                   variant="contained"
                   type="submit"
                   size="small"
                   loading={isSubmitting}
                 >
                   Log in
-                </Button>
+                </LoadingButton>
 
                 <Typography
                   variant="body2"

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 
 // Material-UI components
 import { Stack, Typography, Button, Box } from '@mui/material'
+import { LoadingButton } from '@mui/lab'
 
 // Component imports
 import TextfieldQuestion from '../components/questions/TextfieldQuestion'
@@ -108,6 +109,14 @@ const Survey = () => {
     }
   }
 
+  // Map question types to components to eliminate duplicated conditional blocks
+  const COMPONENTS = {
+    text: TextfieldQuestion,
+    radio: RadioQuestion,
+    checklist: CheckboxQuestion,
+    dropdown: DropdownQuestion
+  }
+
   return (
     <>
       {showSubmittedMessage ? (
@@ -178,57 +187,20 @@ const Survey = () => {
                       </Typography>
                     )}
                     {(survey.questions || []).map((q) => {
-                      const name = q.id
-                      if (q.type === 'text') {
-                        return (
-                          <TextfieldQuestion
-                            key={name}
-                            name={name}
-                            question={q.title}
-                            description={q.description}
-                            required={q.isRequired}
-                          />
-                        )
-                      }
-                      if (q.type === 'radio') {
-                        return (
-                          <RadioQuestion
-                            key={name}
-                            name={name}
-                            question={q.title}
-                            description={q.description}
-                            options={q.options || []}
-                            required={q.isRequired}
-                          />
-                        )
-                      }
-                      if (q.type === 'checklist') {
-                        return (
-                          <CheckboxQuestion
-                            key={name}
-                            name={name}
-                            question={q.title}
-                            description={q.description}
-                            options={q.options || []}
-                            required={q.isRequired}
-                          />
-                        )
-                      }
-                      if (q.type === 'dropdown') {
-                        return (
-                          <DropdownQuestion
-                            key={name}
-                            name={name}
-                            question={q.title}
-                            description={q.description}
-                            options={q.options || []}
-                            required={q.isRequired}
-                          />
-                        )
-                      }
-                      return null
+                      const Comp = COMPONENTS[q.type]
+                      if (!Comp) return null
+                      return (
+                        <Comp
+                          key={q.id}
+                          name={q.id}
+                          question={q.title}
+                          description={q.description}
+                          options={q.options || []}
+                          required={q.isRequired}
+                        />
+                      )
                     })}
-                    <Button
+                    <LoadingButton
                       variant="contained"
                       type="submit"
                       sx={{ width: '130px', alignSelf: 'flex-end' }}
@@ -236,7 +208,7 @@ const Survey = () => {
                       disabled={!isValid || isSubmitting}
                     >
                       Submit
-                    </Button>
+                    </LoadingButton>
                   </Stack>
                 </Form>
               )}

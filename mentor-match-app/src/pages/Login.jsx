@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Button, Typography, Stack, Divider, Link, Box } from '@mui/material'
+import { LoadingButton } from '@mui/lab'
 // eslint-disable-next-line
 import { Google as GoogleIcon, GitHub as GitHubIcon } from '@mui/icons-material'
 
@@ -79,14 +80,14 @@ const Login = () => {
                   handleDialogClose
                 }}
               />
-              <Button
+              <LoadingButton
                 variant="contained"
                 type="submit"
                 sx={{ width: '100%' }}
                 loading={isSubmitting}
               >
                 Log in
-              </Button>
+              </LoadingButton>
 
               <Divider>Or</Divider>
               <Stack spacing={1} sx={{ width: 1 }}>
