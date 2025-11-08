@@ -3,6 +3,7 @@ import { useCallback } from 'react'
 
 import { Stack, Button, Typography, Link } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
+
 // eslint-disable-next-line
 import { Google as GoogleIcon, GitHub as GitHubIcon } from '@mui/icons-material'
 
@@ -80,7 +81,7 @@ const Signup = () => {
   // eslint-disable-next-line
   const githubSignUp = useCallback(async () => {
     const res = await signInWithGithub()
-    console.log(res)
+    //console.log(res)
     if (!res.ok) {
       return enqueueSnackbar(
         'Failed to sign in with Github. Please try again.',

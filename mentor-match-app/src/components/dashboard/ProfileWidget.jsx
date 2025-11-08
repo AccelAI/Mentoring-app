@@ -13,12 +13,12 @@ import {
   Link,
   Tooltip
 } from '@mui/material'
+import { LoadingButton } from '@mui/lab'
 import {
   Settings as SettingsIcon,
   Google as GoogleIcon,
   GitHub as GitHubIcon
 } from '@mui/icons-material'
-import { LoadingButton } from '@mui/lab'
 
 // Hooks and services
 import { Form, Formik } from 'formik'

@@ -18,7 +18,7 @@ const UserProvider = ({ children }) => {
   const fetchLoggedUser = async (uid) => {
     setLoading(true) // ensure loading true at start
     try {
-      console.log(`Fetching user data for uid: ${uid}`)
+      //console.log(`Fetching user data for uid: ${uid}`)
       const userDoc = doc(db, 'users', uid)
       const userSnap = await getDoc(userDoc)
       let isAdmin = false
@@ -31,12 +31,12 @@ const UserProvider = ({ children }) => {
       }
       if (userSnap.exists()) {
         const userData = { uid, ...userSnap.data(), isAdmin }
-        console.log('Setting user data: ', userData)
+        //console.log('Setting user data: ', userData)
         setUser(userData)
         setLoading(false) // success path
         return
       }
-      console.log('No user data found for uid:', uid)
+      //console.log('No user data found for uid:', uid)
       setUser(null)
     } catch (err) {
       console.error('Error fetching user data: ', err)
@@ -57,7 +57,7 @@ const UserProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
       if (authUser) {
-        console.log('User is logged in: ', authUser.uid)
+        //console.log('User is logged in: ', authUser.uid)
         await fetchLoggedUser(authUser.uid)
       } else {
         setUser(null)

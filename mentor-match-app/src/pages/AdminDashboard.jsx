@@ -1,6 +1,5 @@
 // React hooks
 import { useState, useCallback, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 // MUI components
 import {
@@ -16,13 +15,14 @@ import {
   Select,
   MenuItem
 } from '@mui/material'
-import { Cached as ReloadIcon, Person as UserIcon } from '@mui/icons-material'
+import { Cached as ReloadIcon } from '@mui/icons-material'
 import { TabList, TabPanel, TabContext } from '@mui/lab'
 
 // Hooks and services
 import { useUser } from '../hooks/useUser'
 import { getAllApplications } from '../api/forms'
 import { getAllMentorshipPairs } from '../api/match'
+import { getAllSurveys } from '../api/surveys'
 
 // Components
 import Header from '../components/Header'
@@ -34,20 +34,21 @@ import MentorApplicationDialog from '../components/dialogs/formReview/MentorAppl
 import CombinedApplicationDialog from '../components/dialogs/formReview/CombinedApplicationDialog'
 import ManageMatchesSection from '../components/adminDashboard/ManageMatchesSection'
 import ManageAdminsSection from '../components/adminDashboard/ManageAdminsSection'
+import ManageSurveysSection from '../components/adminDashboard/ManageSurveysSection'
 
 const AdminDashboard = () => {
   const { userList } = useUser()
   const [toggleChat, setToggleChat] = useState(false)
   const [selectedChatRoomId, setSelectedChatRoomId] = useState(null)
   const [value, setValue] = useState('0')
-  const navigate = useNavigate()
+
   // Application management state
-  const [applications, setApplications] = useState([])
   const [loadingApplications, setLoadingApplications] = useState(true)
   const [selectedApplication, setSelectedApplication] = useState(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [statusFilter, setStatusFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all') // new state
+  const [loadingSurveys, setLoadingSurveys] = useState(true)
 
   // Mentorship pairs (lifted to page scope)
   const [mentorshipPairs, setMentorshipPairs] = useState([])
@@ -56,12 +57,8 @@ const AdminDashboard = () => {
     setMentorshipPairs(pairs)
   }, [])
 
-  // Fetch pairs once when the page mounts
-  useEffect(() => {
-    fetchPairs()
-  }, [fetchPairs])
-
-  const fetchApplications = async () => {
+  const [applications, setApplications] = useState([])
+  const fetchApplications = useCallback(async () => {
     setLoadingApplications(true)
     try {
       const apps = await getAllApplications()
@@ -71,12 +68,27 @@ const AdminDashboard = () => {
     } finally {
       setLoadingApplications(false)
     }
-  }
-
-  // Fetch all applications when the component mounts
-  useEffect(() => {
-    fetchApplications()
   }, [])
+
+  const [surveys, setSurveys] = useState([])
+  const fetchSurveys = useCallback(async () => {
+    setLoadingSurveys(true)
+    try {
+      const surveys = await getAllSurveys()
+      setSurveys(surveys)
+    } catch (error) {
+      console.error('Error fetching surveys:', error)
+    } finally {
+      setLoadingSurveys(false)
+    }
+  }, [])
+
+  // Fetch all data when the component mounts
+  useEffect(() => {
+    fetchPairs()
+    fetchApplications()
+    fetchSurveys()
+  }, [fetchPairs, fetchApplications, fetchSurveys])
 
   const handleStartChat = useCallback((chatRoomId) => {
     setSelectedChatRoomId(chatRoomId)
@@ -95,12 +107,8 @@ const AdminDashboard = () => {
 
   const handleApplicationStatusUpdate = useCallback(() => {
     // Refresh applications after status update (fetch all)
-    const fetchApplications = async () => {
-      const apps = await getAllApplications()
-      setApplications(apps)
-    }
     fetchApplications()
-  }, [])
+  }, [fetchApplications])
 
   // Derive filtered list based on status and type
   const filteredApplications = applications.filter(
@@ -169,19 +177,13 @@ const AdminDashboard = () => {
                     value={value}
                     onChange={(event, newValue) => setValue(newValue)}
                   >
-                    <Tab label="Users" value="0" />
-                    <Tab label="Mentorship Applications" value="1" />
-                    <Tab label="Manage Matches" value="2" />
-                    <Tab label="Manage Administrators" value="3" />
+                    <Tab label="User Directory" value="0" />
+                    <Tab label="Applications" value="1" />
+                    <Tab label="Matches" value="2" />
+                    <Tab label="Admin Roles" value="3" />
+                    <Tab label="Surveys" value="4" />
                   </TabList>
                   <Box flexGrow={1} />
-                  <Button
-                    color="primary"
-                    onClick={() => navigate('/dashboard')}
-                    startIcon={<UserIcon />}
-                  >
-                    Return to User Dashboard
-                  </Button>
                 </Stack>
 
                 <TabPanel value="0">
@@ -285,6 +287,13 @@ const AdminDashboard = () => {
                 </Box>
                 <TabPanel value="3">
                   <ManageAdminsSection userList={userList} />
+                </TabPanel>
+                <TabPanel value="4">
+                  <ManageSurveysSection
+                    surveyData={surveys}
+                    fetchSurveys={fetchSurveys}
+                    loading={loadingSurveys}
+                  />
                 </TabPanel>
               </TabContext>
             </Box>

@@ -11,7 +11,6 @@ import {
   Button
 } from '@mui/material'
 import { ErrorOutline } from '@mui/icons-material'
-import { LoadingButton } from '@mui/lab'
 
 // Component imports
 import FormCard from '../components/FormCard'
@@ -367,7 +366,7 @@ const CombinedForm = () => {
                         Next
                       </Button>
                     ) : (
-                      <LoadingButton
+                      <Button
                         variant="contained"
                         type="submit"
                         sx={{ width: '130px', alignSelf: 'flex-end' }}
@@ -375,7 +374,7 @@ const CombinedForm = () => {
                         color="success"
                       >
                         Submit
-                      </LoadingButton>
+                      </Button>
                     )}
                   </Stack>
                 </Stack>

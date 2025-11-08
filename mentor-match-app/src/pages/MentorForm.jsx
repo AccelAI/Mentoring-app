@@ -2,7 +2,7 @@
 import { useCallback, useState, useRef } from 'react'
 
 // Material UI components
-import { Typography, Stack, CircularProgress } from '@mui/material'
+import { Typography, Stack, CircularProgress, Button } from '@mui/material'
 import { ErrorOutline } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
 

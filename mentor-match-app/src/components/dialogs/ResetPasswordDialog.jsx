@@ -5,10 +5,11 @@ import {
   DialogActions,
   DialogTitle,
   Stack,
-  Typography
+  Typography,
+  Button
 } from '@mui/material'
-import TextField from '../inputFields/TextField'
 import { LoadingButton } from '@mui/lab'
+import TextField from '../inputFields/TextField'
 import { useAuthHandlers } from '../../utils/authUtils'
 
 const ResetPasswordDialog = ({

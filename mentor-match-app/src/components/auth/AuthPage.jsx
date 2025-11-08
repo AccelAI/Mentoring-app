@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom'
-import { useUser } from '../hooks/useUser'
+import { useUser } from '../../hooks/useUser'
 import { LinearProgress } from '@mui/material'
-import { auth } from '../api/firebaseConfig'
+import { auth } from '../../api/firebaseConfig'
 
 const AuthPage = ({ children }) => {
   const location = useLocation()

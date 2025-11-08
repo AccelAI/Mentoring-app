@@ -15,6 +15,7 @@ import {
   IconButton,
   Fab
 } from '@mui/material'
+import { LoadingButton } from '@mui/lab'
 import {
   Business as BusinessIcon,
   Language as LanguageIcon,
@@ -25,7 +26,6 @@ import {
   Close as CloseIcon,
   Edit as EditIcon
 } from '@mui/icons-material'
-import { LoadingButton } from '@mui/lab'
 
 // Component imports
 import ProfilePicture from '../ProfilePicture'
@@ -120,7 +120,7 @@ const LoggedUserProfile = ({ openDialog, setOpenDialog }) => {
         try {
           const ans = await getFormAnswers(user.uid)
           setFormAnswers(ans)
-          console.log('formAnswers', ans)
+          //console.log('formAnswers', ans)
           setFormAnswers(ans || {})
           setLoading(false)
         } catch (error) {

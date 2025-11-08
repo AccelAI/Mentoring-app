@@ -1,6 +1,6 @@
 import { LinearProgress } from '@mui/material'
-import { useUser } from '../hooks/useUser'
-import ErrorPage from '../components/ErrorPage'
+import { useUser } from '../../hooks/useUser'
+import ErrorPage from '../ErrorPage'
 
 const AdminRoute = ({ children }) => {
   const { user, loading } = useUser()

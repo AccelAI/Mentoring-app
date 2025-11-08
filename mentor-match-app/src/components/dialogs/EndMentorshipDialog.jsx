@@ -45,11 +45,11 @@ const EndMentorshipDialog = ({
           enqueueSnackbar('Missing menteeId or mentorId.', { variant: 'error' })
           return
         }
-        console.log(
+        /* console.log(
           'Admin ending mentorship (menteeId->mentorId):',
           menteeId,
           mentorId
-        )
+        ) */
         res = await endMentorship(
           menteeId,
           mentorId,
@@ -61,7 +61,7 @@ const EndMentorshipDialog = ({
         loggedUser.menteesId.includes(userId)
       ) {
         // Mentor is ending mentorship with a mentee
-        console.log('Mentor is ending mentorship with a mentee')
+        //console.log('Mentor is ending mentorship with a mentee')
         res = await endMentorship(
           userId,
           loggedUser.uid,
@@ -69,7 +69,7 @@ const EndMentorshipDialog = ({
           additionalInfo
         )
       } else {
-        console.log('Mentee is ending mentorship with a mentor')
+        //console.log('Mentee is ending mentorship with a mentor')
         // Mentee is ending mentorship with a mentor
         res = await endMentorship(
           loggedUser.uid,
@@ -78,7 +78,7 @@ const EndMentorshipDialog = ({
           additionalInfo
         )
       }
-      console.log('End mentorship response:', res)
+      //console.log('End mentorship response:', res)
       if (res.ok) {
         enqueueSnackbar('Mentorship ended successfully', { variant: 'success' })
       }

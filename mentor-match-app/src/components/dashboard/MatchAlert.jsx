@@ -15,7 +15,7 @@ const MatchAlert = ({ setView, setShowAlert }) => {
     if (user.newMenteeMatch) {
       updateNewMatchNotification(user.uid)
         .then(() => {
-          console.log('New match notification updated successfully')
+          //console.log('New match notification updated successfully')
         })
         .catch((error) => {
           console.error('Error updating new match notification:', error)

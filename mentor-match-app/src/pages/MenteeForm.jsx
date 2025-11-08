@@ -2,7 +2,7 @@
 import { useCallback, useState, useRef } from 'react'
 
 // Material-UI components and icons
-import { Typography, Stack, CircularProgress } from '@mui/material'
+import { Typography, Stack, CircularProgress, Button } from '@mui/material'
 import { ErrorOutline } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
 
@@ -99,7 +99,7 @@ const MenteeForm = () => {
       try {
         const res = await setMenteeForm(user, values)
         if (res.ok) {
-          console.log('Form submitted successfully')
+          //console.log('Form submitted successfully')
           refreshUser() // Refresh the user data
           setOpenDialog(true)
         }

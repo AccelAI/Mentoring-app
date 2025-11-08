@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import {
-  Grid2 as Grid,
+  Grid,
   Stack,
   Typography,
   Box,
@@ -35,10 +35,6 @@ const MatchGrid = ({ menteeId, mentorId, gridSize = 4, fetchPairs }) => {
       const mentorData = await getUserById(mentorId)
       setMentee(menteeData)
       setMentor(mentorData)
-      console.log('Setting loading to false, fetched data:', {
-        menteeData,
-        mentorData
-      })
       setLoading(false)
     }
     fetchUserData()

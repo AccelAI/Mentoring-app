@@ -16,6 +16,7 @@ import { ChevronLeft } from '@mui/icons-material'
 const FormCard = ({
   children,
   title,
+  description,
   type,
   props,
   enableInfo = true,
@@ -78,10 +79,15 @@ const FormCard = ({
               <Typography
                 alignSelf={'flex-start'}
                 variant={'h5'}
-                sx={{ pb: 2 }}
+                sx={{ pb: description ? 1 : 2 }}
               >
                 {title}
               </Typography>
+              {description && (
+                <Typography alignSelf={'flex-start'} sx={{ pb: 2 }}>
+                  {description}
+                </Typography>
+              )}
             </Stack>
             {showInfo ? (
               <Box>

@@ -61,7 +61,7 @@ const CreateNewMatchDialog = ({
             const formType = roleToFormType(u.role)
             const res = await getCurrentApplicationStatus(u.uid, formType)
             const status = res && typeof res === 'object' ? res.status : null
-            console.log(`User ${u.uid} (${u.role}) application status:`, status)
+            //console.log(`User ${u.uid} (${u.role}) application status:`, status)
             return [u.uid, status]
           } catch (e) {
             console.error('Error fetching application status for', u.uid, e)

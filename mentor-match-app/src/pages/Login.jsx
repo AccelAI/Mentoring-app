@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Button, Typography, Stack, Divider, Link, Box } from '@mui/material'
+import { LoadingButton } from '@mui/lab'
 // eslint-disable-next-line
 import { Google as GoogleIcon, GitHub as GitHubIcon } from '@mui/icons-material'
-import { LoadingButton } from '@mui/lab'
 
 import MainCard from '../components/MainCard'
 import PasswordField from '../components/inputFields/PasswordField'

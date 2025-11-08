@@ -10,7 +10,8 @@ import {
   Dashboard as DashboardIcon,
   AccountBox as MentorIcon,
   Assignment as ApplicationIcon,
-  ManageAccounts as AdminIcon
+  ManageAccounts as AdminIcon,
+  PollOutlined as SurveyIcon
 } from '@mui/icons-material'
 import { useUser } from '../../hooks/useUser'
 import { useNavigate } from 'react-router-dom'
@@ -83,6 +84,17 @@ const SideMenu = ({ setView }) => {
             </ListItemText>
           </MenuItem>
         )}
+
+        <MenuItem onClick={() => setView('activeSurveys')}>
+          <ListItemIcon>
+            <SurveyIcon fontSize="small" color="primary" />
+          </ListItemIcon>
+          <ListItemText
+            sx={{ display: { xs: 'none', sm: 'none', md: 'inline' } }}
+          >
+            Active Surveys
+          </ListItemText>
+        </MenuItem>
       </MenuList>
     </Card>
   )

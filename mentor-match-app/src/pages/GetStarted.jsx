@@ -25,8 +25,8 @@ import {
   RadioGroup,
   Radio
 } from '@mui/material'
-import { LoadingButton } from '@mui/lab'
 import { ErrorOutline } from '@mui/icons-material'
+import { LoadingButton } from '@mui/lab'
 
 // Component imports
 import ProfilePicture from '../components/ProfilePicture'
@@ -135,7 +135,7 @@ const GetStarted = () => {
 
   const onSubmit = useCallback(
     async (values, { setSubmitting }) => {
-      console.log('Form submitted with values:', values)
+      //console.log('Form submitted with values:', values)
       setSubmitting(true)
       try {
         const res = await updateUserProfile(user, values)

@@ -1,11 +1,5 @@
 import { useState } from 'react'
-import {
-  Stack,
-  Typography,
-  Card,
-  Grid2 as Grid,
-  IconButton
-} from '@mui/material'
+import { Stack, Typography, Card, Grid, IconButton } from '@mui/material'
 import { Add as AddIcon } from '@mui/icons-material'
 import MatchGrid from './MatchGrid'
 import CreateNewMatchDialog from '../dialogs/CreateNewMatchDialog'
