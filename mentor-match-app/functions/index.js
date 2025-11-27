@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const { onRequest } = require('firebase-functions/v2/https')
 const { setGlobalOptions } = require('firebase-functions/v2')
 const express = require('express')
@@ -71,3 +72,8 @@ app.use((req, res) => {
 })
 
 exports.api = onRequest({ timeoutSeconds: 60, memory: '256MiB' }, (req, res) => app(req, res))
+
+// Export Slack functions (implemented in functions/slack.js)
+const { slackEvents, slackBridgeMessages } = require('./slack')
+exports.slackEvents = slackEvents
+exports.slackBridgeMessages = slackBridgeMessages
