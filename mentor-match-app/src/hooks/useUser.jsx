@@ -67,6 +67,26 @@ const UserProvider = ({ children }) => {
     return unsubscribe
   }, [])
 
+  // Listen for cross-window messages (e.g., from OAuth popup) to refresh user data
+  useEffect(() => {
+    const handler = async (e) => {
+      try {
+        if (!e || !e.data) return
+        if (e.data.type === 'SLACK_OAUTH_SUCCESS') {
+          console.log(
+            '[useUser] Received SLACK_OAUTH_SUCCESS message, refreshing user',
+            e.data.state
+          )
+          await refreshUser(e.data.state)
+        }
+      } catch (err) {
+        console.warn('Error handling window message in useUser:', err)
+      }
+    }
+    window.addEventListener('message', handler)
+    return () => window.removeEventListener('message', handler)
+  }, [user])
+
   useEffect(() => {
     const fetchUsers = async () => {
       const usersList = await getUsers({ includePrivate: !!user?.isAdmin })

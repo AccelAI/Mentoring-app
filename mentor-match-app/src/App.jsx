@@ -17,6 +17,7 @@ import AdminRoute from './components/AdminRoute'
 import AdminDashboard from './pages/AdminDashboard'
 import MentorPick from './pages/MentorPick'
 import RootHandler from './components/RootHandler'
+import SlackOAuthSuccess from './components/SlackOAuthPage'
 
 function App() {
   return (
@@ -36,6 +37,10 @@ function App() {
               <Route path="/login" element={<Login />} />
             </Route>
             <Route path="/signup" element={<Signup />} />
+            <Route
+              path="/slack/oauth/success"
+              element={<SlackOAuthSuccess />}
+            />
             <Route
               element={
                 <AuthPage>
