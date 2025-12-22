@@ -223,8 +223,14 @@ const Chat = ({
       setSlackEnabled(false)
       return
     }
-    setSlackEnabled(Boolean(selectedChatRoom.slackChannelId))
-  }, [selectedChatRoom])
+    const otherUserId = selectedChatRoom?.participants?.find(
+      (id) => id !== user?.uid
+    )
+    const otherHasSlack = Boolean(
+      otherUserId && conversationUsers?.[otherUserId]?.slack?.userId
+    )
+    setSlackEnabled(Boolean(selectedChatRoom.slackChannelId || otherHasSlack))
+  }, [selectedChatRoom, user?.uid, conversationUsers])
 
   // Initialize socket.io for Slack bridge messages
   useEffect(() => {
@@ -453,7 +459,13 @@ const Chat = ({
         }
       }
     },
-    [handleSendMessage, slackEnabled, slackForwardAll, selectedChatRoom?.id, user?.uid]
+    [
+      handleSendMessage,
+      slackEnabled,
+      slackForwardAll,
+      selectedChatRoom?.id,
+      user?.uid
+    ]
   )
 
   const handleTyping = useCallback(() => {

@@ -69,6 +69,14 @@ app.get('/api/orcid/record/:orcidId', async (req, res) => {
 // Add Slack OAuth start + callback on the Express app
 const admin = require('firebase-admin');
 
+// Lazily load slack function module for lightweight cold starts
+let _slackModule = null;
+function ensureSlackModule() {
+  if (!_slackModule) {
+    _slackModule = require('./slack');
+  }
+}
+
 app.get('/api/auth/slack/start', (req, res) => {
   const clientId = process.env.SLACK_CLIENT_ID;
   if (!clientId) return res.status(500).send('SLACK_CLIENT_ID not configured');
@@ -162,6 +170,105 @@ app.get('/api/auth/slack/callback', async (req, res) => {
   }
 })
 
+// POST /api/messages (App -> Slack bridge)
+// This is routed via Firebase Hosting rewrite (/api/** -> exports.api).
+app.post('/api/messages', async (req, res) => {
+  ensureSlackModule();
+  return _slackModule.slackBridgeMessages(req, res);
+})
+
+// POST /api/admin/channels (Admin creates Slack channel)
+// Requires Firebase ID token and membership in Firestore `admins/{uid}`.
+app.post('/api/admin/channels', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization || '';
+    const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : null;
+    if (!idToken) return res.status(401).json({ error: 'missing_auth' });
+
+    if (!admin.apps.length) admin.initializeApp();
+    const decoded = await admin.auth().verifyIdToken(idToken);
+    const uid = decoded?.uid;
+    if (!uid) return res.status(401).json({ error: 'invalid_auth' });
+
+    const db = admin.firestore();
+    const adminSnap = await db.collection('admins').doc(uid).get();
+    if (!adminSnap.exists) return res.status(403).json({ error: 'not_admin' });
+
+    const token = process.env.SLACK_BOT_TOKEN;
+    if (!token) return res.status(500).json({ error: 'Missing SLACK_BOT_TOKEN' });
+
+    const { name, purpose = '', appConversationId = null } = req.body || {};
+    if (!name) return res.status(400).json({ error: 'missing_name' });
+
+    // Slack channel names: lowercase, no spaces, <= 80 chars.
+    const normalized = String(name)
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-_]+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .slice(0, 80);
+
+    const createRes = await fetch('https://slack.com/api/conversations.create', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ name: normalized, is_private: true })
+    });
+    const createData = await createRes.json();
+    if (!createData.ok) {
+      if (createData.error === 'missing_scope') {
+        return res.status(403).json({ error: 'missing_scope', details: createData });
+      }
+      return res.status(500).json({ error: 'create_failed', details: createData });
+    }
+
+    const slackChannelId = createData.channel?.id;
+
+    // Optional: map created channel to a conversation
+    if (appConversationId && slackChannelId) {
+      await db.collection('chat-rooms').doc(appConversationId).set({
+        slackChannelId,
+        slackLinkedAt: admin.firestore.FieldValue.serverTimestamp(),
+        slackLinkType: 'channel'
+      }, { merge: true });
+      await db.collection('slack-conversations').doc(appConversationId).set({
+        slackChannelId,
+        createdAt: admin.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+      await db.collection('slack-channel-map').doc(slackChannelId).set({
+        appConversationId,
+        type: 'channel',
+        slackChannelId,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    }
+
+    // Set purpose if provided (best-effort)
+    if (purpose && slackChannelId) {
+      try {
+        await fetch('https://slack.com/api/conversations.setPurpose', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ channel: slackChannelId, purpose: String(purpose).slice(0, 250) })
+        });
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    return res.json({ ok: true, slackChannelId, name: normalized });
+  } catch (e) {
+    console.error('[admin/channels] error', e);
+    return res.status(500).json({ error: e.message || 'internal' });
+  }
+})
+
 // 404 fallback
 app.use((req, res) => {
   res.status(404).json({ error: 'Not Found', path: req.path })
@@ -172,13 +279,7 @@ exports.api = onRequest({ timeoutSeconds: 60, memory: '256MiB' }, (req, res) => 
 // Remove eager require of functions/slack which can delay initialization.
 // Instead expose lightweight onRequest wrappers that lazy-require the real handlers.
 
-let _slackModule = null;
-function ensureSlackModule() {
-  if (!_slackModule) {
-    // require on first invocation to avoid heavy init during deployment
-    _slackModule = require('./slack');
-  }
-}
+// keep exports.slackEvents + exports.slackBridgeMessages for direct function URLs if needed
 
 // Export wrapped v2 HTTPS functions that defer loading the implementation until invoked.
 // This keeps the backend specification (onRequest) at module-load time but avoids expensive initialization.
