@@ -2,7 +2,7 @@ const baseURL =
   process.env.REACT_APP_SLACK_BRIDGE_URL ||
   (typeof window !== 'undefined' ? window.location.origin : '')
 
-export async function postSlackMessage(appConversationId, text, userId) {
+export async function postSlackMessage (appConversationId, text, userId) {
   if (!baseURL) return { ok: false, error: 'Slack bridge URL not configured' }
   try {
     const resp = await fetch(`${baseURL}/api/messages`, {
@@ -17,7 +17,7 @@ export async function postSlackMessage(appConversationId, text, userId) {
   }
 }
 
-export async function createSlackChannel(name, purpose = '', appConversationId = null) {
+export async function createSlackChannel (name, purpose = '', appConversationId = null) {
   if (!baseURL) return { ok: false, error: 'Slack bridge URL not configured' }
   try {
     // Admin-only endpoint: include Firebase ID token
