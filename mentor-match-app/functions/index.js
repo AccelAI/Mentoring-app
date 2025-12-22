@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+
 const { onRequest } = require('firebase-functions/v2/https')
 const { setGlobalOptions } = require('firebase-functions/v2')
 const express = require('express')

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+
 const { onRequest } = require('firebase-functions/v2/https')
 const crypto = require('crypto')
 const admin = require('firebase-admin')
