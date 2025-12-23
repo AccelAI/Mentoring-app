@@ -13,6 +13,7 @@ import MatchAlert from '../components/dashboard/MatchAlert'
 import SideMenu from '../components/dashboard/SideMenu'
 import CurrentMentor from '../components/dashboard/CurrentMentor'
 import ApplicationStatus from '../components/dashboard/ApplicationStatus'
+import SlackPage from '../components/dashboard/SlackPage'
 
 // Hooks and services
 import { getUserById } from '../api/users'
@@ -117,7 +118,9 @@ const Dashboard = () => {
                 direction={{ xs: 'row-reverse', lg: 'column' }}
               >
                 <ProfileWidget />
-                {user && <SideMenu setView={setViewType} />}
+                {user && (
+                  <SideMenu setView={setViewType} currentView={viewType} />
+                )}
               </Stack>
               <Stack spacing={2} width={'100%'}>
                 {/* TODO: Show match alert when theres a new mentee match or when mentor match results are ready */}
@@ -165,6 +168,7 @@ const Dashboard = () => {
                 {user && viewType === 'applicationStatus' && (
                   <ApplicationStatus />
                 )}
+                {user && viewType === 'slack' && <SlackPage />}
               </Stack>
             </Stack>
 

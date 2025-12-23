@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useMemo, useCallback, useEffect, useState, useRef } from 'react'
+import { io } from 'socket.io-client'
+import { postSlackMessage } from '../../api/slackBridge'
 import {
   MainContainer,
   Sidebar,
@@ -85,6 +87,13 @@ const Chat = ({
   // Track latest message per room to keep sidebar info fresh
   const [lastMessageByRoom, setLastMessageByRoom] = useState({})
   const lastMsgUnsubsRef = useRef({})
+  // Slack integration flags
+  const [slackEnabled, setSlackEnabled] = useState(false)
+  const slackForwardAll = useMemo(
+    () => process.env.REACT_APP_ENABLE_SLACK_FORWARD === 'true',
+    []
+  )
+  const socketRef = useRef(null)
 
   // Audio: context + last played message per room
   const audioCtxRef = useRef(null)
@@ -207,6 +216,67 @@ const Chat = ({
       if (unsubscribe) unsubscribe()
     }
   }, [selectedChatRoomId, user?.uid])
+
+  // Derive slackEnabled from selected chat room's slackChannelId field
+  useEffect(() => {
+    if (!selectedChatRoom) {
+      setSlackEnabled(false)
+      return
+    }
+    const otherUserId = selectedChatRoom?.participants?.find(
+      (id) => id !== user?.uid
+    )
+    const otherHasSlack = Boolean(
+      otherUserId && conversationUsers?.[otherUserId]?.slack?.userId
+    )
+    setSlackEnabled(Boolean(selectedChatRoom.slackChannelId || otherHasSlack))
+  }, [selectedChatRoom, user?.uid, conversationUsers])
+
+  // Initialize socket.io for Slack bridge messages
+  useEffect(() => {
+    if (!slackEnabled) return
+    if (!socketRef.current) {
+      const baseURL = process.env.REACT_APP_SLACK_BRIDGE_URL
+      if (!baseURL) return
+      socketRef.current = io(baseURL, { transports: ['websocket'] })
+      socketRef.current.on('message', (payload) => {
+        if (
+          payload?.appConversationId === selectedChatRoomIdRef.current &&
+          payload?.source === 'slack'
+        ) {
+          // Message will also appear via Firestore listener if persisted; avoid duplicate
+          // Only inject if not already present (by ts or text match)
+          setMessages((prev) => {
+            const exists = prev.some(
+              (m) => m.text === payload.text && m.source === 'slack'
+            )
+            if (exists) return prev
+            return [
+              ...prev,
+              {
+                id: `slack-${payload.ts}`,
+                text: payload.text,
+                senderId: `slack:${payload.user}`,
+                timestamp: new Date(),
+                read: false,
+                source: 'slack'
+              }
+            ]
+          })
+        }
+      })
+    }
+    if (socketRef.current && selectedChatRoomId) {
+      socketRef.current.emit('join', selectedChatRoomId)
+    }
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect()
+        socketRef.current = null
+      }
+    }
+  }, [slackEnabled, selectedChatRoomId])
 
   // Actively viewing a chat: mark new incoming messages as read
   useEffect(() => {
@@ -380,6 +450,32 @@ const Chat = ({
       }
     },
     [selectedChatRoom?.id, user?.uid]
+  )
+
+  const handleDualSend = useCallback(
+    async (message) => {
+      await handleSendMessage(message)
+      const shouldForward =
+        (slackEnabled || slackForwardAll) &&
+        Boolean(process.env.REACT_APP_SLACK_BRIDGE_URL)
+      if (shouldForward) {
+        try {
+          await postSlackMessage(selectedChatRoom.id, message, user?.uid)
+        } catch (e) {
+          console.warn('Slack forward failed', e && e.message ? e.message : e)
+          alert(
+            'Your message was sent in the app, but could not be forwarded to Slack. Please try again later.'
+          )
+        }
+      }
+    },
+    [
+      handleSendMessage,
+      slackEnabled,
+      slackForwardAll,
+      selectedChatRoom?.id,
+      user?.uid
+    ]
   )
 
   const handleTyping = useCallback(() => {
@@ -639,7 +735,7 @@ const Chat = ({
           <MessageInput
             attachButton={false}
             placeholder="Type here..."
-            onSend={handleSendMessage}
+            onSend={handleDualSend}
             onChange={handleTyping}
             style={{
               backgroundColor: 'rgba(255, 255, 255, 0.1)',

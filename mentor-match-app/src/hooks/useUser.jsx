@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth, db } from '../api/firebaseConfig'
 import { doc, getDoc } from 'firebase/firestore'
@@ -15,7 +15,7 @@ const UserProvider = ({ children }) => {
   const [mentees, setMentees] = useState([])
 
   // Function to fetch the logged-in user's data
-  const fetchLoggedUser = async (uid) => {
+  const fetchLoggedUser = useCallback(async (uid) => {
     setLoading(true) // ensure loading true at start
     try {
       console.log(`Fetching user data for uid: ${uid}`)
@@ -44,15 +44,15 @@ const UserProvider = ({ children }) => {
     } finally {
       setLoading(false) // guarantee completion
     }
-  }
+  }, [])
 
   // Function to refresh the logged-in user's data
-  const refreshUser = async (uidOverride) => {
+  const refreshUser = useCallback(async (uidOverride) => {
     const targetUid = uidOverride || user?.uid || auth.currentUser?.uid
     if (targetUid) {
       await fetchLoggedUser(targetUid)
     }
-  }
+  }, [fetchLoggedUser, user?.uid])
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
@@ -65,7 +65,27 @@ const UserProvider = ({ children }) => {
       }
     })
     return unsubscribe
-  }, [])
+  }, [fetchLoggedUser])
+
+  // Listen for cross-window messages (e.g., from OAuth popup) to refresh user data
+  useEffect(() => {
+    const handler = async (e) => {
+      try {
+        if (!e || !e.data) return
+        if (e.data.type === 'SLACK_OAUTH_SUCCESS') {
+          console.log(
+            '[useUser] Received SLACK_OAUTH_SUCCESS message, refreshing user',
+            e.data.state
+          )
+          await refreshUser(e.data.state)
+        }
+      } catch (err) {
+        console.warn('Error handling window message in useUser:', err)
+      }
+    }
+    window.addEventListener('message', handler)
+    return () => window.removeEventListener('message', handler)
+  }, [refreshUser])
 
   useEffect(() => {
     const fetchUsers = async () => {
