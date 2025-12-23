@@ -11,7 +11,8 @@ import {
   Dashboard as DashboardIcon,
   AccountBox as MentorIcon,
   Assignment as ApplicationIcon,
-  ManageAccounts as AdminIcon
+  ManageAccounts as AdminIcon,
+  OpenInNew as OpenInNewIcon  
 } from '@mui/icons-material'
 import { useUser } from '../../hooks/useUser'
 import { useNavigate } from 'react-router-dom'
@@ -27,22 +28,7 @@ const SideMenu = ({ setView, currentView }) => {
   return (
     <Card sx={{ width: { md: '40%', lg: 'auto', sm: 'auto' } }}>
       <MenuList>
-        {isAdmin && (
-          <MenuItem onClick={() => navigate('/admin')}>
-            <ListItemIcon>
-              <AdminIcon fontSize="small" color="primary" />
-            </ListItemIcon>
-            <ListItemText
-              sx={{ display: { xs: 'none', sm: 'none', md: 'inline' } }}
-            >
-              <Typography
-                color={currentView === 'admin' ? 'primary' : 'inherit'}
-              >
-                Admin Dashboard
-              </Typography>
-            </ListItemText>
-          </MenuItem>
-        )}
+        
         <MenuItem onClick={() => setView('dashboard')}>
           <ListItemIcon>
             <DashboardIcon fontSize="small" color="primary" />
@@ -117,9 +103,9 @@ const SideMenu = ({ setView, currentView }) => {
               viewBox="0 0 24 24"
               fill="none"
               stroke={theme.palette.primary.main}
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M12 12v-6a2 2 0 0 1 4 0v6m0 -2a2 2 0 1 1 2 2h-6" />
@@ -136,6 +122,25 @@ const SideMenu = ({ setView, currentView }) => {
             </Typography>
           </ListItemText>
         </MenuItem>
+        {isAdmin && (
+          <MenuItem onClick={() => navigate('/admin')}>
+            <ListItemIcon>
+              <AdminIcon fontSize="small" color="primary" />
+            </ListItemIcon>
+            <ListItemText
+              sx={{ display: { xs: 'none', sm: 'none', md: 'inline' } }}
+            >
+              <Typography
+                color={currentView === 'admin' ? 'primary' : 'inherit'}
+              >
+                Admin Dashboard
+              </Typography>
+            </ListItemText>
+            <ListItemIcon sx={{ placeContent: 'center' }}>
+              <OpenInNewIcon fontSize="small" color="secondary" />
+            </ListItemIcon>
+          </MenuItem>
+        )}
       </MenuList>
     </Card>
   )

@@ -269,6 +269,13 @@ const Chat = ({
     if (socketRef.current && selectedChatRoomId) {
       socketRef.current.emit('join', selectedChatRoomId)
     }
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect()
+        socketRef.current = null
+      }
+    }
   }, [slackEnabled, selectedChatRoomId])
 
   // Actively viewing a chat: mark new incoming messages as read
@@ -455,7 +462,10 @@ const Chat = ({
         try {
           await postSlackMessage(selectedChatRoom.id, message, user?.uid)
         } catch (e) {
-          console.warn('Slack forward failed', e.message)
+          console.warn('Slack forward failed', e && e.message ? e.message : e)
+          alert(
+            'Your message was sent in the app, but could not be forwarded to Slack. Please try again later.'
+          )
         }
       }
     },

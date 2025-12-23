@@ -25,6 +25,8 @@ export async function createSlackChannel (name, purpose = '', appConversationId 
     const auth = getAuth()
     const token = await auth.currentUser?.getIdToken?.()
 
+    if (!token) return { ok: false, error: 'not_authenticated' }
+
     const resp = await fetch(`${baseURL}/api/admin/channels`, {
       method: 'POST',
       headers: {

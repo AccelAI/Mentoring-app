@@ -13,6 +13,7 @@ const SlackOAuthSuccess = () => {
   const { user, refreshUser } = useUser()
 
   useEffect(() => {
+    if (!user) return
     const params = new URLSearchParams(location.search)
     const installedFlag = params.get('installed') === 'true'
     console.log('Slack OAuth installed:', installedFlag)
@@ -21,7 +22,7 @@ const SlackOAuthSuccess = () => {
 
     const fetchStatus = async () => {
       try {
-        const userId = user.uid
+        const userId = user?.uid
         // If we have a state param, only query that user; otherwise query the logged-in user
         const lookupId = state || userId
         const doc = await getUserById(lookupId)
@@ -38,9 +39,10 @@ const SlackOAuthSuccess = () => {
           // If opened as a popup, notify the opener so it can refresh and close this window
           try {
             if (window.opener && window.opener !== window) {
+              const targetOrigin = window.location.origin
               window.opener.postMessage(
                 { type: 'SLACK_OAUTH_SUCCESS', state },
-                '*'
+                targetOrigin
               )
               setTimeout(() => window.close(), 900)
               return
@@ -60,6 +62,7 @@ const SlackOAuthSuccess = () => {
         }
       } catch (e) {
         setInfo({ message: 'Failed to fetch user info' })
+        setLoading(false)
       }
     }
 

@@ -90,6 +90,25 @@ app.get('/api/auth/slack/start', (req, res) => {
   return res.redirect(url)
 })
 
+const crypto = require('crypto')
+
+// Helper: Encrypt sensitive token
+function encryptToken (text) {
+  const secret = process.env.SLACK_SIGNING_SECRET
+  if (!text || !secret) return text
+  try {
+    const iv = crypto.randomBytes(16)
+    const key = crypto.createHash('sha256').update(secret).digest()
+    const cipher = crypto.createCipheriv('aes-256-cbc', key, iv)
+    let encrypted = cipher.update(text)
+    encrypted = Buffer.concat([encrypted, cipher.final()])
+    return iv.toString('hex') + ':' + encrypted.toString('hex')
+  } catch (e) {
+    console.error('Encryption failed', e)
+    return text // Fallback to plain text if encryption fails (dev mode?)
+  }
+}
+
 app.get('/api/auth/slack/callback', async (req, res) => {
   const code = req.query.code
   const state = req.query.state // expected to be your app user id (passed from client)
@@ -131,9 +150,8 @@ app.get('/api/auth/slack/callback', async (req, res) => {
       try {
         await db.collection('slack-installations').doc(team.id).set({
           team,
-          bot: tokenData.bot,
-          installedAt: admin.firestore.FieldValue.serverTimestamp(),
-          raw: tokenData
+          botUserId: tokenData.bot?.bot_user_id,
+          installedAt: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true })
       } catch (e) {
         console.warn('[slack oauth] persist installation failed', e.message)
@@ -143,15 +161,15 @@ app.get('/api/auth/slack/callback', async (req, res) => {
     // Persist Slack token on your app user document identified by state (app user id)
     if (authedUser && authedUser.id && authedUser.access_token) {
       try {
+        const encryptedToken = encryptToken(authedUser.access_token)
         const userDocRef = db.collection('users').doc(state)
         await userDocRef.set({
           slack: {
             userId: authedUser.id,
-            accessToken: authedUser.access_token,
+            accessToken: encryptedToken, // Encrypted
             scope: authedUser.scope || null,
             teamId: team.id || null,
-            obtainedAt: admin.firestore.FieldValue.serverTimestamp(),
-            raw: tokenData
+            obtainedAt: admin.firestore.FieldValue.serverTimestamp()
           }
         }, { merge: true })
       } catch (e) {
@@ -200,6 +218,14 @@ app.post('/api/admin/channels', async (req, res) => {
     const { name, purpose = '', appConversationId = null } = req.body || {}
     if (!name) return res.status(400).json({ error: 'missing_name' })
 
+    // Validate appConversationId if provided
+    if (appConversationId) {
+      const roomSnap = await db.collection('chat-rooms').doc(appConversationId).get()
+      if (!roomSnap.exists) {
+        return res.status(404).json({ error: 'conversation_not_found', appConversationId })
+      }
+    }
+
     // Slack channel names: lowercase, no spaces, <= 80 chars.
     const normalized = String(name)
       .trim()
@@ -208,6 +234,10 @@ app.post('/api/admin/channels', async (req, res) => {
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '')
       .slice(0, 80)
+
+    if (!normalized) {
+      return res.status(400).json({ error: 'invalid_name_after_sanitization', original: name })
+    }
 
     const createRes = await fetch('https://slack.com/api/conversations.create', {
       method: 'POST',

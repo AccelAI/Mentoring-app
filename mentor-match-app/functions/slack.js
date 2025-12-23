@@ -148,17 +148,6 @@ const slackEvents = onRequest({ timeoutSeconds: 30, memory: '256MiB' }, async (r
     return res.status(400).json({ error: 'challenge_failed' })
   }
 
-  // Handle URL verification first: always return the challenge as plain text
-  if (payload.type === 'url_verification') {
-    const challenge = payload.challenge || (payload?.body && payload.body.challenge) || null
-    if (!challenge) {
-      console.warn('[slack] url_verification payload missing challenge', payload)
-      return res.status(400).json({ error: 'challenge_failed' })
-    }
-    console.log('[slack] url_verification success, returning challenge')
-    return res.status(200).type('text/plain').send(challenge)
-  }
-
   if (!process.env.SLACK_SIGNING_SECRET) {
     console.error('[slack] SLACK_SIGNING_SECRET not configured')
     return res.status(500).send('Signing secret not configured')
@@ -168,6 +157,17 @@ const slackEvents = onRequest({ timeoutSeconds: 30, memory: '256MiB' }, async (r
   if (!verifySlackSignature(req, rawForSig)) {
     console.warn('[slack] Signature verification failed')
     return res.status(401).send('Invalid signature')
+  }
+
+  // Handle URL verification first: always return the challenge as plain text
+  if (payload.type === 'url_verification') {
+    const challenge = payload.challenge || (payload?.body && payload.body.challenge) || null
+    if (!challenge) {
+      console.warn('[slack] url_verification payload missing challenge', payload)
+      return res.status(400).json({ error: 'challenge_failed' })
+    }
+    console.log('[slack] url_verification success, returning challenge')
+    return res.status(200).type('text/plain').send(challenge)
   }
 
   // Ack immediately

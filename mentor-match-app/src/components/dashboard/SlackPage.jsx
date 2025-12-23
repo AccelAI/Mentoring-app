@@ -85,8 +85,8 @@ const SlackPage = () => {
           <Stack spacing={2}>
             <Typography variant="body2" color="textSecondary">
               Have a Slack account? Connect it to Mentor Match to receive
-              notifications and messages from our Slack channels directly within
-              the app.
+              notifications and messages from our channels and sync your chats
+              from the app to Slack.
             </Typography>
             <Box>
               {checking ? (
@@ -99,7 +99,7 @@ const SlackPage = () => {
                     sx={{ height: '20px', width: '20px' }}
                   />
                   <Typography variant="body2">
-                    Connected: {slackInfo?.userId}
+                    Account connected successfully
                   </Typography>
                   <Button
                     variant="outlined"
